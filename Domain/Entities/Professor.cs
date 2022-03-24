@@ -1,4 +1,4 @@
-﻿namespace Dominio.Models
+﻿namespace Domain.Entities
 {
     public class Professor
     {
