@@ -12,7 +12,20 @@ using SistemaAcademicoInfrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+
+var appsettings = builder.Configuration.GetSection("AppSettings");
+
+#if DEBUG
+var useConnection = appsettings.GetValue<string>("ConexaoDebug");
+#elif DEVELOPMENT
+var useConnection = appsettings.GetValue<string>("ConexaoDevelopment");
+#else
+var useConnection = appsettings.GetValue<string>("ConexaoDebug");
+#endif
+
+var connectionString = builder.Configuration.GetConnectionString(useConnection);
+
 builder.Services.AddDbContext<SistemaAcademicoContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
