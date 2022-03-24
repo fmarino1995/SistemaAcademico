@@ -5,6 +5,7 @@ VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SistemaAcademicoCore", "SistemaAcademicoCore\SistemaAcademicoCore.csproj", "{497B8400-0A75-403B-96C1-A1F7F2360335}"
 	ProjectSection(ProjectDependencies) = postProject
+		{5200AF7F-8D0A-4A27-8810-433127C788FD} = {5200AF7F-8D0A-4A27-8810-433127C788FD}
 		{0D0E4DF6-58F4-4369-8C49-255308527D4E} = {0D0E4DF6-58F4-4369-8C49-255308527D4E}
 	EndProjectSection
 EndProject
@@ -15,6 +16,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SistemaAcademicoApplication", "SistemaAcademicoApplication\SistemaAcademicoApplication.csproj", "{0D0E4DF6-58F4-4369-8C49-255308527D4E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaAcademicoInfrastructure", "SistemaAcademicoInfrastructure\SistemaAcademicoInfrastructure.csproj", "{5200AF7F-8D0A-4A27-8810-433127C788FD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B} = {71CAAE4C-A1AC-4013-B1BC-3C129338A91B}
+		{0D0E4DF6-58F4-4369-8C49-255308527D4E} = {0D0E4DF6-58F4-4369-8C49-255308527D4E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

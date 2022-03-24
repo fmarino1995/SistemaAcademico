@@ -24,6 +24,7 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\SistemaAcademicoApplication\SistemaAcademicoApplication.csproj" />
     <ProjectReference Include="..\SistemaAcademicoData\SistemaAcademicoData.csproj" />
+    <ProjectReference Include="..\SistemaAcademicoInfrastructure\SistemaAcademicoInfrastructure.csproj" />
   </ItemGroup>
 
 </Project>

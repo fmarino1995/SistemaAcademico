@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaAcademicoApplication;
 using SistemaAcademicoCore.Areas.Identity;
 using SistemaAcademicoData.Context;
+using SistemaAcademicoInfrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
 builder.Services.AddApplication();
+builder.Services.AddInfrastructure();
 
 var app = builder.Build();
 
