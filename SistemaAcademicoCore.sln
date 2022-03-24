@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SistemaAcademicoCore", "Sis
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaAcademicoData", "SistemaAcademicoData\SistemaAcademicoData.csproj", "{21999228-829A-4C79-AA29-378B3408A47F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,12 @@ Global
 		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}.Development|Any CPU.Build.0 = Development|Any CPU
 		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21999228-829A-4C79-AA29-378B3408A47F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21999228-829A-4C79-AA29-378B3408A47F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21999228-829A-4C79-AA29-378B3408A47F}.Development|Any CPU.ActiveCfg = Debug|Any CPU
+		{21999228-829A-4C79-AA29-378B3408A47F}.Development|Any CPU.Build.0 = Debug|Any CPU
+		{21999228-829A-4C79-AA29-378B3408A47F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21999228-829A-4C79-AA29-378B3408A47F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

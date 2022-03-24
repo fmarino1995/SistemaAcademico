@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using SistemaAcademicoCore.Areas.Identity;
+using SistemaAcademicoData.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
