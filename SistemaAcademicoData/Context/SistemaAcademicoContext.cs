@@ -17,5 +17,22 @@ namespace SistemaAcademicoData.Context
         public DbSet<Endereco> Enderecos { get; set; }
         public DbSet<Setor> Setores { get; set; }
         public DbSet<Disciplina> Disciplinas { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(SistemaAcademicoContext).Assembly);
+
+            foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+            }
+
+            modelBuilder.Entity<Aluno>()
+                .HasIndex(u => u.AlunoId)
+                .IsUnique();
+
+        }
     }
 }
