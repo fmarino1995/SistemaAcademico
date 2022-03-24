@@ -62,3 +62,23 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
+/*--- Cards ---*/
+
+.titulo-card {
+    font-family: 'Nunito', sans-serif;
+    font-size: 26px !important;
+    font-weight: bold;
+    color: #85868B;
+    display: inline-block;
+    line-height: normal;
+    position: relative;
+    padding: 0px 15px 0 0;
+}
+
+.card-header {
+    padding: 18px 1.25rem !important;
+}
+
+/*--- End Cards ---*/

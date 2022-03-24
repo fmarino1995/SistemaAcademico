@@ -1,0 +1,39 @@
+﻿@page "/users"
+
+@inherits UsersBase
+@layout MainLayout
+@using SistemaAcademicoWeb.Pages.Users;
+
+
+
+<h3>Users</h3>
+
+<div class="card">
+    <div class="card-header">
+        <div class="titulo-card">
+            Usuários
+        </div>
+    </div>
+    <div class="card-body">
+
+        <DataTable Searchable="true">
+            <thead class="thead-light">
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Security</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Usuarios)
+                {
+                    <tr>
+                        <td>@user.NormalizedUserName</td>
+                        <td>@user.Email</td>
+                        <td>@user.SecurityStamp</td>
+                    </tr>
+                }
+            </tbody>
+        </DataTable>
+    </div>
+</div>
