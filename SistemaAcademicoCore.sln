@@ -5,20 +5,25 @@ VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SistemaAcademicoCore", "SistemaAcademicoCore\SistemaAcademicoCore.csproj", "{497B8400-0A75-403B-96C1-A1F7F2360335}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Development|Any CPU = Development|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{497B8400-0A75-403B-96C1-A1F7F2360335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{497B8400-0A75-403B-96C1-A1F7F2360335}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{497B8400-0A75-403B-96C1-A1F7F2360335}.Development|Any CPU.ActiveCfg = Development|Any CPU
+		{497B8400-0A75-403B-96C1-A1F7F2360335}.Development|Any CPU.Build.0 = Development|Any CPU
 		{497B8400-0A75-403B-96C1-A1F7F2360335}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{497B8400-0A75-403B-96C1-A1F7F2360335}.Release|Any CPU.Build.0 = Release|Any CPU
 		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}.Development|Any CPU.ActiveCfg = Development|Any CPU
+		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}.Development|Any CPU.Build.0 = Development|Any CPU
 		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

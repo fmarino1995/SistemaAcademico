@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Dominio.Models
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser
     {
         [Display(Name = "Nome Completo")]
         public string NomeCompleto { get; set; }
