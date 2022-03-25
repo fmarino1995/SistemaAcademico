@@ -7,12 +7,17 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SistemaAcademicoWeb</title>
+    <title>SistemaAcademico - @DateTime.Now.Year</title>
     <base href="~/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/datatables.min.css" />
     <link href="css/site.css" rel="stylesheet" />
     <link href="SistemaAcademicoCore.styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+
+    <script type="text/javascript" src="/datatables.min.js"></script>
 </head>
 <body>
     @RenderBody()
@@ -29,5 +34,8 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="~/js/JSInterop.js"></script>
 </body>
 </html>
