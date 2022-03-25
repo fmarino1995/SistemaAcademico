@@ -4,6 +4,8 @@ Linguagens:
 
 -C#
 -Javascript
+-HTML 5
+-CSS 3
 
 Frameworks:
 
