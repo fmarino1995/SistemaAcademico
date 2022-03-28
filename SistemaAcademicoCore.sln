@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SistemaAcademicoData", "Sis
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SistemaAcademicoApplication", "SistemaAcademicoApplication\SistemaAcademicoApplication.csproj", "{0D0E4DF6-58F4-4369-8C49-255308527D4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaAcademicoInfrastructure", "SistemaAcademicoInfrastructure\SistemaAcademicoInfrastructure.csproj", "{5200AF7F-8D0A-4A27-8810-433127C788FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SistemaAcademicoInfrastructure", "SistemaAcademicoInfrastructure\SistemaAcademicoInfrastructure.csproj", "{5200AF7F-8D0A-4A27-8810-433127C788FD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{71CAAE4C-A1AC-4013-B1BC-3C129338A91B} = {71CAAE4C-A1AC-4013-B1BC-3C129338A91B}
 		{0D0E4DF6-58F4-4369-8C49-255308527D4E} = {0D0E4DF6-58F4-4369-8C49-255308527D4E}
