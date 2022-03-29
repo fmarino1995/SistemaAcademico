@@ -5,13 +5,12 @@
     ViewData["Title"] = "Login";
 }
 
-<div class="container mt-3">
+<div class="container">
     <div class="row">
-        <div class="col-sm-4">
-
+        <div class="col-sm-3">
         </div>
-        <div class="col-sm-4">
-            <div class="card">
+        <div class="col-sm-6">
+            <div class="card mt-5">
                 <article class="card-body">
                     <h4 class="card-title text-center mb-4 mt-1">Sistema Acadêmico</h4>
                     <hr>
@@ -22,9 +21,9 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"> <i class="fa fa-user"></i> </span>
                                 </div>
-                                <input name="" asp-for="Input.Email" class="form-control" placeholder="Email or login" type="email">
-                                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                <input name="" asp-for="Input.Email" class="form-control" placeholder="Email" type="email">
                             </div> <!-- input-group.// -->
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div> <!-- form-group// -->
                         <div class="form-group">
                             <div class="input-group">
@@ -32,19 +31,18 @@
                                     <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
                                 </div>
                                 <input class="form-control" asp-for="Input.Password" placeholder="******" type="password">
-                                <span asp-validation-for="Input.Password" class="text-danger"></span>
                             </div> <!-- input-group.// -->
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div> <!-- form-group// -->
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary btn-block">Entrar</button>
                         </div> <!-- form-group// -->
-                        <p class="text-center"><a href="#" class="btn">Forgot password?</a></p>
+                        <p class="text-center"><a asp-page="./ForgotPassword" class="btn text-primary">Esqueceu a senha?</a></p>
                     </form>
                 </article>
             </div> <!-- card.// -->
         </div>
-        <div class="col-sm-4">
-
+        <div class="col-sm-3">
         </div>
     </div>
 
