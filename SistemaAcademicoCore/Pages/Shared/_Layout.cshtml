@@ -63,14 +63,7 @@
     </div>
     <footer class="footer border-top pl-3 text-muted">
         <div class="container">
-        &copy; 2022 - SistemaAcademicoCore
-            @{
-                var foundPrivacy = Url.Page("/Privacy", new { area = "" });
-            }
-            @if (foundPrivacy != null)
-            {
-                <a asp-area="" asp-page="/Privacy">Privacy</a>
-            }
+        &copy; @DateTime.Now.Year - SistemaAcademico
         </div>
     </footer>
 
