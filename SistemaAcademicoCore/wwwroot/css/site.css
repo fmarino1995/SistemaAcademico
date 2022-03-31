@@ -72,7 +72,7 @@ table thead {
     position: fixed;
     bottom: 0;
     width: 100%;
-    background: #FFF;
+    /*background: #FFF;*/
     height: 30px;
     clear: both;
     float: left;
@@ -82,10 +82,25 @@ table thead {
 @media (max-width: 500px) {
     .footer {
         display: block;
-        position: relative;
+        position: fixed;
         width: 100%;
         clear: both;
     }
+}
+
+.footer-text {
+    color: black;
+    margin-right: 30px;
+}
+
+@media only screen and (min-width: 1500px) {
+    .footer-text{
+        float:left;
+    }
+}
+
+hr.new {
+    border-top: 1px solid red;
 }
 
 
