@@ -1,6 +1,6 @@
-﻿using MediatR;
+﻿using Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Identity;
 using SistemaAcademicoApplication.Usuarios.Queries;
 
 namespace SistemaAcademicoWeb.Pages.Users
@@ -11,7 +11,7 @@ namespace SistemaAcademicoWeb.Pages.Users
         public IMediator _mediator { get; set; }
 
 
-        protected List<IdentityUser> Usuarios = new List<IdentityUser>();
+        protected List<ApplicationUser> Usuarios = new List<ApplicationUser>();
 
         protected override async Task OnInitializedAsync()
         {

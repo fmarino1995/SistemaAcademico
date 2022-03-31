@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SistemaAcademicoData.Context
 {
-    public class SistemaAcademicoContext : IdentityDbContext
+    public class SistemaAcademicoContext : IdentityDbContext<ApplicationUser>
     {
         public SistemaAcademicoContext(DbContextOptions<SistemaAcademicoContext> options)
             : base(options)

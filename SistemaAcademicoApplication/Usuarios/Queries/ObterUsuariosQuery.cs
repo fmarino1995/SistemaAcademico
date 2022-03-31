@@ -3,14 +3,15 @@ using SistemaAcademicoApplication.Common.Responses;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using SistemaAcademicoData.Context;
+using Domain.Entities;
 
 namespace SistemaAcademicoApplication.Usuarios.Queries
 {
-    public class ObterUsuariosQuery : IRequest<Response<List<IdentityUser>>>
+    public class ObterUsuariosQuery : IRequest<Response<List<ApplicationUser>>>
     {
     }
 
-    public class ObterUsuariosQueryHandler : IRequestHandler<ObterUsuariosQuery, Response<List<IdentityUser>>>
+    public class ObterUsuariosQueryHandler : IRequestHandler<ObterUsuariosQuery, Response<List<ApplicationUser>>>
     {
         private readonly SistemaAcademicoContext _context;
 
@@ -19,7 +20,7 @@ namespace SistemaAcademicoApplication.Usuarios.Queries
             _context = context;
         }
 
-        public async Task<Response<List<IdentityUser>>> Handle(ObterUsuariosQuery request, CancellationToken cancellationToken)
+        public async Task<Response<List<ApplicationUser>>> Handle(ObterUsuariosQuery request, CancellationToken cancellationToken)
         {
             try
             {
@@ -30,11 +31,11 @@ namespace SistemaAcademicoApplication.Usuarios.Queries
                 if (usuarios.Count == 0 || usuarios == null)
                     throw new Exception("Nenhum usuário encontrado");
 
-                return new Response<List<IdentityUser>>(usuarios);
+                return new Response<List<ApplicationUser>>(usuarios);
             }
             catch (Exception ex)
             {
-                var errorResponse = new Response<List<IdentityUser>>();
+                var errorResponse = new Response<List<ApplicationUser>>();
                 errorResponse.AddError("Erro ao trazer a lista de usuários: " + ex.Message);
                 return errorResponse;
             }
