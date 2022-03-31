@@ -10,5 +10,7 @@ namespace Domain.Entities
         public string Nome { get; set; }
         public int ProfessorId { get; set; }
         public virtual Professor Professor { get; set; }
+        [Required]
+        public string Turno { get; set; }
     }
 }

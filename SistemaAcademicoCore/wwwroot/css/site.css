@@ -2,6 +2,7 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 100%;
 }
 
 h1:focus {
@@ -62,6 +63,45 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+table thead {
+    background: #4682B4;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    /*background: #FFF;*/
+    height: 30px;
+    clear: both;
+    float: left;
+    padding-left: 5px;
+}
+
+@media (max-width: 500px) {
+    .footer {
+        display: block;
+        position: fixed;
+        width: 100%;
+        clear: both;
+    }
+}
+
+.footer-text {
+    color: black;
+    margin-right: 30px;
+}
+
+@media only screen and (min-width: 1500px) {
+    .footer-text{
+        float:left;
+    }
+}
+
+hr.new {
+    border-top: 1px solid red;
+}
 
 
 /*--- Cards ---*/
