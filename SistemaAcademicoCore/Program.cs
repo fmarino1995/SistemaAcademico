@@ -9,6 +9,7 @@ using SistemaAcademicoApplication;
 using SistemaAcademicoCore.Areas.Identity;
 using SistemaAcademicoData.Context;
 using SistemaAcademicoInfrastructure;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,14 +37,16 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
     .AddEntityFrameworkStores<SistemaAcademicoContext>()
     .AddDefaultTokenProviders();
 
-
-
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
+
+var emailSettings = builder.Configuration.GetSection("EMailSettings");
+
+builder.Services.Configure<EMailSettings>(emailSettings);
 
 var app = builder.Build();
 

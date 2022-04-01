@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SistemaAcademicoApplication.Interfaces;
+using SistemaAcademicoInfrastructure.Services;
 
 namespace SistemaAcademicoInfrastructure
 {
@@ -6,7 +8,7 @@ namespace SistemaAcademicoInfrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
-            //Add services here
+            services.AddSingleton<IEmailService, EmailService>();
 
             return services;
         }
