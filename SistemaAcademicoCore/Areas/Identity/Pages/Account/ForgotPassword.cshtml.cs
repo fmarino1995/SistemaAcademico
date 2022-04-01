@@ -8,22 +8,26 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using SistemaAcademicoApplication.Common.Email;
 
 namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
 {
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMediator _mediator;
 
-        public ForgotPasswordModel(UserManager<ApplicationUser> userManager)
+        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IMediator mediator)
         {
             _userManager = userManager;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -69,10 +73,16 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
 
-                //await _emailSender.SendEmailAsync(
-                //    Input.Email,
-                //    "Reset Password",
-                //    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                await _mediator.Send(new EnviarEmailCommand
+                {
+                    EmailRequest = new EMailRequest
+                    {
+                        ToEmail = Input.Email,
+                        UserName = Input.Email,
+                        Body = $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.",
+                        Subject = "Reset Password"
+                    }
+                });
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

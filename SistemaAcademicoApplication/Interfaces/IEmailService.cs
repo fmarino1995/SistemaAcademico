@@ -1,7 +1,9 @@
-﻿namespace SistemaAcademicoApplication.Interfaces
+﻿using Domain.Entities;
+
+namespace SistemaAcademicoApplication.Interfaces
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string email);
+        Task SendEmailAsync(EMailRequest mailRequest);
     }
 }

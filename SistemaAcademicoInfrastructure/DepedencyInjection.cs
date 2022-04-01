@@ -8,7 +8,7 @@ namespace SistemaAcademicoInfrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
-            services.AddSingleton<IEmailService, EmailService>();
+            services.AddTransient<IEmailService, EmailService>();
 
             return services;
         }
