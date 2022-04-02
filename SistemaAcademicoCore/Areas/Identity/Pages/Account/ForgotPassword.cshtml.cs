@@ -79,8 +79,8 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                     {
                         ToEmail = Input.Email,
                         UserName = Input.Email,
-                        Body = $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.",
-                        Subject = "Reset Password"
+                        Body = $"Para trocar sua senha <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clique aqui</a>.",
+                        Subject = "Troca de senha"
                     }
                 });
 
