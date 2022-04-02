@@ -10,6 +10,8 @@ namespace SistemaAcademicoWeb.Pages.Users
         [Inject]
         public IMediator _mediator { get; set; }
 
+        protected bool Exibir = false;
+
 
         protected List<ApplicationUser> Usuarios = new List<ApplicationUser>();
 
@@ -18,6 +20,16 @@ namespace SistemaAcademicoWeb.Pages.Users
             var usuariosList = await _mediator.Send(new ObterUsuariosQuery());
 
             Usuarios = usuariosList.Result;
+        }
+
+        protected async override Task OnAfterRenderAsync(bool firstRender)
+        {
+            if(!firstRender)
+            {
+                Exibir = true;
+                this.StateHasChanged();
+                await base.OnAfterRenderAsync(firstRender);
+            }
         }
     }
 }

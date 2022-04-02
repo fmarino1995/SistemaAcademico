@@ -6,11 +6,11 @@
 @inject NavigationManager _navigationManager
 @attribute [Authorize]
 
-<AuthorizeView>
+<AuthorizeView Context="Auth">
     <NotAuthorized>
         <RedirectToLogin />
     </NotAuthorized>
-    <Authorized>
+    <Authorized >
         <Alert Message="@errorMessage" Exibir="@exibirAlert" AlertType="@alertType" />
         <div class="card">
             <div class="card-header">

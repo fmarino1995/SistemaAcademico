@@ -4,8 +4,6 @@
 @layout MainLayout
 @using SistemaAcademicoWeb.Pages.Users;
 
-<h3>Users</h3>
-
 <div class="card">
     <div class="card-header">
         <div class="titulo-card">
@@ -14,7 +12,7 @@
     </div>
     <div class="card-body">
 
-        <DataTable Searchable="true">
+        <DataTable Searchable="true" Exibir = "@Exibir">
             <thead class="thead-light">
                 <tr>
                     <th>Nome</th>
@@ -26,7 +24,7 @@
                 @foreach (var user in Usuarios)
                 {
                     <tr>
-                        <td>@user.NormalizedUserName</td>
+                        <td>@user.Email</td>
                         <td>@user.Email</td>
                         <td>@user.SecurityStamp</td>
                     </tr>
