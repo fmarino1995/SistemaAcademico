@@ -1,0 +1,77 @@
+﻿@page "/addrole";
+@using SistemaAcademicoApplication.Roles.Commands;
+@using Enum;
+
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+@attribute [Authorize]
+
+<AuthorizeView>
+    <NotAuthorized>
+        <RedirectToLogin />
+    </NotAuthorized>
+    <Authorized>
+        <Alert Message="@errorMessage" Exibir="@exibirAlert" AlertType="@alertType" />
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Criar perfil
+                </div>
+            </div>
+            <EditForm Model="@role" OnValidSubmit="@AddRoleAsync">
+                <FluentValidationValidator />
+                <ValidationSummary />
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <label class="tituloinformacoes control-label" for="roleName" @bind="">Nome</label>
+                                <input class="form-control" id="roleName" @bind-value="@role.Name" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-outline-dark" value="Voltar" @onclick="@Cancel" />
+                            <input class="btn btn-outline-primary" value="Voltar" @onclick="@AddRoleAsync" />
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    IdentityRole role = new IdentityRole();
+    string errorMessage = string.Empty;
+    public bool exibirAlert = false;
+    string alertType = string.Empty;
+
+    protected async void AddRoleAsync()
+    {
+        role.Id = new Guid().ToString();
+        role.ConcurrencyStamp = new Guid().ToString();
+
+        var adicionado = await _mediator.Send(new CriarRoleCommand { Role = role });
+
+        if (adicionado.Errors.Any())
+        {
+            errorMessage = adicionado.Errors.First();
+            alertType = AlertTypes.danger.ToString();
+            exibirAlert = true;
+            this.StateHasChanged();
+        }
+        else
+        {
+            _navigationManager.NavigateTo("roles");
+        }
+    }
+
+    void Cancel()
+    {
+        _navigationManager.NavigateTo("roles", true);
+    }
+}

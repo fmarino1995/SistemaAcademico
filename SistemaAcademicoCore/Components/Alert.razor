@@ -1,0 +1,17 @@
+﻿@if (Exibir)
+{
+    <div class="alert alert-@AlertType mt-4" role="alert">
+        <span class="oi oi-circle-x mr-2" aria-hidden="true"></span>
+        <strong>@Message</strong>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public string Message { get; set; }
+    [Parameter]
+    public string AlertType { get; set; }
+    [Parameter]
+    public bool Exibir { get; set; }
+}

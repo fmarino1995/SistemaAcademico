@@ -103,12 +103,37 @@ hr.new {
     border-top: 1px solid red;
 }
 
+.tituloinformacoes {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.content-informa {
+    font-size: 16px;
+    display: block;
+    background: #f1f1f1;
+    margin: 0 0 10px;
+    padding: 5px;
+    height: 34px;
+}
+
 
 /*--- Cards ---*/
 
 .titulo-card {
     font-family: 'Nunito', sans-serif;
     font-size: 26px !important;
+    font-weight: bold;
+    color: #85868B;
+    display: inline-block;
+    line-height: normal;
+    position: relative;
+    padding: 0px 15px 0 0;
+}
+
+.subtitulo-card {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px !important;
     font-weight: bold;
     color: #85868B;
     display: inline-block;

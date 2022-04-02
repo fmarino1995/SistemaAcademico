@@ -9,6 +9,7 @@ namespace SistemaAcademicoInfrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             services.AddTransient<IEmailService, EmailService>();
+            services.AddTransient<IRoleService, RoleService>();
 
             return services;
         }
