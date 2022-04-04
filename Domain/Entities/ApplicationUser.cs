@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
@@ -14,5 +15,9 @@ namespace Domain.Entities
         public DateTime DataAlteracao { get; set; }
         [Display(Name = "Último Login")]
         public DateTime UltimoLogin { get; set; }
+        public Guid RoleId { get; set; }
+
+        [NotMapped]
+        public string PasswordHashComfirm { get; set; }
     }
 }

@@ -1,19 +1,59 @@
 ﻿@page "/roles"
+@using SistemaAcademicoApplication.Roles.Queries
 
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 
-<dic class="card">
+<div class="card">
     <div class="card-header">
         <div class="titulo-card">
             Perfis de usuário
         </div>
     </div>
     <div class="card-body">
-
+        <DataTable Searchable="true" Exibir="@Exibir">
+            <thead class="thead-light">
+                <tr>
+                    <th class="col-sm-4">Id</th>
+                    <th class="col-sm-5">Nome</th>
+                    <th class="col-sm-2">
+                        <a class="nav-link" href="/AddRole">
+                            <span class="oi oi-plus"></span>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var role in RolesList)
+                {
+                    <tr>
+                        <td>@role.Id</td>
+                        <td>@role.Name</td>
+                    </tr>
+                }
+            </tbody>
+        </DataTable>
     </div>
-    <div class="card-footer">
+</div>
 
-    </div>
-</dic>
+@code {
+    bool Exibir = false;
 
+    List<IdentityRole> RolesList = new List<IdentityRole>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        var roles = await _mediator.Send(new ObterRolesQuery());
+
+        RolesList = roles.Result;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            Exibir = true;
+            this.StateHasChanged();
+        }
+    }
+}

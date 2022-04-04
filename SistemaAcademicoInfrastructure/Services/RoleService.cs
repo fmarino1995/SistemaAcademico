@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SistemaAcademicoApplication.Interfaces;
 using SistemaAcademicoApplication.Roles.Commands;
@@ -14,7 +15,7 @@ namespace SistemaAcademicoInfrastructure.Services
             _mediator = mediator;
         }
 
-        public async Task<bool> AddRoleAsync(IdentityRole role)
+        public async Task<bool> AddRoleAsync(Role role)
         {
             try
             {

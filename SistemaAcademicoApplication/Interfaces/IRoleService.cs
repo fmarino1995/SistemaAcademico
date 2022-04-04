@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace SistemaAcademicoApplication.Interfaces
 {
@@ -6,7 +7,7 @@ namespace SistemaAcademicoApplication.Interfaces
     {
         Task<IdentityRole> GetRoleAsync();
         Task<IList<IdentityRole>> GetRolesAsnyc();
-        Task<bool> AddRoleAsync(IdentityRole role);
+        Task<bool> AddRoleAsync(Role role);
         Task<bool> RemoveRoleAsync(string roleId);
         Task<bool> EditRoleAsync(string roleId);
     }

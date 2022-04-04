@@ -12,12 +12,17 @@
     </div>
     <div class="card-body">
 
-        <DataTable Searchable="true" Exibir = "@Exibir">
+        <DataTable Searchable="true" Exibir="@Exibir">
             <thead class="thead-light">
                 <tr>
                     <th>Nome</th>
                     <th>Email</th>
                     <th>Security</th>
+                    <th>
+                        <a class="nav-link" href="/AddUser           ">
+                            <span class="oi oi-plus"></span>
+                        </a>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +32,7 @@
                         <td>@user.Email</td>
                         <td>@user.Email</td>
                         <td>@user.SecurityStamp</td>
+                        <td></td>
                     </tr>
                 }
             </tbody>

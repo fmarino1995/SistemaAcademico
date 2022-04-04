@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SistemaAcademicoApplication.Common.Responses;
 using SistemaAcademicoData.Context;
@@ -7,7 +8,7 @@ namespace SistemaAcademicoApplication.Roles.Commands
 {
     public class CriarRoleCommand : IRequest<Response<bool>>
     {
-        public IdentityRole Role { get; set; }
+        public Role Role { get; set; }
     }
 
     public class CriarRoleCommandHandler : IRequestHandler<CriarRoleCommand, Response<bool>>
@@ -30,7 +31,15 @@ namespace SistemaAcademicoApplication.Roles.Commands
                     if (request.Role == null)
                         throw new ArgumentNullException(nameof(request.Role));
 
-                    _context.Add(request.Role);
+                    IdentityRole role = new IdentityRole
+                    {
+                        Id = request.Role.Id.ToString(),
+                        ConcurrencyStamp = request.Role.ConcurrencyStamp.ToString(),
+                        Name = request.Role.Name,
+                        NormalizedName = request.Role.NormalizedName
+                    };
+
+                    _context.Roles.Add(role);
 
                     await _context.SaveChangesAsync();
 

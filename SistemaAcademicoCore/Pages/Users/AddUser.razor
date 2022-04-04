@@ -1,0 +1,83 @@
+﻿@page "/adduser"
+
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+@inject UserManager<ApplicationUser> _userManager
+@layout MainLayout
+@attribute [Authorize]
+
+<AuthorizeView Context="Auth">
+    <NotAuthorized>
+        <RedirectToLogin />
+    </NotAuthorized>
+    <Authorized>
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Criar usuário
+                </div>
+            </div>
+            <br/>
+            <EditForm Model="User" OnValidSubmit="AddUserAsync">
+                <FluentValidationValidator />
+                <ValidationSummary/>
+                <div class="card-body row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="tituloinformacoes">Nome Completo</label>
+                            <input class="form-control" @bind-value="@User.NomeCompleto" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="tituloinformacoes">Email</label>
+                            <input class="form-control" @bind-value="@User.Email" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="tituloinformacoes">Celular</label>
+                            <input class="form-control" @bind-value="@User.PhoneNumber" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="tituloinformacoes">Senha</label>
+                            <input class="form-control" @bind-value="@User.PasswordHash" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="tituloinformacoes">Confirme sua senha</label>
+                            <input class="form-control" @bind-value="@User.PasswordHashComfirm" />
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input class="btn btn-outline-dark" value="Voltar" @onclick="Cancel" />
+                            <input class="btn btn-outline-primary" value="Salvar" type="submit" />
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+
+    ApplicationUser User = new ApplicationUser();
+
+    protected async Task AddUserAsync()
+    {
+
+    }
+
+    void Cancel()
+    {
+        _navigationManager.NavigateTo("Users", true);
+    }
+}
