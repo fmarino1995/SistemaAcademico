@@ -3,6 +3,7 @@
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 @inject UserManager<ApplicationUser> _userManager
+@inject IUserStore<ApplicationUser> _userStore
 @layout MainLayout
 @attribute [Authorize]
 
@@ -25,31 +26,31 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="tituloinformacoes">Nome Completo</label>
-                            <input class="form-control" @bind-value="@User.NomeCompleto" />
+                            <InputText class="form-control" @bind-Value="@User.NomeCompleto" ></InputText>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="tituloinformacoes">Email</label>
-                            <input class="form-control" @bind-value="@User.Email" />
+                            <InputText class="form-control" @bind-Value="@User.Email" ></InputText>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="tituloinformacoes">Celular</label>
-                            <input class="form-control" @bind-value="@User.PhoneNumber" />
+                            <InputText class="form-control" @bind-Value="@User.PhoneNumber" ></InputText>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="tituloinformacoes">Senha</label>
-                            <input class="form-control" @bind-value="@User.PasswordHash" />
+                            <InputText class="form-control" @bind-Value="@User.PasswordHash" ></InputText>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="tituloinformacoes">Confirme sua senha</label>
-                            <input class="form-control" @bind-value="@User.PasswordHashComfirm" />
+                            <InputText class="form-control" @bind-Value="@User.PasswordHashComfirm" ></InputText>
                         </div>
                     </div>
                 </div>
@@ -73,11 +74,15 @@
 
     protected async Task AddUserAsync()
     {
+        await _userStore.SetUserNameAsync(User, User.Email, CancellationToken.None);
+        var result = await _userManager.CreateAsync(User);
 
+        _navigationManager.NavigateTo("users");
     }
 
     void Cancel()
     {
+        
         _navigationManager.NavigateTo("Users", true);
     }
 }
