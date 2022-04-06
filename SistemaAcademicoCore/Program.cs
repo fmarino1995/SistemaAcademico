@@ -37,6 +37,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
     .AddEntityFrameworkStores<SistemaAcademicoContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.Configure<IdentityOptions>(options => 
+{
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireDigit = false;
+    options.SignIn.RequireConfirmedEmail = true;
+});
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
