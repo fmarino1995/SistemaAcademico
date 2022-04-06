@@ -63,7 +63,7 @@ namespace SistemaAcademicoInfrastructure.Services
             throw new NotImplementedException();
         }
 
-        public async Task<IList<IdentityRole>> GetRolesAsnyc()
+        public async Task<List<IdentityRole>> GetRolesAsnyc()
         {
             try
             {

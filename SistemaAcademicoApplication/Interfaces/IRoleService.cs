@@ -6,9 +6,9 @@ namespace SistemaAcademicoApplication.Interfaces
     public interface IRoleService
     {
         Task<IdentityRole> GetRoleAsync();
-        Task<IList<IdentityRole>> GetRolesAsnyc();
+        Task<List<IdentityRole>> GetRolesAsnyc();
         Task<bool> AddRoleAsync(Role role);
         Task<bool> RemoveRoleAsync(string roleId);
-        Task<bool> EditRoleAsync(string roleId);
+        Task<bool> EditRoleAsync(Role role);
     }
 }

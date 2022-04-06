@@ -1,7 +1,7 @@
 ﻿@page "/roles"
 @using SistemaAcademicoApplication.Roles.Queries
 
-@inject IMediator _mediator
+@inject IRoleService _roleService
 @inject NavigationManager _navigationManager
 
 <div class="card">
@@ -43,9 +43,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        var roles = await _mediator.Send(new ObterRolesQuery());
-
-        RolesList = roles.Result;
+        RolesList = await _roleService.GetRolesAsnyc();;
     }
 
     protected override void OnAfterRender(bool firstRender)
