@@ -73,8 +73,8 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Digite se email")]
+            [EmailAddress(ErrorMessage = "Formato incorreto")]
             [Display(Name = "Email")]
             public string Email { get; set; }
 
@@ -82,8 +82,8 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "Digite uma senha")]
+            [StringLength(100, ErrorMessage = "O {0} precisa conter no mínimo {2} e no máximo {1} caracteres.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Senha")]
             public string Password { get; set; }

@@ -47,8 +47,8 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Digite seu email")]
+            [EmailAddress(ErrorMessage = "Formato incorreto")]
             public string Email { get; set; }
         }
 
@@ -80,7 +80,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                         ToEmail = Input.Email,
                         UserName = Input.Email,
                         Body = $"Para trocar sua senha <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clique aqui</a>.",
-                        Subject = "Troca de senha"
+                        Subject = "Troca de senha - Sistema Acadêmico"
                     }
                 });
 

@@ -77,12 +77,7 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-var supportedCultures = new[] { "pt-BR" };
-var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture(supportedCultures[0])
-    .AddSupportedCultures(supportedCultures)
-    .AddSupportedUICultures(supportedCultures);
 
-app.UseRequestLocalization(localizationOptions);
+app.UseRequestLocalization("pt-BR");
 
 app.Run();
