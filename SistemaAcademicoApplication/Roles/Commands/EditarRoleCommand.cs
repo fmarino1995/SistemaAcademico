@@ -1,55 +1,54 @@
-﻿using Domain.Entities;
-using MediatR;
+﻿using MediatR;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using SistemaAcademicoApplication.Common.Responses;
 using SistemaAcademicoData.Context;
 
 namespace SistemaAcademicoApplication.Roles.Commands
 {
-    public class CriarRoleCommand : IRequest<Response<bool>>
+    public class EditarRoleCommand : IRequest<Response<bool>>
     {
         public Role Role { get; set; }
     }
 
-    public class CriarRoleCommandHandler : IRequestHandler<CriarRoleCommand, Response<bool>>
+    public class EditarRoleCommandHandler : IRequestHandler<EditarRoleCommand, Response<bool>>
     {
         private readonly SistemaAcademicoContext _context;
 
-        public CriarRoleCommandHandler(SistemaAcademicoContext context)
+        public EditarRoleCommandHandler(SistemaAcademicoContext context)
         {
             _context = context;
         }
 
-        public async Task<Response<bool>> Handle(CriarRoleCommand request, CancellationToken cancellationToken)
+        public async Task<Response<bool>> Handle(EditarRoleCommand request, CancellationToken cancellationToken)
         {
-            var errorRessponse = new Response<bool>(false);
+            var errorResponse = new Response<bool>(false);
 
             using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
             {
                 try
                 {
                     if (request.Role == null)
-                        throw new ArgumentNullException(nameof(request.Role));
+                        throw new ArgumentException("Identificador do perfil não pode ser nulo", nameof(request.Role));
 
-                    IdentityRole role = new IdentityRole
+                    var identityRole = new IdentityRole
                     {
                         Id = request.Role.Id.ToString(),
-                        ConcurrencyStamp = request.Role.ConcurrencyStamp.ToString(),
                         Name = request.Role.Name,
-                        NormalizedName = request.Role.NormalizedName
+                        NormalizedName = request.Role.NormalizedName,
+                        ConcurrencyStamp = request.Role.ConcurrencyStamp.ToString()
                     };
 
-                    _context.Roles.Add(role);
+                    _context.Roles.Update(identityRole);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync(cancellationToken);
-
                     return new Response<bool>(true);
                 }
                 catch (Exception ex)
                 {
-                    await transaction.RollbackAsync(cancellationToken);
-                    errorRessponse.AddError("Erro ao criar perfil : " + ex.Message);
-                    return errorRessponse;
+                    await transaction.RollbackAsync();
+                    errorResponse.AddError("Erro ao editar o perfil : " + ex.Message);
+                    return errorResponse;
                 }
             }
         }

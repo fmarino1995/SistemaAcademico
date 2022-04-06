@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SistemaAcademicoApplication.Interfaces;
 using SistemaAcademicoApplication.Roles.Commands;
+using SistemaAcademicoApplication.Roles.Queries;
 
 namespace SistemaAcademicoInfrastructure.Services
 {
@@ -36,9 +37,25 @@ namespace SistemaAcademicoInfrastructure.Services
             }
         }
 
-        public Task<bool> EditRoleAsync(string roleId)
+        public async Task<bool> EditRoleAsync(Role role)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _mediator.Send(new EditarRoleCommand { Role = role });
+
+                if (response.Result)
+                {
+                    return await Task.FromResult(true);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                return await Task.FromResult(false);
+            }
         }
 
         public Task<IdentityRole> GetRoleAsync()
@@ -46,14 +63,35 @@ namespace SistemaAcademicoInfrastructure.Services
             throw new NotImplementedException();
         }
 
-        public Task<IList<IdentityRole>> GetRolesAsnyc()
+        public async Task<IList<IdentityRole>> GetRolesAsnyc()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _mediator.Send(new ObterRolesQuery());
+
+                return response.Result;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
-        public Task<bool> RemoveRoleAsync(string roleId)
+        public async Task<bool> RemoveRoleAsync(string roleId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _mediator.Send(new RemoverRoleCommand { RoleId = roleId });
+
+                if (response.Result)
+                    return await Task.FromResult(true);
+                else
+                    throw new Exception();
+            }
+            catch (Exception)
+            {
+                return await Task.FromResult(false);
+            }
         }
     }
 }
