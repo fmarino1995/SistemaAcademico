@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Domain.Constantes;
 using Domain.Entities;
+using Domain.ValidationEntities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -159,6 +160,11 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 }
                 foreach (var error in result.Errors)
                 {
+                    if(error.Code == "DuplicateUserName")
+                    {
+                        error.Description = new BrazilianIdentityErrorDescriber().DuplicateUserName(Input.Email).Description;
+                    }
+
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }

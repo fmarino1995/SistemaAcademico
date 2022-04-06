@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Domain.Entities;
+using MediatR;
+using SistemaAcademicoApplication.Usuarios.Commands;
 
 namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
 {
@@ -22,11 +24,13 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IMediator _mediator;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, IMediator mediator)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -115,6 +119,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    await _mediator.Send(new RegistrarLoginUsuarioCommand { UserEmail = Input.Email });
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
