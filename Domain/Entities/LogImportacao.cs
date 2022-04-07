@@ -14,10 +14,5 @@ namespace Domain.Entities
         public string Mensagem { get; set; }
         [Required]
         public string CaminhoArquivo { get; set; }
-        [Required]
-        public string Status { get; set; }
-
-        [NotMapped]
-        public List<string> Errors { get; set; }
     }
 }
