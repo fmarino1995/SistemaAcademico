@@ -6,6 +6,7 @@ namespace Domain.Entities
     public class Funcionario
     {
         public int FuncionarioId { get; set; }
+        [Required]
         public string Nome { get; set; }
         public string Status { get; set; }
         public int EnderecoId { get; set; }

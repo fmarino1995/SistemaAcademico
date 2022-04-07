@@ -10,6 +10,9 @@ namespace Domain.Entities
         [Required]
         public string Nome { get; set; }
         [Required]
+        [MaxLength(11, ErrorMessage = "Formato inválido para CPF")]
+        public string Cpf { get; set; }
+        [Required]
         public string Matricula { get; set; }
         public DateTime DataNascimento { get; set; }
         public int EnderecoId { get; set; }

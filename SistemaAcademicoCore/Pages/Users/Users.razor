@@ -17,9 +17,9 @@
                 <tr>
                     <th>Nome</th>
                     <th>Email</th>
-                    <th>Security</th>
+                    <th>Data de cadastro</th>
                     <th>
-                        <a class="nav-link" href="/Identity/Account/Register">
+                        <a class="nav-link" href="/Identity/Account/Register" title="Novo usuário">
                             <span class="oi oi-plus"></span>
                         </a>
                     </th>
@@ -29,10 +29,19 @@
                 @foreach (var user in Usuarios)
                 {
                     <tr>
+                        <td>@user.NomeCompleto</td>
                         <td>@user.Email</td>
-                        <td>@user.Email</td>
-                        <td>@user.SecurityStamp</td>
-                        <td></td>
+                        <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
+                        <td class="col-sm-2">
+                            <div style="display:flex;">
+                                <a class="nav-link" href="/EditRole" title="Editar">
+                                    <span class="oi oi-pencil"></span>
+                                </a>
+                                <a class="nav-link" href="/RemoveRole" title="Excluir">
+                                    <span class="oi oi-trash"></span>
+                                </a>
+                            </div>
+                        </td>
                     </tr>
                 }
             </tbody>

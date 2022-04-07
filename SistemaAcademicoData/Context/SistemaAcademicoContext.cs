@@ -17,6 +17,7 @@ namespace SistemaAcademicoData.Context
         public DbSet<Endereco> Enderecos { get; set; }
         public DbSet<Setor> Setores { get; set; }
         public DbSet<Disciplina> Disciplinas { get; set; }
+        public DbSet<LogImportacao> LogImportacoes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

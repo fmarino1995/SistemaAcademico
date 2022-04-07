@@ -17,7 +17,7 @@
                     <th class="col-sm-4">Id</th>
                     <th class="col-sm-5">Nome</th>
                     <th class="col-sm-2">
-                        <a class="nav-link" href="/AddRole">
+                        <a class="nav-link" href="/AddRole" title="Novo">
                             <span class="oi oi-plus"></span>
                         </a>
                     </th>
@@ -29,6 +29,16 @@
                     <tr>
                         <td>@role.Id</td>
                         <td>@role.Name</td>
+                        <td class="col-sm-2">
+                            <div style="display:flex;">
+                                <a class="nav-link" href="/EditRole" title="Editar">
+                                    <span class="oi oi-pencil"></span>
+                                </a>
+                                <a class="nav-link" href="/RemoveRole" title="Excluir">
+                                    <span class="oi oi-trash"></span>
+                                </a>
+                            </div>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -43,7 +53,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        RolesList = await _roleService.GetRolesAsnyc();;
+        RolesList = await _roleService.GetRolesAsnyc(); ;
     }
 
     protected override void OnAfterRender(bool firstRender)

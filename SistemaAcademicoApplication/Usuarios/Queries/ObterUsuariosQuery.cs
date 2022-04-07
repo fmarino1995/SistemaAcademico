@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using SistemaAcademicoApplication.Common.Responses;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using SistemaAcademicoData.Context;
 using Domain.Entities;
 
@@ -25,7 +24,8 @@ namespace SistemaAcademicoApplication.Usuarios.Queries
             try
             {
                 var usuarios = await _context.Users
-                    .OrderBy(u => u.UserName)
+                    .OrderByDescending(u => u.DataCriacao)
+                    .ThenBy(u => u.NomeCompleto)
                     .ToListAsync();
 
                 if (usuarios.Count == 0 || usuarios == null)
