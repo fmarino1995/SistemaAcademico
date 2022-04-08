@@ -18,6 +18,6 @@ namespace Domain.Entities
         public Guid RoleId { get; set; }
 
         [NotMapped]
-        public string PasswordHashComfirm { get; set; }
+        public string Senha { get; set; }
     }
 }

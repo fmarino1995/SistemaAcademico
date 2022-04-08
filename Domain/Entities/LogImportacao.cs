@@ -13,6 +13,8 @@ namespace Domain.Entities
         [Required]
         public string Mensagem { get; set; }
         [Required]
+        public string NomeArquivo { get; set; }
+        [Required]
         public string CaminhoArquivo { get; set; }
         [Required]
         public string Status { get; set; }
