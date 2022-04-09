@@ -94,8 +94,8 @@ table thead {
 }
 
 @media only screen and (min-width: 1500px) {
-    .footer-text{
-        float:left;
+    .footer-text {
+        float: left;
     }
 }
 
@@ -115,6 +115,11 @@ hr.new {
     margin: 0 0 10px;
     padding: 5px;
     height: 34px;
+}
+
+.nav-item a.active::after {
+    content: "#";
+    margin-left: 1em;
 }
 
 
