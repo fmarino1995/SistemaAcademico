@@ -2,25 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using Domain.Constantes;
 using Domain.Entities;
 using Domain.ValidationEntities;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 
 namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
 {
@@ -101,10 +92,6 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "Digite seu nome completo")]
             [Display(Name = "Nome Completo")]
             public string NomeCompleto { get; set; }
-
-            [Required(ErrorMessage = "Digite um número de celular")]
-            [Display(Name = "Celular")]
-            public string PhoneNumber { get; set; }
         }
 
 
@@ -123,7 +110,6 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 var user = CreateUser();
 
                 user.NomeCompleto = Input.NomeCompleto;
-                user.PhoneNumber = Input.PhoneNumber;
                 user.DataCriacao = DateTime.Now;
                 user.DataAlteracao = DateTime.Now;
                 user.Status = ConstantesLogin.StatusUsuarioAtivo;
@@ -160,7 +146,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 }
                 foreach (var error in result.Errors)
                 {
-                    if(error.Code == "DuplicateUserName")
+                    if (error.Code == "DuplicateUserName")
                     {
                         error.Description = new BrazilianIdentityErrorDescriber().DuplicateUserName(Input.Email).Description;
                     }

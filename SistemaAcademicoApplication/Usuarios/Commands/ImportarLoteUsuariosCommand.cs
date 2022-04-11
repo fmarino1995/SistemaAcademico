@@ -2,7 +2,6 @@
 using Domain.Constantes;
 using MediatR;
 using SistemaAcademicoApplication.Common.Responses;
-using SistemaAcademicoData.Context;
 using CsvHelper;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Globalization;
@@ -10,39 +9,39 @@ using CsvHelper.Configuration;
 using System.Text;
 using SistemaAcademicoApplication.Interfaces;
 using SistemaAcademicoApplication.LogImportacoes.Commands;
+using Domain.ViewModels;
 
 namespace SistemaAcademicoApplication.Usuarios.Commands
 {
-    public class ImportarLoteUsuariosCommand : IRequest<Response<LogImportacao>>
+    public class ImportarLoteUsuariosCommand : IRequest<Response<ImportarAlunosViewModel>>
     {
         public IBrowserFile File { get; set; }
         public string FilePath { get; set; }
     }
 
-    public class ImportarLoteUsuariosCommandHandler : IRequestHandler<ImportarLoteUsuariosCommand, Response<LogImportacao>>
+    public class ImportarLoteUsuariosCommandHandler : IRequestHandler<ImportarLoteUsuariosCommand, Response<ImportarAlunosViewModel>>
     {
-        private readonly SistemaAcademicoContext _context;
         private readonly IUserService _userService;
-        private readonly IEmailService _emailService;
         private readonly IMediator _mediator;
         private List<ApplicationUser> usuariosImportados = new List<ApplicationUser>();
 
 
-        public ImportarLoteUsuariosCommandHandler(SistemaAcademicoContext context, IUserService userService, IEmailService emailService, IMediator mediator)
+        public ImportarLoteUsuariosCommandHandler(IUserService userService, IMediator mediator)
         {
-            _context = context;
             _userService = userService;
-            _emailService = emailService;
             _mediator = mediator;
         }
 
-        public async Task<Response<LogImportacao>> Handle(ImportarLoteUsuariosCommand request, CancellationToken cancellationToken)
+        public async Task<Response<ImportarAlunosViewModel>> Handle(ImportarLoteUsuariosCommand request, CancellationToken cancellationToken)
         {
-            LogImportacao Log = new LogImportacao();
-            Log.TipoImportacao = Parametros.TipoImportacaoUsuario;
-            Log.DataCriacao = DateTime.Now;
-            Log.CaminhoArquivo = request.FilePath;
-            Log.NomeArquivo = request.File.Name;
+            ImportarAlunosViewModel viewModel = new ImportarAlunosViewModel();
+            viewModel.Users = new List<ApplicationUser>();
+            viewModel.LogImportacao = new LogImportacao();
+            viewModel.LogImportacao.Errors = new List<string>();
+            viewModel.LogImportacao.TipoImportacao = Parametros.TipoImportacaoUsuario;
+            viewModel.LogImportacao.DataCriacao = DateTime.Now;
+            viewModel.LogImportacao.CaminhoArquivo = request.FilePath;
+            viewModel.LogImportacao.NomeArquivo = request.File.Name;
 
             var importacaoFolder = new DirectoryInfo("C:\\arquivosImportacaoUsuario");
 
@@ -72,11 +71,11 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
                     while (csv.Read())
                     {
                         var email = csv.GetField("EMAIL");
-                        var nome = csv.GetField("NOME");
+                        var nome = csv.GetField("NOME COMPLETO");
 
                         var user = new ApplicationUser
                         {
-                            Id = new Guid().ToString(),
+                            Id = Guid.NewGuid().ToString(),
                             NomeCompleto = nome,
                             Email = email,
                             Senha = GerarSenhaTemporaria(),
@@ -89,27 +88,27 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
                         var result = await _userService.CreateUserAsync(user);
 
                         if (!result.Succeeded)
-                        {
-                            Log.Errors.Add($"Usuário ' {user.Email} ' não foi cadastrado devido a um erro.");
-                        }
+                            viewModel.LogImportacao.Errors.Add($"Usuário ' {user.Email} ' não foi cadastrado devido a um erro.");
+                        else
+                            viewModel.Users.Add(user);
                     }
                 }
 
-                Log.Status = "CONCLUIDO";
-                Log.Mensagem = Log.Errors.Count == 0 ? $"Importação concluída sem erros do arquivo {request.File.Name}"
-                    : $"Importação concluída com {Log.Errors.Count} erros no arquivo {request.File.Name}";
-                await _mediator.Send(new CriarLogImportacaoCommand { LogImportacao = Log });
-                return new Response<LogImportacao>(Log);
+                viewModel.LogImportacao.Status = "CONCLUIDO";
+                viewModel.LogImportacao.Mensagem = viewModel.LogImportacao.Errors.Count == 0 ? $"Importação concluída sem erros do arquivo {request.File.Name}"
+                    : $"Importação concluída com {viewModel.LogImportacao.Errors.Count} erros no arquivo {request.File.Name}";
+                await _mediator.Send(new CriarLogImportacaoCommand { LogImportacao = viewModel.LogImportacao });
+                return new Response<ImportarAlunosViewModel>(viewModel);
             }
             catch (Exception ex)
             {
-                Log.Mensagem = @"Erro ao realizar a importação" +
+                viewModel.LogImportacao.Mensagem = @"Erro ao realizar a importação" +
                     " Mensagem do sistema : " + ex.Message;
-                Log.Status = "ERRO";
+                viewModel.LogImportacao.Status = "ERRO";
 
-                await _mediator.Send(new CriarLogImportacaoCommand { LogImportacao = Log });
+                await _mediator.Send(new CriarLogImportacaoCommand { LogImportacao = viewModel.LogImportacao });
 
-                return new Response<LogImportacao>(Log);
+                return new Response<ImportarAlunosViewModel>(viewModel);
             }
         }
 
