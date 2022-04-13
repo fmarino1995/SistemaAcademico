@@ -1,55 +1,100 @@
 ﻿@page "/users"
-
-@inherits UsersBase
+@page "/users/{message}/{alertType}"
+@inject IMediator _mediator
 @layout MainLayout
-@using SistemaAcademicoWeb.Pages.Users;
+@using SistemaAcademicoApplication.Usuarios.Queries
 
-<div class="card">
-    <div class="card-header">
-        <div class="titulo-card">
-            Usuários
+
+@if (Usuarios == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Usuários
+            </div>
         </div>
-    </div>
-    <div class="card-body">
-
-        <DataTable Searchable="true" Exibir="@Exibir">
-            <thead class="thead-light">
-                <tr>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Data de cadastro</th>
-                    <th>
-                        <div class="nav-link">
-                            <a class="nav-link" href="/Identity/Account/Register" title="Novo usuário">
-                                <span class="oi oi-plus"></span>
-                            </a>
-                            <a class="nav-link" href="/users/import" title="Importação de arquivo">
-                                <span class="oi oi-file"></span>
-                            </a>
-                        </div>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in Usuarios)
-                {
+        <Alert Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
+        <div class="card-body">
+            <DataTable Searchable="true" Exibir="@Exibir">
+                <thead class="thead-light">
                     <tr>
-                        <td>@user.NomeCompleto</td>
-                        <td>@user.Email</td>
-                        <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
-                        <td class="col-sm-2">
-                            <div style="display:flex;">
-                                <a class="nav-link" href="/EditRole" title="Editar">
-                                    <span class="oi oi-pencil"></span>
-                                </a>
-                                <a class="nav-link" href="/RemoveRole" title="Excluir">
-                                    <span class="oi oi-trash"></span>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Data de cadastro</th>
+                        <th>
+                            <div class="nav-link">
+                                <a class="nav-link" href="/Identity/Account/Register" title="Novo usuário">
+                                    <span class="oi oi-plus"></span>
                                 </a>
                             </div>
-                        </td>
+                        </th>
                     </tr>
-                }
-            </tbody>
-        </DataTable>
+                </thead>
+                <tbody>
+                    @foreach (var user in Usuarios)
+                    {
+                        <tr>
+                            <td>@user.NomeCompleto</td>
+                            <td>@user.Email</td>
+                            <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
+                            <td class="col-sm-2">
+                                <div style="display:flex;">
+                                    <a class="nav-link" href="/EditRole" title="Editar">
+                                        <span class="oi oi-pencil"></span>
+                                    </a>
+                                    <a class="nav-link" href="/RemoveRole" title="Excluir">
+                                        <span class="oi oi-trash"></span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </DataTable>
+        </div>
     </div>
-</div>
+}
+
+
+@code {
+
+    [Parameter]
+    public string Message { get; set; }
+    [Parameter]
+    public string AlertType { get; set; }
+
+    protected bool Exibir = false;
+    public bool ExibirAlert = false;
+    protected List<ApplicationUser> Usuarios = new List<ApplicationUser>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Message != null)
+        {
+            ExibirAlert = true;
+            this.StateHasChanged();
+        }
+
+        var usuariosList = await _mediator.Send(new ObterUsuariosQuery());
+        Usuarios = usuariosList.Result;
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            Exibir = true;
+            this.StateHasChanged();
+            await base.OnAfterRenderAsync(firstRender);
+        }
+    }
+}

@@ -3,49 +3,61 @@
 @using System.Text
 @using System.Text.Encodings.Web
 @using SistemaAcademicoApplication.Usuarios.Commands
+@using SistemaAcademicoCore.Enum
 @inject IMediator _mediator
 @inject IEmailService _emailService
 @inject IWebHostEnvironment _env
+@inject NavigationManager _navigationManager
 @inject UserManager<ApplicationUser> _userManager
 
-
-<div class="card">
-    <div class="card-header">
-        <div class="titulo-card">
-            Importação de usuários
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Importação de usuários
+            </div>
         </div>
-    </div>
-    <div class="card-body">
         <form @onsubmit="OnSubmit">
-            <InputFile OnChange="OnInputFileChange" multiple />
-            <br /><br />
-            <button type="submit" class="btn btn-outline-primary">Enviar</button>
+            <div class="card-body">
+                <p class="text-dark"><strong>@FileMessage</strong></p>
+                <InputFile OnChange="OnInputFileChange" />
+                <br /><br />
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-outline-primary">Enviar</button>
+                        <a href="/users" class="btn btn-outline-dark">Voltar</a>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
-    <div class="card-footer">
-    </div>
 </div>
-
-
 
 @code {
     string returnUrl = null;
     string EmailConfirmationUrl = string.Empty;
-    string Message = "Nenhum arquivo selecionado";
+    string FileMessage = "Nenhum arquivo selecionado";
     IBrowserFile selectedFiles;
+
+    string Message = "";
+    bool ExibirAlert = false;
+    string AlertType = "";
 
     private void OnInputFileChange(InputFileChangeEventArgs e)
     {
+        FileMessage = $"{e.File.Name} selecionado";
         selectedFiles = e.File;
+        this.StateHasChanged();
     }
 
     private async void OnSubmit()
     {
 
-        string filePath = $"C:\\arquivosImportacaoUsuario\\{selectedFiles.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-","")}_{DateTime.Now.Ticks}";
+        string filePath = $"C:\\arquivosImportacaoUsuario\\{selectedFiles.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
 
         var importacaoResponse = await _mediator.Send(new ImportarLoteUsuariosCommand { File = selectedFiles, FilePath = filePath });
-
 
         foreach (var user in importacaoResponse.Result.Users)
         {
@@ -55,14 +67,19 @@
                     ToEmail = user.Email,
                     Subject = "Confirmação de conta - Sistema Acadêmico",
                     Body = "<h2><strong>Seja bem vindo ao Sistema Academico!</strong></h2> <br/>" +
-                                        $"<p>Nome de Usuário : {user.Email}</p><br/>" +
-                                        $"<p>Senha temporária : {user.Senha}</p><br/>" + 
-                                        "<strong>Altere sua senha no primeiro acesso.</strong>",
+                                                            $"<p>Nome de Usuário : {user.Email}</p><br/>" +
+                                                            $"<p>Senha temporária : {user.Senha}</p><br/>" +
+                                                            "<strong>Altere sua senha no primeiro acesso.</strong>",
                     UserName = user.NomeCompleto,
                     Attachments = null
                 };
 
             await _emailService.SendEmailAsync(emailModel);
         }
+
+        ExibirAlert = true;
+        Message = "Importação concluída com sucesso!";
+        AlertType = "primary";
+        _navigationManager.NavigateTo($"users/{Message}/{AlertType}");
     }
 }

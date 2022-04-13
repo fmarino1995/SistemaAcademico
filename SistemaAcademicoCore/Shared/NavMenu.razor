@@ -10,31 +10,33 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="#" @onclick="() => expandSubMenuAdm = !expandSubMenuAdm">
+                <span class="oi oi-briefcase" aria-hidden="true"></span> Administração
             </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="users">
-                <span class="oi oi-people" aria-hidden="true"></span> Usuários
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink id="menu-principal" class="nav-link" href="roles" @onclick="() => expandSubMenu = !expandSubMenu">
-                <span class="oi oi-person" aria-hidden="true"></span> Perfis
-            </NavLink>
-            @if (expandSubMenu)
+            @if (expandSubMenuAdm)
             {
                 <ul class="nav flex-column">
                     <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="roles">
-                            <span class="oi oi-person" aria-hidden="true"></span> Perfis2
+                        <NavLink class="nav-link" href="users" @onclick="() => expandSubMenuUser = !expandSubMenuUser">
+                            <span class="oi oi-people" aria-hidden="true"></span> Usuários
                         </NavLink>
+                        @if (expandSubMenuUser)
+                        {
+                            <ul class="nav flex-column">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="users/import">
+                                        <span class="oi oi-file" aria-hidden="true"></span> Importação
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        }
                     </li>
-                    <li class="nav flex-column px-3">
-                        <NavLink class="nav-link" href="roles">
-                            <span class="oi oi-person" aria-hidden="true"></span> Perfis3
-                        </NavLink>
+                    <li>
+                        <div class="nav-item px-3">
+                            <NavLink id="menu-principal" class="nav-link" href="roles">
+                                <span class="oi oi-person" aria-hidden="true"></span> Perfis
+                            </NavLink>
+                        </div>
                     </li>
                 </ul>
             }
@@ -44,7 +46,8 @@
 
 @code {
     private bool collapseNavMenu = true;
-    private bool expandSubMenu;
+    private bool expandSubMenuAdm;
+    private bool expandSubMenuUser;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
