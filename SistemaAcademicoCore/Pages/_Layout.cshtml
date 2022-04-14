@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Web
 @namespace SistemaAcademicoCore.Pages
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+heightlper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <!DOCTYPE html>
 <html lang="en">
@@ -21,8 +21,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script type="text/javascript" src="/datatables.min.js"></script>
     @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
-    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>*@
+        <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+        <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>*@
 
 </head>
 <body>
@@ -30,10 +30,10 @@
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
-            An error has occurred. This application may no longer respond until reloaded.
+            O programa apresetou um erro. Recarregue a página
         </environment>
         <environment include="Development">
-            An unhandled exception has occurred. See browser dev tools for details.
+            Uma exceção ocorreu, olhe o dev tools para detalhes.
         </environment>
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
@@ -42,10 +42,10 @@
     <script src="_framework/blazor.server.js"></script>
     <script src="/js/addDataTable.js"></script>
 
-    <footer class="footer">
-        <div class="container text-center" style="color:black; margin-right:30px;">
-            <div class="footer-text">&copy; <strong>@DateTime.Now.Year - SistemaAcademico</strong></div>
-        </div>
-    </footer>
+    <hr class="style5" style="height: 100%;" />
+    <div class="fixed-bottom text-center">
+        
+        &copy; <strong>@DateTime.Now.Year - Sistema Acadêmico</strong>
+    </div>
 </body>
 </html>
