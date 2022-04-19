@@ -95,6 +95,10 @@ hr.style5 {
     text-align: center;
 }
 
+button {
+    margin-left: 5px;
+}
+
 hr.new {
     border-top: 1px solid red;
 }
@@ -153,3 +157,20 @@ hr.new {
 }
 
 /*--- End Cards ---*/
+
+/*--------------------------page-content-----------------------------*/
+
+.page-content {
+    display: inline-block;
+    width: 100%;
+    padding-left: 0px;
+    padding-top: 0px;
+}
+
+    .page-content > div {
+        padding: 0px 0px;
+    }
+
+.page-content {
+    overflow-x: hidden;
+}

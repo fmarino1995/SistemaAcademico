@@ -10,35 +10,43 @@
 @inject NavigationManager _navigationManager
 @inject UserManager<ApplicationUser> _userManager
 
-<div class="container">
-    <div class="card">
-        <div class="card-header">
-            <div class="titulo-card">
-                Importação de usuários
-            </div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="titulo-card">
+            Importação de usuários
         </div>
-        <form @onsubmit="OnSubmit">
-            <div class="card-body">
-                <p class="text-dark"><strong>@FileMessage</strong></p>
-                <InputFile OnChange="OnInputFileChange" />
-                <br /><br />
-            </div>
-            <div class="card-footer">
-                <div class="row">
-                    <div class="col-md-12">
-                        <a href="/users" class="btn btn-outline-dark">Voltar</a>
+    </div>
+    <form @onsubmit="OnSubmit">
+        <div class="card-body">
+            <p class="text-dark"><strong>@FileMessage</strong></p>
+            <InputFile OnChange="OnInputFileChange" />
+            <p class="text-danger">@MensagemValidacao</p>
+            <br /><br />
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/users" class="btn btn-outline-dark">Voltar</a>
+                    @if(selectedFiles == null)
+                    {
+                        <button type="submit" disabled class="btn btn-outline-primary ml-1">Enviar</button>
+                    } else
+                    {
                         <button type="submit" class="btn btn-outline-primary">Enviar</button>
-                    </div>
+                    }
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
+
 
 @code {
     string returnUrl = null;
     string EmailConfirmationUrl = string.Empty;
     string FileMessage = "Nenhum arquivo selecionado";
+    string MensagemValidacao = string.Empty;
     IBrowserFile selectedFiles;
 
     string Message = "";
@@ -54,7 +62,6 @@
 
     private async void OnSubmit()
     {
-
         string filePath = $"C:\\arquivosImportacaoUsuario\\{selectedFiles.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
 
         var importacaoResponse = await _mediator.Send(new ImportarLoteUsuariosCommand { File = selectedFiles, FilePath = filePath });
@@ -67,9 +74,9 @@
                     ToEmail = user.Email,
                     Subject = "Confirmação de conta - Sistema Acadêmico",
                     Body = "<h2><strong>Seja bem vindo ao Sistema Academico!</strong></h2> <br/>" +
-                                                            $"<p>Nome de Usuário : {user.Email}</p><br/>" +
-                                                            $"<p>Senha temporária : {user.Senha}</p><br/>" +
-                                                            "<strong>Altere sua senha no primeiro acesso.</strong>",
+                           $"<p>Nome de Usuário : {user.Email}</p><br/>" +
+                           $"<p>Senha temporária : {user.Senha}</p><br/>" +
+                           "<strong>Altere sua senha no primeiro acesso.</strong>",
                     UserName = user.NomeCompleto,
                     Attachments = null
                 };
