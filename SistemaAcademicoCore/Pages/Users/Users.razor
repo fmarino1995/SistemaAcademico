@@ -5,7 +5,7 @@
 @using SistemaAcademicoApplication.Usuarios.Queries
 
 
-@if (Usuarios == null)
+@if (Exibir == false)
 {
     <br />
     <br />
@@ -16,13 +16,14 @@
 }
 else
 {
+    <Alert Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
+    <br/>
     <div class="card">
         <div class="card-header">
             <div class="titulo-card">
                 Usuários
             </div>
         </div>
-        <Alert Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
         <div class="card-body">
             <DataTable Searchable="true" Exibir="@Exibir">
                 <thead class="thead-light">
@@ -31,11 +32,9 @@ else
                         <th>Email</th>
                         <th>Data de cadastro</th>
                         <th>
-                            <div class="nav-link">
-                                <a class="nav-link" href="/Identity/Account/Register" title="Novo usuário">
-                                    <span class="oi oi-plus"></span>
-                                </a>
-                            </div>
+                            <a class="nav-link" href="/Identity/Account/Register" title="Novo usuário">
+                                <span class="oi oi-plus"></span>
+                            </a>
                         </th>
                     </tr>
                 </thead>
@@ -46,15 +45,10 @@ else
                             <td>@user.NomeCompleto</td>
                             <td>@user.Email</td>
                             <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
-                            <td class="col-sm-2">
-                                <div style="display:flex;">
-                                    <a class="nav-link" href="/EditRole" title="Editar">
-                                        <span class="oi oi-pencil"></span>
-                                    </a>
-                                    <a class="nav-link" href="/RemoveRole" title="Excluir">
-                                        <span class="oi oi-trash"></span>
-                                    </a>
-                                </div>
+                            <td style="width:5%;">
+                                <a class="nav-link" href="/users/remove/{@user.Id}" title="Inativar usuário">
+                                    <span class="oi oi-trash"></span>
+                                </a>
                             </td>
                         </tr>
                     }
@@ -63,7 +57,6 @@ else
         </div>
     </div>
 }
-
 
 @code {
 
@@ -78,11 +71,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (Message != null)
-        {
-            ExibirAlert = true;
-            this.StateHasChanged();
-        }
+        
 
         var usuariosList = await _mediator.Send(new ObterUsuariosQuery());
         Usuarios = usuariosList.Result;
@@ -92,6 +81,10 @@ else
     {
         if (!firstRender)
         {
+            if (Message != null)
+                ExibirAlert = true;
+            
+
             Exibir = true;
             this.StateHasChanged();
             await base.OnAfterRenderAsync(firstRender);

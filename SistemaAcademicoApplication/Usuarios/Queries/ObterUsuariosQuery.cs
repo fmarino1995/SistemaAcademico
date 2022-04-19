@@ -3,6 +3,7 @@ using SistemaAcademicoApplication.Common.Responses;
 using Microsoft.EntityFrameworkCore;
 using SistemaAcademicoData.Context;
 using Domain.Entities;
+using Domain.Constantes;
 
 namespace SistemaAcademicoApplication.Usuarios.Queries
 {
@@ -24,6 +25,7 @@ namespace SistemaAcademicoApplication.Usuarios.Queries
             try
             {
                 var usuarios = await _context.Users
+                    .Where(u => u.Status == ConstantesLogin.StatusUsuarioAtivo)
                     .OrderByDescending(u => u.DataCriacao)
                     .ThenBy(u => u.NomeCompleto)
                     .ToListAsync();

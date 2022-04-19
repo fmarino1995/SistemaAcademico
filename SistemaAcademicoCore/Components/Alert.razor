@@ -1,8 +1,8 @@
 ﻿@if (Exibir)
 {
-    <div class="alert alert-@AlertType mt-4" role="alert">
-        <span class="oi oi-circle-x mr-2" aria-hidden="true"></span>
+    <div class="alert alert-@AlertType alert-dismissible fade show" role="alert">
         <strong>@Message</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 

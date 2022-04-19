@@ -5,6 +5,10 @@ html, body {
     height: 100%;
 }
 
+body {
+    padding-bottom: 20px;
+}
+
 h1:focus {
     outline: none;
 }
@@ -112,6 +116,11 @@ hr.new {
 .nav-item a.active::after {
     content: "#";
     margin-left: 1em;
+}
+
+.hr1 {
+    border: 0;
+    border-top: 1px solid #CCC;
 }
 
 
