@@ -7,11 +7,13 @@ using System.Text;
 using Domain.Constantes;
 using Domain.Entities;
 using Domain.ValidationEntities;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using SistemaAcademicoApplication.Roles.Queries;
 
 namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
 {
@@ -22,18 +24,20 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
+        private readonly IMediator _mediator;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<RegisterModel> logger)
+            ILogger<RegisterModel> logger, IMediator mediator)
         {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -54,6 +58,8 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+        public List<IdentityRole> Perfis { get; set; }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -92,6 +98,10 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "Digite seu nome completo")]
             [Display(Name = "Nome Completo")]
             public string NomeCompleto { get; set; }
+            [Required(ErrorMessage = "Selecione um perfil para o usuário")]
+            [Display(Name = "Perfil")]
+            public string PerfilId { get; set; }
+            
         }
 
 
@@ -99,6 +109,10 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            Perfis = (await _mediator.Send(new ObterRolesQuery())).Result;
+
+            ViewData["SelectPerfis"] = Perfis;
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -113,6 +127,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 user.DataCriacao = DateTime.Now;
                 user.DataAlteracao = DateTime.Now;
                 user.Status = ConstantesLogin.StatusUsuarioAtivo;
+                user.RoleId = Guid.Parse(Input.PerfilId).ToString();
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

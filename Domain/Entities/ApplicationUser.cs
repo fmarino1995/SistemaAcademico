@@ -15,7 +15,8 @@ namespace Domain.Entities
         public DateTime DataAlteracao { get; set; }
         [Display(Name = "Último Login")]
         public DateTime UltimoLogin { get; set; }
-        public Guid RoleId { get; set; }
+        [Required(ErrorMessage = "Perfil é obrigatório")]
+        public string RoleId { get; set; }
 
         [NotMapped]
         public string Senha { get; set; }
