@@ -10,6 +10,8 @@ namespace SistemaAcademicoInfrastructure
         {
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IRoleService, RoleService>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ICurrentUserService, CurrentUserService>();
 
             return services;
         }

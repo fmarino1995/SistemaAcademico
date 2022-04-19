@@ -37,4 +37,10 @@
     <ProjectReference Include="..\SistemaAcademicoInfrastructure\SistemaAcademicoInfrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\Modelos\MODELO_IMPORTACAO_USUARIOS.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

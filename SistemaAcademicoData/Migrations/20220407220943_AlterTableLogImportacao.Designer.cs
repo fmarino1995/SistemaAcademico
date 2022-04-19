@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaAcademicoData.Context;
 
@@ -11,9 +12,10 @@ using SistemaAcademicoData.Context;
 namespace SistemaAcademicoData.Migrations
 {
     [DbContext(typeof(SistemaAcademicoContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220407220943_AlterTableLogImportacao")]
+    partial class AlterTableLogImportacao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,9 +118,8 @@ namespace SistemaAcademicoData.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -268,10 +269,6 @@ namespace SistemaAcademicoData.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Mensagem")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NomeArquivo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

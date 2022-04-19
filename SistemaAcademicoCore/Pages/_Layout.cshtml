@@ -18,34 +18,30 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script type="text/javascript" src="/datatables.min.js"></script>
-    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
-    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>*@
-
 </head>
 <body>
     @RenderBody()
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
-            An error has occurred. This application may no longer respond until reloaded.
+            O programa apresetou um erro. Recarregue a página
         </environment>
         <environment include="Development">
-            An unhandled exception has occurred. See browser dev tools for details.
+            Uma exceção ocorreu, olhe o dev tools para detalhes.
         </environment>
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/datatables.min.js"></script>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
     <script src="/js/addDataTable.js"></script>
 
-    <footer class="footer">
-        <div class="container text-center" style="color:black; margin-right:30px;">
-            <div class="footer-text">&copy; <strong>@DateTime.Now.Year - SistemaAcademico</strong></div>
-        </div>
-    </footer>
+    <div class="fixed-bottom text-center">
+
+        &copy; <strong>@DateTime.Now.Year - Sistema Acadêmico</strong>
+    </div>
 </body>
 </html>

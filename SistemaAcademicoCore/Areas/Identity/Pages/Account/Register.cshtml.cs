@@ -2,25 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using Domain.Constantes;
 using Domain.Entities;
 using Domain.ValidationEntities;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
+using SistemaAcademicoApplication.Roles.Queries;
 
 namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
 {
@@ -31,18 +24,20 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
+        private readonly IMediator _mediator;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<RegisterModel> logger)
+            ILogger<RegisterModel> logger, IMediator mediator)
         {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -63,6 +58,8 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+        public List<IdentityRole> Perfis { get; set; }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -101,10 +98,10 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "Digite seu nome completo")]
             [Display(Name = "Nome Completo")]
             public string NomeCompleto { get; set; }
-
-            [Required(ErrorMessage = "Digite um número de celular")]
-            [Display(Name = "Celular")]
-            public string PhoneNumber { get; set; }
+            [Required(ErrorMessage = "Selecione um perfil para o usuário")]
+            [Display(Name = "Perfil")]
+            public string PerfilId { get; set; }
+            
         }
 
 
@@ -112,6 +109,10 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            Perfis = (await _mediator.Send(new ObterRolesQuery())).Result;
+
+            ViewData["SelectPerfis"] = Perfis;
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -123,10 +124,10 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 var user = CreateUser();
 
                 user.NomeCompleto = Input.NomeCompleto;
-                user.PhoneNumber = Input.PhoneNumber;
                 user.DataCriacao = DateTime.Now;
                 user.DataAlteracao = DateTime.Now;
                 user.Status = ConstantesLogin.StatusUsuarioAtivo;
+                user.RoleId = Guid.Parse(Input.PerfilId).ToString();
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -160,7 +161,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 }
                 foreach (var error in result.Errors)
                 {
-                    if(error.Code == "DuplicateUserName")
+                    if (error.Code == "DuplicateUserName")
                     {
                         error.Description = new BrazilianIdentityErrorDescriber().DuplicateUserName(Input.Email).Description;
                     }

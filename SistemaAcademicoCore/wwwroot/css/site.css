@@ -5,6 +5,10 @@ html, body {
     height: 100%;
 }
 
+body {
+    padding-bottom: 20px;
+}
+
 h1:focus {
     outline: none;
 }
@@ -68,17 +72,6 @@ table thead {
     background: #f7f2f2;
 }
 
-.footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    /*background: #FFF;*/
-    height: 30px;
-    clear: both;
-    float: left;
-    padding-left: 5px;
-}
-
 @media (max-width: 500px) {
     .footer {
         display: block;
@@ -88,15 +81,22 @@ table thead {
     }
 }
 
-.footer-text {
-    color: black;
-    margin-right: 30px;
+hr.style5 {
+    background-color: #fff;
+    border-top: 2px dashed #8c8b8b;
 }
 
-@media only screen and (min-width: 1500px) {
-    .footer-text{
-        float:left;
-    }
+.footer {
+    position: absolute;
+    height: 20px;
+    width: 99%;
+    margin: auto;
+    bottom: 0px;
+    text-align: center;
+}
+
+button {
+    margin-left: 5px;
 }
 
 hr.new {
@@ -115,6 +115,16 @@ hr.new {
     margin: 0 0 10px;
     padding: 5px;
     height: 34px;
+}
+
+.nav-item a.active::after {
+    content: "#";
+    margin-left: 1em;
+}
+
+.hr1 {
+    border: 0;
+    border-top: 1px solid #CCC;
 }
 
 
@@ -147,3 +157,20 @@ hr.new {
 }
 
 /*--- End Cards ---*/
+
+/*--------------------------page-content-----------------------------*/
+
+.page-content {
+    display: inline-block;
+    width: 100%;
+    padding-left: 0px;
+    padding-top: 0px;
+}
+
+    .page-content > div {
+        padding: 0px 0px;
+    }
+
+.page-content {
+    overflow-x: hidden;
+}

@@ -1,0 +1,96 @@
+﻿@page "/users/remove/{userId}"
+@using Domain.Constantes
+@using SistemaAcademicoApplication.Usuarios.Commands
+@using SistemaAcademicoApplication.Usuarios.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+
+@if (User == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    @if (Exibir)
+    {
+        <div class="alert alert-@AlertType alert-dismissible fade show" role="alert">
+            <strong>@Message</strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <br />
+    }
+    <form @onsubmit="OnSubmit">
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Excluir Usuário
+                </div>
+            </div>
+            <div class="card-body row">
+                <div class="col-md-6">
+                    <label class="tituloinformacoes">Nome</label>
+                    <div class="content-informa">@User.NomeCompleto</div>
+                </div>
+                <div class="col-md-6">
+                    <span class="tituloinformacoes">Email</span>
+                    <div class="content-informa">@User.Email</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="tituloinformacoes">Data de criação</label>
+                    <div class="content-informa">@User.DataCriacao</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <a class="btn btn-outline-dark" href="/users">Voltar</a>
+                        <button type="submit" class="btn btn-outline-primary">Excluir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+}
+
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+    private bool Exibir = false;
+    private string Message = "";
+    private string AlertType = "";
+
+    protected ApplicationUser User;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await _mediator.Send(new ObterUsuarioQuery { UserId = UserId });
+
+        User = user.Result;
+    }
+
+    protected async void OnSubmit()
+    {
+        var response = await _mediator.Send(new RemoverUsuarioCommand { UserId = UserId });
+
+        if (!response.Result)
+        {
+            AlertType = ConstantesSistema.TipoAlertaErro;
+            Message = response.Errors.First();
+            Exibir = true;
+            this.StateHasChanged();
+        }
+        else
+        {
+            AlertType = ConstantesSistema.TipoAlertaSucesso;
+            Message = "Usuário excluido com sucesso!";
+            _navigationManager.NavigateTo($"users/{Message}/{AlertType}");
+        }
+    }
+}

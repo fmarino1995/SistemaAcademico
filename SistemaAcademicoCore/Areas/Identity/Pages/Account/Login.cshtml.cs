@@ -17,20 +17,24 @@ using Microsoft.Extensions.Logging;
 using Domain.Entities;
 using MediatR;
 using SistemaAcademicoApplication.Usuarios.Commands;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly IMediator _mediator;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, IMediator mediator)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, IMediator mediator, UserManager<ApplicationUser> userManager)
         {
             _signInManager = signInManager;
             _logger = logger;
             _mediator = mediator;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -122,6 +126,21 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                     await _mediator.Send(new RegistrarLoginUsuarioCommand { UserEmail = Input.Email });
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
+                }
+                if(result.IsNotAllowed)
+                {
+                    
+                    var user = _userManager.FindByEmailAsync(Input.Email);
+                    var userId = await _userManager.GetUserIdAsync(user.Result);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user.Result);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        protocol: Request.Scheme);
+
+                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                 }
                 if (result.RequiresTwoFactor)
                 {

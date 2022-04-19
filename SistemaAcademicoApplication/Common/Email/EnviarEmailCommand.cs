@@ -25,7 +25,6 @@ namespace SistemaAcademicoApplication.Common.Email
 
             try
             {
-
                 if (request.EmailRequest == null)
                     throw new ArgumentNullException(nameof(EMailRequest));
 

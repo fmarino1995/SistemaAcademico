@@ -43,7 +43,6 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireDigit = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireDigit = false;
-    options.SignIn.RequireConfirmedEmail = true;
 });
 
 builder.Services.AddRazorPages();
