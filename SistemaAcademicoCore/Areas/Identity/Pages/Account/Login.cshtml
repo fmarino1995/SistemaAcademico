@@ -46,6 +46,10 @@
                             <button type="submit" class="btn btn-primary btn-block">Entrar</button>
                         </div>
                         <p class="text-center"><a asp-page="./ForgotPassword" class="btn text-primary">Esqueceu a senha?</a></p>
+                        @if (ViewData["LoginError"] != null)
+                        {
+                            <p class="text-danger">@ViewData["LoginError"]</p>
+                        }
                     </form>
                 </article>
             </div>

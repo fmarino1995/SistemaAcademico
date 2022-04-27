@@ -53,7 +53,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "Digite sua senha")]
             [DataType(DataType.Password)]
             [Display(Name = "Senha atual")]
             public string OldPassword { get; set; }
@@ -62,8 +62,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "Digite sua nova senha")]
             [DataType(DataType.Password)]
             [Display(Name = "Nova senha")]
             public string NewPassword { get; set; }
@@ -74,7 +73,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account.Manage
             /// </summary>
             [DataType(DataType.Password)]
             [Display(Name = "Confirmar nova senha")]
-            [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+            [Compare("NewPassword", ErrorMessage = "As senhas não conferem")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -119,8 +118,8 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account.Manage
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            _logger.LogInformation("User changed their password successfully.");
-            StatusMessage = "Your password has been changed.";
+            _logger.LogInformation("Senha do usuário alterada com sucesso");
+            StatusMessage = "Senha alterada com sucesso!";
 
             return RedirectToPage();
         }

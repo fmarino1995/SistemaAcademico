@@ -129,7 +129,6 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 }
                 if(result.IsNotAllowed)
                 {
-                    
                     var user = _userManager.FindByEmailAsync(Input.Email);
                     var userId = await _userManager.GetUserIdAsync(user.Result);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user.Result);
@@ -154,11 +153,10 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 else
                 {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ViewData["LoginError"] = "Senha ou usuário incorreto";
                     return Page();
                 }
             }
-
-            // If we got this far, something failed, redisplay form
             return Page();
         }
     }
