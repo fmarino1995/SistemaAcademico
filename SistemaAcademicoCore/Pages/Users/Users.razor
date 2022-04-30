@@ -46,6 +46,9 @@ else
                             <td>@user.Email</td>
                             <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
                             <td style="width:5%;">
+                                <a class="nav-link" href="/users/edit/{@user.Id}" title="Editar Usuário">
+                                    <span class="oi oi-pencil"></span>
+                                </a>
                                 <a class="nav-link" href="/users/remove/{@user.Id}" title="Inativar usuário">
                                     <span class="oi oi-trash"></span>
                                 </a>

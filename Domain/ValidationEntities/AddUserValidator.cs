@@ -1,10 +1,5 @@
 ﻿using Domain.Entities;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.ValidationEntities
 {
@@ -15,6 +10,8 @@ namespace Domain.ValidationEntities
             RuleFor(x => x.Email).EmailAddress().WithMessage("Formato de e-mail inválido");
 
             RuleFor(x => x.NomeCompleto).NotEmpty().NotNull().WithMessage("Digite o seu nome");
+
+            RuleFor(x => x.RoleId).NotNull().WithMessage("Escolha um perfil para o usuário");
         }
     }
 }
