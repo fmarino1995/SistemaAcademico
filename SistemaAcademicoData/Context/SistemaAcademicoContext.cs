@@ -15,9 +15,9 @@ namespace SistemaAcademicoData.Context
         public DbSet<Professor> Professores { get; set; }
         public DbSet<Funcionario> Funcionarios { get; set; }
         public DbSet<Endereco> Enderecos { get; set; }
-        public DbSet<Setor> Setores { get; set; }
         public DbSet<Disciplina> Disciplinas { get; set; }
         public DbSet<LogImportacao> LogImportacoes { get; set; }
+        public DbSet<DisciplinaAluno> DisciplinasAlunos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
