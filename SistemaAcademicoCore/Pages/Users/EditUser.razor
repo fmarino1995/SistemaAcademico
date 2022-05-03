@@ -1,0 +1,87 @@
+﻿@page "/users/edit/{UserId}"
+@using SistemaAcademicoApplication.Roles.Queries
+@using SistemaAcademicoApplication.Usuarios.Commands
+@using SistemaAcademicoApplication.Usuarios.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+
+<EditForm Model="@User" OnValidSubmit="UpdateUser">
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Editar Usuário
+            </div>
+        </div>
+        <div class="card-body">
+            <Alert AlertType = "@AlertType" Message="@AlertMessage" Exibir="@ExibirAlert" />
+            <FluentValidationValidator />
+            <ValidationSummary />
+            <div class="row">
+                <div class="col-md-6 col-lg-6">
+                    <span class="tituloinformacoes">Email</span>
+                    <InputText readonly class="form-control" @bind-Value="@User.Email"></InputText>
+                </div>
+                <br/>
+                <div class="col-md-6 col-lg-6">
+                    <span class="tituloinformacoes">Nome completo</span>
+                    <InputText class="form-control" @bind-Value="@User.NomeCompleto"></InputText>
+                </div>
+                <br/>
+                <div class="col-md-6 col-lg-6">
+                    <span class="tituloinformacoes">Perfil</span>
+                    <InputText readonly class="form-control" @bind-Value="User.RoleName"></InputText>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <a class="btn btn-dark" href="roles">Voltar</a>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    ApplicationUser User = new ApplicationUser();
+    List<IdentityRole> Roles = new List<IdentityRole>();
+    string SelectedName;
+    string AlertMessage = "";
+    string AlertType = "";
+    bool ExibirAlert = false;
+
+    [Parameter]
+    public string UserId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        User = (await _mediator.Send(new ObterUsuarioQuery { UserId = UserId })).Result;
+
+        Roles = (await _mediator.Send(new ObterRolesQuery())).Result;
+
+        User.RoleName = Roles.FirstOrDefault(r => r.Id.ToUpper() == User.RoleId).Name;
+    }
+
+    private async void UpdateUser()
+    {
+        var editado = await _mediator.Send(new EditarUsuarioCommand { User = User });
+
+        if(editado.Errors.Any())
+        {
+            AlertMessage = "Erro ao editar o usuário. Tente novamente";
+            AlertType = "dannger";
+            ExibirAlert = true;
+            this.StateHasChanged();
+        }
+        else
+        {
+            AlertMessage = "Usuário editado com sucesso!";
+            AlertType = "success";
+
+            _navigationManager.NavigateTo($"users/{AlertMessage}/{AlertType}");
+        }
+    }
+}

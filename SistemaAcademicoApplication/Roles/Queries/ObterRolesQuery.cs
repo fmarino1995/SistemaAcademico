@@ -21,11 +21,11 @@ namespace SistemaAcademicoApplication.Roles.Queries
 
         public async Task<Response<List<IdentityRole>>> Handle(ObterRolesQuery request, CancellationToken cancellationToken)
         {
-            var roles = await _context.Roles.ToListAsync();
-
             try
             {
-                return new Response<List<IdentityRole>>(await _context.Roles.OrderBy(r => r.Name).ToListAsync());
+                var roles = await _context.Roles.OrderBy(r => r.Name).ToListAsync();
+
+                return new Response<List<IdentityRole>>(roles);
             }
             catch (Exception ex)
             {
