@@ -1,8 +1,30 @@
 ﻿@page "/"
+@page "/{Message}/{AlertType}"
 @layout MainLayout
 
 @attribute [Authorize]
 
 <PageTitle>SistemaAcademico - @DateTime.Now.Year</PageTitle>
 
+<Alert Exibir="@Exibir" Message="@Message" AlertType="@AlertType"></Alert>
+
 <h1>Sistema Academico</h1>
+
+
+@code {
+    [Parameter]
+    public string Message { get; set; }
+    [Parameter]
+    public string AlertType { get; set; }
+
+    private bool Exibir = false;
+
+    protected override void OnInitialized()
+    {
+        if(Message != null)
+        {
+            Exibir = true;
+            this.StateHasChanged();
+        }
+    }
+}

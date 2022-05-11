@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaAcademicoData.Context;
 
@@ -11,9 +12,10 @@ using SistemaAcademicoData.Context;
 namespace SistemaAcademicoData.Migrations
 {
     [DbContext(typeof(SistemaAcademicoContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220504001341_AlterTableAlunoFunc")]
+    partial class AlterTableAlunoFunc
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,10 +51,6 @@ namespace SistemaAcademicoData.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UsuarioCriacao")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -263,10 +261,6 @@ namespace SistemaAcademicoData.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UsuarioCriacao")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

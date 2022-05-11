@@ -16,5 +16,8 @@ namespace Domain.Entities
         public DateTime DataNascimento { get; set; }
         public int EnderecoId { get; set; }
         public virtual Endereco Endereco { get; set; }
+        public DateTime DataHoraCadastro { get; set; }
+        [Required]
+        public string UsuarioCriacao { get; set; }
     }
 }

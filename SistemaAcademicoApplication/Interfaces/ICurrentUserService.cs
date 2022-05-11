@@ -2,6 +2,7 @@
 {
     public interface ICurrentUserService
     {
+        Task<string> GetUserNameAsync();
         Task<string> GetUserName();
     }
 }

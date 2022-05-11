@@ -74,8 +74,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        
-
         var usuariosList = await _mediator.Send(new ObterUsuariosQuery());
         Usuarios = usuariosList.Result;
     }
