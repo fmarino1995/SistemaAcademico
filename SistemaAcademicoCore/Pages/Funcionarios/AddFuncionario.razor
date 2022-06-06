@@ -13,7 +13,7 @@
 }
 else
 {
-    <EditForm Model="Funcionario" OnValidSubmit="CriarFuncionario">
+    <EditForm Model="@Funcionario" OnValidSubmit="CriarFuncionario">
         <div class="card">
             <div class="card-header">
                 <div class="titulo-card">
@@ -24,11 +24,11 @@ else
                 <div class="row">
                     <div class="col">
                         <span class="tituloinformacoes">Nome completo</span>
-                        <InputText @bind-Value="@Funcionario.Nome" />
+                        <InputText class="form-control" @bind-Value="@Funcionario.Nome" />
                     </div>
                     <div class="col">
                         <span class="tituloinformacoes">CPF</span>
-                        <InputText @bind-Value="@Funcionario.Cpf" />
+                        <InputText class="form-control" @bind-Value="@Funcionario.Cpf" />
                     </div>
                 </div>
             </div>
@@ -40,33 +40,35 @@ else
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col">
+                    <ValidationSummary/>
+                    <FluentValidationValidator/>
+                    <div class="col-md-6">
                         <span class="tituloinformacoes">CEP</span>
-                        <InputText @bind-Value="@Funcionario.Endereco.CEP" @onfocusout="@BuscarEndereco" />
+                        <InputText class="form-control" @bind-Value="@Funcionario.Endereco.CEP" @onfocusout="@BuscarEndereco" />
                     </div>
-                    <div class="col">
+                    <div class="col-md-6">
                         <span class="tituloinformacoes">Logradouro</span>
-                        <InputText @bind-Value="@Funcionario.Endereco.Logradouro" />
+                        <InputText class="form-control" @bind-Value="@Funcionario.Endereco.Logradouro" />
                     </div>
-                    <div class="col">
+                    <div class="col-md-6">
                         <span class="tituloinformacoes">Número</span>
-                        <InputText @bind-Value="@Funcionario.Endereco.Numero" />
+                        <InputText class="form-control" @bind-Value="@Funcionario.Endereco.Numero" />
                     </div>
-                    <div class="col">
+                    <div class="col-md-6">
                         <span class="tituloinformacoes">Complemento</span>
-                        <InputText @bind-Value="@Funcionario.Endereco.Complemento" />
+                        <InputText class="form-control" @bind-Value="@Funcionario.Endereco.Complemento" />
                     </div>
-                    <div class="col">
+                    <div class="col-md-6">
                         <span class="tituloinformacoes">Bairro</span>
-                        <InputText @bind-Value="@Funcionario.Endereco.Bairro" />
+                        <InputText class="form-control" @bind-Value="@Funcionario.Endereco.Bairro" />
                     </div>
-                    <div class="col">
+                    <div class="col-md-6">
                         <span class="tituloinformacoes">Cidade</span>
-                        <InputText @bind-Value="@Funcionario.Endereco.Cidade" />
+                        <InputText class="form-control" @bind-Value="@Funcionario.Endereco.Cidade" />
                     </div>
-                    <div class="col">
+                    <div class="col-md-6">
                         <span class="tituloinformacoes">UF</span>
-                        <InputText @bind-Value="@Funcionario.Endereco.EstadoUF" />
+                        <InputText class="form-control" @bind-Value="@Funcionario.Endereco.EstadoUF" />
                     </div>
                 </div>
             </div>
@@ -85,7 +87,11 @@ else
 
 
 @code {
-    Funcionario Funcionario = new Funcionario();
+    Funcionario Funcionario = new Funcionario
+    {
+        Endereco = new Endereco()
+    };
+
 
     protected async void BuscarEndereco()
     {
@@ -95,6 +101,15 @@ else
             Funcionario.Endereco.Logradouro = addresses.FirstOrDefault().Street;
             Funcionario.Endereco.Cidade = addresses.FirstOrDefault().City;
             Funcionario.Endereco.EstadoUF = addresses.FirstOrDefault().State;
+            Funcionario.Endereco.Bairro = addresses.FirstOrDefault().District;
+            this.StateHasChanged();
+        }
+        else
+        {
+            Funcionario.Endereco.Logradouro = null;
+            Funcionario.Endereco.Cidade = null;
+            Funcionario.Endereco.EstadoUF = null;
+            Funcionario.Endereco.Bairro = null;
             this.StateHasChanged();
         }
     }
