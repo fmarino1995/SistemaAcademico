@@ -13,7 +13,6 @@ namespace SistemaAcademicoData.Context
 
         public DbSet<Aluno> Alunos { get; set; }
         public DbSet<Professor> Professores { get; set; }
-        public DbSet<Funcionario> Funcionarios { get; set; }
         public DbSet<Endereco> Enderecos { get; set; }
         public DbSet<Disciplina> Disciplinas { get; set; }
         public DbSet<LogImportacao> LogImportacoes { get; set; }

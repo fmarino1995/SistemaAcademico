@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaAcademicoData.Context;
 
@@ -11,13 +12,14 @@ using SistemaAcademicoData.Context;
 namespace SistemaAcademicoData.Migrations
 {
     [DbContext(typeof(SistemaAcademicoContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220504001341_AlterTableAlunoFunc")]
+    partial class AlterTableAlunoFunc
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.5")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -41,10 +43,6 @@ namespace SistemaAcademicoData.Migrations
                     b.Property<DateTime>("DataNascimento")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("EnderecoId")
                         .HasColumnType("int");
 
@@ -53,10 +51,6 @@ namespace SistemaAcademicoData.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UsuarioCriacao")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -244,6 +238,39 @@ namespace SistemaAcademicoData.Migrations
                     b.ToTable("Enderecos");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Funcionario", b =>
+                {
+                    b.Property<int>("FuncionarioId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FuncionarioId"), 1L, 1);
+
+                    b.Property<string>("Cpf")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DataHoraCadastro")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EnderecoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("FuncionarioId");
+
+                    b.HasIndex("EnderecoId");
+
+                    b.ToTable("Funcionarios");
+                });
+
             modelBuilder.Entity("Domain.Entities.LogImportacao", b =>
                 {
                     b.Property<int>("LogImportacaoId")
@@ -288,38 +315,12 @@ namespace SistemaAcademicoData.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProfessorId"), 1L, 1);
 
-                    b.Property<string>("Cpf")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DataHoraCadastro")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("EnderecoId")
+                    b.Property<int>("FuncionarioId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Matricula")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UsuarioCriacao")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ProfessorId");
 
-                    b.HasIndex("EnderecoId");
+                    b.HasIndex("FuncionarioId");
 
                     b.ToTable("Professores");
                 });
@@ -498,7 +499,7 @@ namespace SistemaAcademicoData.Migrations
                     b.Navigation("Disciplina");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Professor", b =>
+            modelBuilder.Entity("Domain.Entities.Funcionario", b =>
                 {
                     b.HasOne("Domain.Entities.Endereco", "Endereco")
                         .WithMany()
@@ -507,6 +508,17 @@ namespace SistemaAcademicoData.Migrations
                         .IsRequired();
 
                     b.Navigation("Endereco");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Professor", b =>
+                {
+                    b.HasOne("Domain.Entities.Funcionario", "Funcionario")
+                        .WithMany()
+                        .HasForeignKey("FuncionarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Funcionario");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -14,5 +14,8 @@ namespace Domain.Entities
         public virtual Endereco Endereco { get; set; }
         [Required]
         public string Cpf { get; set; }
+        public DateTime DataHoraCadastro { get; set; }
+        [Required]
+        public string UsuarioCriacao { get; set; }
     }
 }
