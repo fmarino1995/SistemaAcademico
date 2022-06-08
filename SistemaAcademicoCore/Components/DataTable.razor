@@ -1,12 +1,12 @@
 ﻿@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
 
-@if(Exibir)
+@if (Exibir)
 {
     <div>
-    <table id="@id" class="table table-bordered table-striped table-sm" style="width:100%" @attributes=UserAttributes>
-        @ChildContent
-    </table>
-</div>
+        <table id="@id" class="table table-bordered table-striped table-sm" @attributes=UserAttributes>
+            @ChildContent
+        </table>
+    </div>
 }
 
 
@@ -36,7 +36,7 @@
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        if(!firstRender)
+        if (!firstRender)
         {
             await JSRuntime.InvokeAsync<string>("AddDataTable", new object[] { $"#{id}", Searchable });
         }

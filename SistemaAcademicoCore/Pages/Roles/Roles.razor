@@ -16,8 +16,8 @@
                 <tr>
                     <th class="col-sm-4">Id</th>
                     <th class="col-sm-5">Nome</th>
-                    <th class="col-sm-2">
-                        <a class="nav-link" href="/AddRole" title="Novo">
+                    <th>
+                        <a href="/AddRole" title="Novo">
                             <span class="oi oi-plus"></span>
                         </a>
                     </th>
@@ -29,15 +29,13 @@
                     <tr>
                         <td>@role.Id</td>
                         <td>@role.Name</td>
-                        <td class="col-sm-2">
-                            <div style="display:flex;">
-                                <a class="nav-link" href="/EditRole" title="Editar">
-                                    <span class="oi oi-pencil"></span>
-                                </a>
-                                <a class="nav-link" href="/RemoveRole" title="Excluir">
-                                    <span class="oi oi-trash"></span>
-                                </a>
-                            </div>
+                        <td style="width: 6%;">
+                            <a href="/EditRole" title="Editar">
+                                <span class="oi oi-pencil" aria-hidden="true"></span>
+                            </a>
+                            <a href="/RemoveRole" title="Excluir">
+                                <span class="oi oi-trash" aria-hidden="true"></span>
+                            </a>
                         </td>
                     </tr>
                 }

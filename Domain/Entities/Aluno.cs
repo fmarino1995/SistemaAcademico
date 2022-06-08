@@ -19,5 +19,7 @@ namespace Domain.Entities
         public DateTime DataHoraCadastro { get; set; }
         [Required]
         public string UsuarioCriacao { get; set; }
+        [Required]
+        public string Email { get; set; }
     }
 }

@@ -21,24 +21,20 @@ namespace SistemaAcademicoApplication.Enderecos.Commands
 
         public async Task<Response<bool>> Handle(CriarEnderecoCommand request, CancellationToken cancellationToken)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
+            try
             {
-                try
-                {
-                    if (request.Endereco == null)
-                        throw new ArgumentNullException(nameof(request.Endereco));
+                if (request.Endereco == null)
+                    throw new ArgumentNullException(nameof(request.Endereco));
 
-                    _context.Enderecos.Add(request.Endereco);
-                    await _context.SaveChangesAsync();
-                    return new Response<bool>(true);
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync(cancellationToken);
-                    var errorResponse = new Response<bool>(false);
-                    errorResponse.AddError(ex.Message);
-                    return errorResponse;
-                }
+                _context.Enderecos.Add(request.Endereco);
+                await _context.SaveChangesAsync();
+                return new Response<bool>(true);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new Response<bool>(false);
+                errorResponse.AddError(ex.Message);
+                return errorResponse;
             }
         }
     }

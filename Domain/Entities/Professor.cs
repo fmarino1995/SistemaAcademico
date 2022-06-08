@@ -6,7 +6,19 @@ namespace Domain.Entities
     {
         [Key]
         public int ProfessorId { get; set; }
-        public int FuncionarioId { get; set; }
-        public virtual Funcionario Funcionario { get; set; }
+        public string Nome { get; set; }
+        [Required]
+        public string Status { get; set; }
+        public int EnderecoId { get; set; }
+        public virtual Endereco Endereco { get; set; }
+        [Required]
+        public string Cpf { get; set; }
+        [Required]
+        public string Matricula { get; set; }
+        public DateTime DataHoraCadastro { get; set; }
+        [Required]
+        public string UsuarioCriacao { get; set; }
+        [Required]
+        public string Email { get; set; }
     }
 }
