@@ -43,9 +43,6 @@ else
 
 
 @code {
-    //[CascadingParameter]
-    //private Task<AuthenticationState> authenticationState { get; set; }
-
     [Parameter]
     public string Message { get; set; }
     [Parameter]
@@ -58,8 +55,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        
-
         var ultimosAvisos = await _mediator.Send(new ObterUltimosAvisosQuery());
 
         if (ultimosAvisos.Errors.Any())

@@ -8,12 +8,7 @@
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-                @if(!IsUserAuthenticated)
-                {
-                    <RedirectToLogin/>
-                }
-            </AuthorizeRouteView>
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
@@ -24,19 +19,3 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
-
-@code {
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationState { get; set; }
-
-    ClaimsPrincipal user;
-    bool IsUserAuthenticated;
-
-    protected override async Task OnInitializedAsync()
-    {
-        user = (await authenticationState).User;
-
-        if (user.Identity.IsAuthenticated)
-            IsUserAuthenticated = true;
-    }
-}
