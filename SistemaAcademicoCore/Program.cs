@@ -13,9 +13,6 @@ using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-
 var appsettings = builder.Configuration.GetSection("AppSettings");
 
 #if DEBUG
@@ -36,6 +33,15 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<SistemaAcademicoContext>()
     .AddDefaultTokenProviders();
+
+//Configurações de acesso Policy-Based
+
+builder.Services.AddAuthorization(config =>
+{
+    config.AddPolicy("IsAdmin", policy => policy.RequireRole("Administrativo"));
+    config.AddPolicy("IsProfessor", policy => policy.RequireRole("Professor"));
+    config.AddPolicy("IsAluno", policy => policy.RequireRole("Aluno"));
+});
 
 builder.Services.Configure<IdentityOptions>(options => 
 {

@@ -1,23 +1,42 @@
 ﻿@inject NavigationManager _navigationManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.RazorPages
+@using System.Security.Claims
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-                <NotAuthorized>
-                    @{
-                        var returnUrl = _navigationManager.ToBaseRelativePath(_navigationManager.Uri);
-                        <RedirectToLogin ReturnUrl="@returnUrl" />
-                    }
-                </NotAuthorized>
+                @if(!IsUserAuthenticated)
+                {
+                    <RedirectToLogin/>
+                }
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
             <PageTitle>Não encontrado</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Desculpe, não há nada nessa rota!</p>
+                <p role="alert">Desculpe, não há nada nesse endereço!</p>
             </LayoutView>
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
+    ClaimsPrincipal user;
+    bool IsUserAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = (await authenticationState).User;
+
+        if (user.Identity.IsAuthenticated)
+            IsUserAuthenticated = true;
+    }
+}

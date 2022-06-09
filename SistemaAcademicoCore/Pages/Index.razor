@@ -1,27 +1,78 @@
 ﻿@page "/"
 @page "/{Message}/{AlertType}"
+@using SistemaAcademicoApplication.Avisos.Queries
+@using System.Security.Claims
 @layout MainLayout
+@inject IMediator _mediator
 
-@attribute [Authorize]
+@attribute [Authorize(Policy = Policies.IsAdmin)]
 
-<PageTitle>SistemaAcademico - @DateTime.Now.Year</PageTitle>
+<PageTitle>Início - SistemaAcademico</PageTitle>
 
 <Alert Exibir="@Exibir" Message="@Message" AlertType="@AlertType"></Alert>
 
-<h1>Sistema Academico</h1>
+<h1>DashBoard</h1>
+
+
+@if (Avisos == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Quadro de avisos
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+            </div>
+        </div>
+    </div>
+}
+
+
+
 
 
 @code {
+    //[CascadingParameter]
+    //private Task<AuthenticationState> authenticationState { get; set; }
+
     [Parameter]
     public string Message { get; set; }
     [Parameter]
     public string AlertType { get; set; }
 
+    private List<Aviso> Avisos;
     private bool Exibir = false;
+    bool IsUserAuthenticated;
+    ClaimsPrincipal user;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        if(Message != null)
+        
+
+        var ultimosAvisos = await _mediator.Send(new ObterUltimosAvisosQuery());
+
+        if (ultimosAvisos.Errors.Any())
+        {
+            Message = "Erro ao carregar os últimos avisos. Tente novamente";
+            AlertType = "danger";
+        }
+        else
+        {
+            Avisos = ultimosAvisos.Result;
+        }
+
+        if (Message != null)
         {
             Exibir = true;
             this.StateHasChanged();
