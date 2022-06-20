@@ -52,7 +52,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "Digite sua nova senha")]
             [StringLength(100, ErrorMessage = "O {0} precisa ter ao menos {2} e no máximo {1} caracteres.", MinimumLength = 6)]
             [DataType(DataType.Password)]
-            [Display(Name = "Senha")]
+            [Display(Name = "Nova Senha")]
             public string Password { get; set; }
 
             /// <summary>
@@ -77,7 +77,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
         {
             if (code == null)
             {
-                return BadRequest("A code must be supplied for password reset.");
+                return BadRequest("Um código precisa ser fornecido para recuperar a senha.");
             }
             else
             {

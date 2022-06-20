@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager _navigationManager
 
 
 <PageTitle>SistemaAcademico - @DateTime.Now.Year</PageTitle>
@@ -18,3 +19,20 @@
         </div>
     </main>
 </div>
+
+@code {
+    [CascadingParameter]
+    protected Task<AuthenticationState> authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        var user = (await authenticationState).User;
+
+        if (!user.Identity.IsAuthenticated)
+        {
+            var ReturnUrl = _navigationManager.ToBaseRelativePath(_navigationManager.Uri);
+            _navigationManager.NavigateTo($"Identity/Account/Login?returnUrl={ReturnUrl}", forceLoad: true);
+        }
+    }
+}
