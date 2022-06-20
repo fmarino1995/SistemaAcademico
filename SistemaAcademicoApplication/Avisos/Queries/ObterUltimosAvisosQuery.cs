@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SistemaAcademicoApplication.Common.Responses;
 using SistemaAcademicoData.Context;
+using System.Collections.Generic;
 
 namespace SistemaAcademicoApplication.Avisos.Queries
 {
