@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using SistemaAcademicoApplication.Common.Responses;
 using SistemaAcademicoData.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace SistemaAcademicoApplication.Roles.Queries
 {
@@ -23,7 +24,12 @@ namespace SistemaAcademicoApplication.Roles.Queries
         {
             try
             {
-                return new Response<IdentityRole>(await _context.Roles.FindAsync(request.RoleId));
+                var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == request.RoleId);
+
+                if (role == null)
+                    throw new ArgumentNullException(nameof(role));
+
+                return new Response<IdentityRole>(role);
             }
             catch (Exception ex)
             {

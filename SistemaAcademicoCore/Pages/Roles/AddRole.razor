@@ -46,15 +46,15 @@
 </AuthorizeView>
 
 @code {
-    Role role = new Role();
+    IdentityRole role = new IdentityRole();
     string errorMessage = string.Empty;
     public bool exibirAlert = false;
     string alertType = string.Empty;
 
     protected async void AddRoleAsync()
     {
-        role.Id = Guid.NewGuid();
-        role.ConcurrencyStamp = Guid.NewGuid();
+        role.Id = Guid.NewGuid().ToString();
+        role.ConcurrencyStamp = Guid.NewGuid().ToString();
         role.NormalizedName = role.Name.ToUpper();
 
         var adicionado = await _mediator.Send(new CriarRoleCommand { Role = role });
