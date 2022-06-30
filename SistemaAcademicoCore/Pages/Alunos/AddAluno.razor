@@ -1,0 +1,152 @@
+﻿@page "/students/add"
+@using SistemaAcademicoApplication.Alunos.Commands
+@using SistemaAcademicoApplication.Enderecos.Commands
+@using SistemaAcademicoApplication.Usuarios.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+@layout MainLayout
+
+<PageTitle>Novo aluno - Sistema Academico</PageTitle>
+
+<EditForm Model="@AlunoCreate" OnValidSubmit="AddAlunoAsync">
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Novo Aluno
+            </div>
+        </div>
+        <div class="card-body">
+            <FluentValidationValidator />
+            <ValidationSummary />
+            <div class="row">
+                <div class="col-md-6">
+                    <span class="tituloinformacoes form-space">CPF</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Cpf" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">Nome</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Nome" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">Matrícula</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Matricula" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">Data de nascimento</span>
+                    <InputDate class="form-control" @bind-Value="@AlunoCreate.DataNascimento" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">Data de nascimento</span>
+                    <InputSelect class="form-control" @bind-Value="@AlunoCreate.Email">
+                        <option selected value="">|--Selecione--|</option>
+                        @foreach (var email in EmailsList)
+                        {
+                            <option value="@email">@email</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+        </div>
+        <hr class="hr1" />
+        <div class="card-header">
+            <div class="titulo-card">
+                Endereço
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">CEP</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Endereco.CEP" @onfocusout="@BuscarEndereco" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">Logradouro</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Endereco.Logradouro" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">Número</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Endereco.Numero" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">Complemento</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Endereco.Complemento" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">Bairro</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Endereco.Bairro" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">Cidade</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Endereco.Cidade" />
+                </div>
+                <div class="col-md-6 form-space">
+                    <span class="tituloinformacoes">UF</span>
+                    <InputText class="form-control" @bind-Value="@AlunoCreate.Endereco.EstadoUF" />
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a class="btn btn-outline-dark" @onclick="Voltar">Voltar</a>
+            <input type="submit" class="btn btn-outline-primary" value="Salvar" />
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    Aluno AlunoCreate;
+    List<string> EmailsList = new List<string>();
+    string Message = "";
+    string AlertType = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        AlunoCreate = new Aluno { Endereco = new Endereco() };
+
+        EmailsList = (await _mediator.Send(new ObterEmailsUsuarioQuery())).Result;
+    }
+
+    protected async void BuscarEndereco()
+    {
+        if (!string.IsNullOrEmpty(AlunoCreate.Endereco.CEP))
+        {
+            var addresses = await new Correios.NET.CorreiosService().GetAddressesAsync(AlunoCreate.Endereco.CEP);
+            AlunoCreate.Endereco.Logradouro = addresses.FirstOrDefault().Street;
+            AlunoCreate.Endereco.Cidade = addresses.FirstOrDefault().City;
+            AlunoCreate.Endereco.EstadoUF = addresses.FirstOrDefault().State;
+            AlunoCreate.Endereco.Bairro = addresses.FirstOrDefault().District;
+            this.StateHasChanged();
+        }
+        else
+        {
+            AlunoCreate.Endereco.Logradouro = null;
+            AlunoCreate.Endereco.Cidade = null;
+            AlunoCreate.Endereco.EstadoUF = null;
+            AlunoCreate.Endereco.Bairro = null;
+            this.StateHasChanged();
+        }
+    }
+
+    protected async Task AddAlunoAsync()
+    {
+        var createResponse = await _mediator.Send(new CriarAlunoCommand { Aluno = AlunoCreate });
+
+        if (createResponse.Errors.Any())
+        {
+            Message = "Erro ao cadastrar o aluno. Tente novamente.";
+            AlertType = "danger";
+        }
+        else
+        {
+            Message = "Aluno cadastrado com sucesso!";
+            AlertType = "success";
+        }
+
+        _navigationManager.NavigateTo($"students/{Message}/{AlertType}");
+    }
+
+    protected void Voltar()
+    {
+        _navigationManager.NavigateTo("students", true);
+    }
+}

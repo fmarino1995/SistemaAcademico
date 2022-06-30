@@ -1,0 +1,103 @@
+﻿@page "/students"
+@page "/students/{message}/{alertType}"
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+@layout MainLayout
+@using SistemaAcademicoApplication.Alunos.Queries
+
+<PageTitle>Alunos - SistemaAcademico</PageTitle>
+
+
+@if (Exibir == false)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <Alerta Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Alunos
+            </div>
+        </div>
+        <div class="card-body">
+            <DataTable Searchable="true" Exibir="@Exibir">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Matrícula</th>
+                        <th>Email</th>
+                        <th>
+                            <a href="" @onclick="GotoCreate" title="Novo aluno">
+                                <span class="oi oi-plus"></span>
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var aluno in AlunosList)
+                    {
+                        <tr>
+                            <td>@aluno.Nome</td>
+                            <td>@aluno.Cpf</td>
+                            <td>@aluno.Matricula</td>
+                            <td>@aluno.Email</td>
+                            <td style="width: 6%;">
+                                <a href="/students/edit/@aluno.AlunoId" title="Editar Aluno">
+                                    <span class="oi oi-pencil" aria-hidden="true"></span>
+                                </a>
+                                <a href="/students/remove/@aluno.AlunoId" title="Inativar Aluno">
+                                    <span class="oi oi-trash" aria-hidden="true"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </DataTable>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public string Message { get; set; }
+    [Parameter]
+    public string AlertType { get; set; }
+
+    bool Exibir = false;
+    bool ExibirAlert = false;
+    protected List<Aluno> AlunosList = new List<Aluno>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuariosList = await _mediator.Send(new ObterAlunosQuery());
+        AlunosList = usuariosList.Result;
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            if (Message != null)
+                ExibirAlert = true;
+
+
+            Exibir = true;
+            this.StateHasChanged();
+            await base.OnAfterRenderAsync(firstRender);
+        }
+    }
+
+    protected void GotoCreate()
+    {
+        _navigationManager.NavigateTo("students/add", true);
+    }
+}

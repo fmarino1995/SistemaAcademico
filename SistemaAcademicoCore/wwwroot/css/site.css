@@ -116,6 +116,10 @@ hr.new {
     font-weight: 600;
 }
 
+.form-space {
+    padding-bottom : 20px;
+}
+
 .content-informa {
     font-size: 16px;
     display: block;
