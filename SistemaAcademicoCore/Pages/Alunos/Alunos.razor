@@ -4,6 +4,7 @@
 @inject NavigationManager _navigationManager
 @layout MainLayout
 @using SistemaAcademicoApplication.Alunos.Queries
+@using Salazar.CSharp.String.Mask
 
 <PageTitle>Alunos - SistemaAcademico</PageTitle>
 
@@ -46,7 +47,7 @@ else
                     {
                         <tr>
                             <td>@aluno.Nome</td>
-                            <td>@aluno.Cpf</td>
+                            <td>@aluno.Cpf.ToMask("###.###.###-##")</td>
                             <td>@aluno.Matricula</td>
                             <td>@aluno.Email</td>
                             <td style="width: 6%;">

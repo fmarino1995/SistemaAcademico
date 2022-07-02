@@ -3,6 +3,7 @@ using MediatR;
 using SistemaAcademicoData.Context;
 using SistemaAcademicoApplication.Common.Responses;
 using SistemaAcademicoApplication.Enderecos.Commands;
+using SistemaAcademicoApplication.Interfaces;
 
 namespace SistemaAcademicoApplication.Alunos.Commands
 {
@@ -15,11 +16,13 @@ namespace SistemaAcademicoApplication.Alunos.Commands
     {
         private readonly SistemaAcademicoContext _context;
         private readonly IMediator _mediator;
+        private readonly ICurrentUserService _currentUserService;
 
-        public CriarAlunoCommandHandler(SistemaAcademicoContext context, IMediator mediator)
+        public CriarAlunoCommandHandler(SistemaAcademicoContext context, IMediator mediator, ICurrentUserService currentUserService)
         {
             _context = context;
             _mediator = mediator;
+            _currentUserService = currentUserService;
         }
 
         public async Task<Response<Aluno>> Handle(CriarAlunoCommand request, CancellationToken cancellationToken)
@@ -39,7 +42,9 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                         throw new Exception("Erro ao salvar o endereço");
 
                     Aluno.EnderecoId = enderecoCreate.Result.EnderecoId;
-
+                    Aluno.DataHoraCadastro = DateTime.Now;
+                    Aluno.UsuarioCriacao = await _currentUserService.GetUserNameAsync();
+                    
                     _context.Alunos.Add(request.Aluno);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync(cancellationToken);
