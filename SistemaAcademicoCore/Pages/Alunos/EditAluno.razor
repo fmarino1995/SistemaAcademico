@@ -1,0 +1,115 @@
+﻿@page "/students/edit/{AlunoId}"
+@using SistemaAcademicoApplication.Alunos.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+
+<PageTitle>Editar Aluno - Sistema Academico</PageTitle>
+
+@if (aluno == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <EditForm Model="aluno" OnValidSubmit="EditAlunoAsync">
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Editar Aluno
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">CPF (apenas números)</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Cpf" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Matrícula</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Matricula" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-outline-dark" href="" @onclick="Voltar">Voltar</a>
+                <input type="submit" class="btn btn-outline-primary" value="Salvar" />
+            </div>
+        </div>
+    </EditForm>
+}
+
+
+@code {
+    Aluno aluno;
+    string Message = "";
+    string AlertType = "";
+
+    [Parameter]
+    public string AlunoId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await _mediator.Send(new ObterAlunoQuery { AlunoId = Convert.ToInt32(AlunoId) });
+
+        if(response.Errors.Any())
+        {
+            Message = "Aluno não encontrado";
+            AlertType = "danger";
+            _navigationManager.NavigateTo($"students/{Message}/{AlertType}", true);
+        }
+
+        aluno = response.Result;
+    }
+
+    protected async Task EditAlunoAsync()
+    {
+        
+    }
+
+    void Voltar()
+    {
+        _navigationManager.NavigateTo("students", true);
+    }
+
+}

@@ -5,12 +5,12 @@ using SistemaAcademicoData.Context;
 
 namespace SistemaAcademicoApplication.Enderecos.Commands
 {
-    public class CriarEnderecoCommand : IRequest<Response<bool>>
+    public class CriarEnderecoCommand : IRequest<Response<Endereco>>
     {
         public Endereco Endereco { get; set; }
     }
 
-    public class CriarEnderecoCommandHandler : IRequestHandler<CriarEnderecoCommand, Response<bool>>
+    public class CriarEnderecoCommandHandler : IRequestHandler<CriarEnderecoCommand, Response<Endereco>>
     {
         private readonly SistemaAcademicoContext _context;
 
@@ -19,20 +19,22 @@ namespace SistemaAcademicoApplication.Enderecos.Commands
             _context = context;
         }
 
-        public async Task<Response<bool>> Handle(CriarEnderecoCommand request, CancellationToken cancellationToken)
+        public async Task<Response<Endereco>> Handle(CriarEnderecoCommand request, CancellationToken cancellationToken)
         {
             try
             {
                 if (request.Endereco == null)
                     throw new ArgumentNullException(nameof(request.Endereco));
 
-                _context.Enderecos.Add(request.Endereco);
+                Endereco Endereco = request.Endereco;
+
+                _context.Enderecos.Add(Endereco);
                 await _context.SaveChangesAsync();
-                return new Response<bool>(true);
+                return new Response<Endereco>(Endereco);
             }
             catch (Exception ex)
             {
-                var errorResponse = new Response<bool>(false);
+                var errorResponse = new Response<Endereco>();
                 errorResponse.AddError(ex.Message);
                 return errorResponse;
             }

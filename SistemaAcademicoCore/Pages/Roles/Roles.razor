@@ -1,57 +1,82 @@
 ﻿@page "/roles"
+@page "/roles/{Message}/{AlertType}"
 @using SistemaAcademicoApplication.Roles.Queries
 
-@inject IRoleService _roleService
+@inject IMediator _mediator
 @inject NavigationManager _navigationManager
 
-<div class="card">
-    <div class="card-header">
-        <div class="titulo-card">
-            Perfis de usuário
+@if (Exibir == false)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <Alerta Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Perfis de usuário
+            </div>
+        </div>
+        <div class="card-body">
+            <DataTable Searchable="true" Exibir="@Exibir">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="col-sm-4">Id</th>
+                        <th class="col-sm-5">Nome</th>
+                        <th>
+                            <a href="" @onclick="Create" title="Novo">
+                                <span class="oi oi-plus"></span>
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var role in RolesList)
+                    {
+                        <tr>
+                            <td>@role.Id</td>
+                            <td>@role.Name</td>
+                            <td style="width: 6%;">
+                                <a href="/roles/edit/@role.Id" title="Editar">
+                                    <span class="oi oi-pencil" aria-hidden="true"></span>
+                                </a>
+                                <a href="/roles/delete/@role.Id" title="Excluir">
+                                    <span class="oi oi-trash" aria-hidden="true"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </DataTable>
         </div>
     </div>
-    <div class="card-body">
-        <DataTable Searchable="true" Exibir="@Exibir">
-            <thead class="thead-light">
-                <tr>
-                    <th class="col-sm-4">Id</th>
-                    <th class="col-sm-5">Nome</th>
-                    <th>
-                        <a href="/AddRole" title="Novo">
-                            <span class="oi oi-plus"></span>
-                        </a>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var role in RolesList)
-                {
-                    <tr>
-                        <td>@role.Id</td>
-                        <td>@role.Name</td>
-                        <td style="width: 6%;">
-                            <a href="/EditRole" title="Editar">
-                                <span class="oi oi-pencil" aria-hidden="true"></span>
-                            </a>
-                            <a href="/RemoveRole" title="Excluir">
-                                <span class="oi oi-trash" aria-hidden="true"></span>
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </DataTable>
-    </div>
-</div>
+}
+
+
 
 @code {
+    [Parameter]
+    public string Message { get; set; }
+    [Parameter]
+    public string AlertType { get; set; }
+
+    bool ExibirAlert = false;
     bool Exibir = false;
 
     List<IdentityRole> RolesList = new List<IdentityRole>();
 
     protected async override Task OnInitializedAsync()
     {
-        RolesList = await _roleService.GetRolesAsnyc(); ;
+        RolesList = (await _mediator.Send(new ObterRolesQuery())).Result;
+
+        if (Message != null)
+            ExibirAlert = true;
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -61,5 +86,20 @@
             Exibir = true;
             this.StateHasChanged();
         }
+    }
+
+    private void Create()
+    {
+        _navigationManager.NavigateTo("addrole", true);
+    }
+
+    private void Edit(string id)
+    {
+        _navigationManager.NavigateTo($"roles/edit/{id}", true);
+    }
+
+    private void Delete()
+    {
+        _navigationManager.NavigateTo("addrole", true);
     }
 }

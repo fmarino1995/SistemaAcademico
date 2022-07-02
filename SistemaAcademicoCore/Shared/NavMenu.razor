@@ -17,6 +17,21 @@
             {
                 <ul class="nav flex-column">
                     <li class="nav-item px-3">
+                        <NavLink class="nav-link" href="students" @onclick="() => expandSubMenuStudent = !expandSubMenuStudent">
+                            <span class="oi oi-people" aria-hidden="true"></span> Alunos
+                        </NavLink>
+                        @if(expandSubMenuStudent)
+                        {
+                            <ul class="nav flex-column">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="students/import">
+                                        <span class="oi oi-file" aria-hidden="true"></span> Importação
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        }
+                    </li>
+                    <li class="nav-item px-3">
                         <NavLink class="nav-link" href="users" @onclick="() => expandSubMenuUser = !expandSubMenuUser">
                             <span class="oi oi-people" aria-hidden="true"></span> Usuários
                         </NavLink>
@@ -48,6 +63,7 @@
     private bool collapseNavMenu = true;
     private bool expandSubMenuAdm;
     private bool expandSubMenuUser;
+    private bool expandSubMenuStudent;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

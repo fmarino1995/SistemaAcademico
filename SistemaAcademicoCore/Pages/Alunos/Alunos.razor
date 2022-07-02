@@ -1,10 +1,12 @@
-﻿@page "/users"
-@page "/users/{message}/{alertType}"
+﻿@page "/students"
+@page "/students/{message}/{alertType}"
 @inject IMediator _mediator
+@inject NavigationManager _navigationManager
 @layout MainLayout
-@using SistemaAcademicoApplication.Usuarios.Queries
+@using SistemaAcademicoApplication.Alunos.Queries
+@using Salazar.CSharp.String.Mask
 
-<PageTitle>Usuários - SistemaAcademico</PageTitle>
+<PageTitle>Alunos - SistemaAcademico</PageTitle>
 
 
 @if (Exibir == false)
@@ -22,7 +24,7 @@ else
     <div class="card">
         <div class="card-header">
             <div class="titulo-card">
-                Usuários
+                Alunos
             </div>
         </div>
         <div class="card-body">
@@ -30,27 +32,29 @@ else
                 <thead class="thead-light">
                     <tr>
                         <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Matrícula</th>
                         <th>Email</th>
-                        <th>Data de cadastro</th>
                         <th>
-                            <a href="/Identity/Account/Register" title="Novo usuário">
+                            <a href="" @onclick="GotoCreate" title="Novo aluno">
                                 <span class="oi oi-plus"></span>
                             </a>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var user in Usuarios)
+                    @foreach (var aluno in AlunosList)
                     {
                         <tr>
-                            <td>@user.NomeCompleto</td>
-                            <td>@user.Email</td>
-                            <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
+                            <td>@aluno.Nome</td>
+                            <td>@aluno.Cpf.ToMask("###.###.###-##")</td>
+                            <td>@aluno.Matricula</td>
+                            <td>@aluno.Email</td>
                             <td style="width: 6%;">
-                                <a href="/users/edit/{@user.Id}" title="Editar Usuário">
+                                <a href="/students/edit/@aluno.AlunoId" title="Editar Aluno">
                                     <span class="oi oi-pencil" aria-hidden="true"></span>
                                 </a>
-                                <a href="/users/remove/{@user.Id}" title="Inativar usuário">
+                                <a href="/students/remove/@aluno.AlunoId" title="Inativar Aluno">
                                     <span class="oi oi-trash" aria-hidden="true"></span>
                                 </a>
                             </td>
@@ -69,14 +73,14 @@ else
     [Parameter]
     public string AlertType { get; set; }
 
-    protected bool Exibir = false;
-    public bool ExibirAlert = false;
-    protected List<ApplicationUser> Usuarios = new List<ApplicationUser>();
+    bool Exibir = false;
+    bool ExibirAlert = false;
+    protected List<Aluno> AlunosList = new List<Aluno>();
 
     protected override async Task OnInitializedAsync()
     {
-        var usuariosList = await _mediator.Send(new ObterUsuariosQuery());
-        Usuarios = usuariosList.Result;
+        var usuariosList = await _mediator.Send(new ObterAlunosQuery());
+        AlunosList = usuariosList.Result;
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -85,11 +89,16 @@ else
         {
             if (Message != null)
                 ExibirAlert = true;
-            
+
 
             Exibir = true;
             this.StateHasChanged();
             await base.OnAfterRenderAsync(firstRender);
         }
+    }
+
+    protected void GotoCreate()
+    {
+        _navigationManager.NavigateTo("students/add", true);
     }
 }

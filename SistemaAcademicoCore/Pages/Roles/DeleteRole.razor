@@ -1,0 +1,87 @@
+﻿@page "/roles/delete/{Id}"
+@using SistemaAcademicoApplication.Roles.Commands
+@using SistemaAcademicoApplication.Roles.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+
+@if (Role == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Excluir Perfil
+            </div>
+        </div>
+        <EditForm Model="@Role" OnValidSubmit="DeleteRoleAsync">
+            <div class="card-body">
+                <FluentValidationValidator />
+                <ValidationSummary />
+                <div class="row">
+                    <div class="col-md-6 col-sm-12">
+                        <span class="tituloinformacoes">Id</span>
+                        <div class="content-informa">
+                            @Role.Id
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <span class="tituloinformacoes">Nome</span>
+                        <div class="content-informa">
+                            @Role.Name
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-outline-dark" @onclick="Voltar">Voltar</a>
+                <input type="submit" class="btn btn-outline-primary" value="Excluir" />
+            </div>
+        </EditForm>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    IdentityRole Role;
+    string Message = "";
+    string AlertType = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Role = (await _mediator.Send(new ObterRoleQuery { RoleId = Id })).Result;
+    }
+
+    private async void DeleteRoleAsync()
+    {
+        var deleteResponse = await _mediator.Send(new RemoverRoleCommand { RoleId = Id });
+
+        if (deleteResponse.Errors.Any())
+        {
+            AlertType = "danger";
+            Message = "Erro ao excluir perfil : " + deleteResponse.Errors.First();
+            _navigationManager.NavigateTo($"roles/{Message}/{AlertType}");
+        }
+
+        AlertType = "success";
+        Message = "Perfil excluido com sucesso!";
+        _navigationManager.NavigateTo($"roles/{Message}/{AlertType}");
+    }
+
+    private void Voltar()
+    {
+        _navigationManager.NavigateTo("roles");
+    }
+
+
+}

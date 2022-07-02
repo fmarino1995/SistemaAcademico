@@ -1,9 +1,9 @@
-﻿using Domain.Entities;
-using FluentValidation;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 
 namespace Domain.ValidationEntities
 {
-    public class AddRoleValidator : AbstractValidator<Role>
+    public class AddRoleValidator : AbstractValidator<IdentityRole>
     {
         public AddRoleValidator()
         {

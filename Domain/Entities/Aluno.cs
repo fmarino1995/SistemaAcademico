@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
@@ -21,5 +22,10 @@ namespace Domain.Entities
         public string UsuarioCriacao { get; set; }
         [Required]
         public string Email { get; set; }
+        [Required]
+        public string ApplicationUserId { get; set; }
+        [ForeignKey("ApplicationUserId")]
+        public ApplicationUser ApplicationUser { get; set; }
+
     }
 }

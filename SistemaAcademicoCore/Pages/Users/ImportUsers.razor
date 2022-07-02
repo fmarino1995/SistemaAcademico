@@ -24,16 +24,19 @@
             <p class="text-dark"><strong>@FileMessage</strong></p>
             <InputFile OnChange="OnInputFileChange" />
             <p class="text-danger">@MensagemValidacao</p>
+            <br/>
+            <a href="/Modelos/MODELO_IMPORTACAO_USUARIOS.csv" download="MODELO_IMPORTACAO_USUARIOS.csv">Baixe o modelo aqui</a>
             <br /><br />
         </div>
         <div class="card-footer">
             <div class="row">
                 <div class="col-md-12">
                     <a href="/users" class="btn btn-outline-dark">Voltar</a>
-                    @if(selectedFiles == null)
+                    @if (selectedFiles == null)
                     {
                         <button type="submit" disabled class="btn btn-outline-primary ml-1">Enviar</button>
-                    } else
+                    }
+                    else
                     {
                         <button type="submit" class="btn btn-outline-primary">Enviar</button>
                     }
@@ -76,9 +79,9 @@
                     ToEmail = user.Email,
                     Subject = "Confirmação de conta - Sistema Acadêmico",
                     Body = "<h2><strong>Seja bem vindo ao Sistema Academico!</strong></h2> <br/>" +
-                           $"<p>Nome de Usuário : {user.Email}</p><br/>" +
-                           $"<p>Senha temporária : {user.Senha}</p><br/>" +
-                           "<strong>Altere sua senha no primeiro acesso.</strong>",
+                                   $"<p>Nome de Usuário : {user.Email}</p><br/>" +
+                                   $"<p>Senha temporária : {user.Senha}</p><br/>" +
+                                   "<strong>Altere sua senha no primeiro acesso.</strong>",
                     UserName = user.NomeCompleto,
                     Attachments = null
                 };
