@@ -25,8 +25,8 @@ else
                 </div>
             </div>
             <div class="card-body">
-                <FluentValidationValidator/>
-                <ValidationSummary/>
+                <FluentValidationValidator />
+                <ValidationSummary />
                 <div class="row">
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Nome</span>
@@ -39,10 +39,6 @@ else
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Matrícula</span>
                         <InputText class="form-control" @bind-Value="@aluno.Matricula" />
-                    </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Data de Nascimento</span>
@@ -75,6 +71,10 @@ else
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">CEP</span>
                         <InputText class="form-control" @bind-Value="@aluno.Endereco.CEP" @onfocusout="BuscarEndereco" />
+                        @if (!string.IsNullOrEmpty(CepErrorMessage))
+                        {
+                            <span class="text-danger">@CepErrorMessage</span>
+                        }
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Logradouro</span>
@@ -118,6 +118,7 @@ else
     Aluno aluno = new Aluno();
     string Message = "";
     string AlertType = "";
+    string CepErrorMessage = "";
 
     [Parameter]
     public string AlunoId { get; set; }
@@ -143,18 +144,19 @@ else
         if (!string.IsNullOrEmpty(aluno.Endereco.CEP))
         {
             var addresses = await new Correios.NET.CorreiosService().GetAddressesAsync(aluno.Endereco.CEP);
-            aluno.Endereco.Logradouro = addresses.FirstOrDefault().Street != null ? addresses.FirstOrDefault().Street : "";
-            aluno.Endereco.Cidade = addresses.FirstOrDefault().City != null ? addresses.FirstOrDefault().City : "";
-            aluno.Endereco.EstadoUF = addresses.FirstOrDefault().State != null ? addresses.FirstOrDefault().State : "";
-            aluno.Endereco.Bairro = addresses.FirstOrDefault().District != null ? addresses.FirstOrDefault().District : "";
+            aluno.Endereco.Logradouro = addresses.Count() > 0 ? addresses.FirstOrDefault().Street : "";
+            aluno.Endereco.Cidade = addresses.Count() > 0 ? addresses.FirstOrDefault().City : "";
+            aluno.Endereco.EstadoUF = addresses.Count() > 0 ? addresses.FirstOrDefault().State : "";
+            aluno.Endereco.Bairro = addresses.Count() > 0 ? addresses.FirstOrDefault().District : "";
+            CepErrorMessage = addresses.Count() > 0 ? "" :"CEP não encontrado";
             this.StateHasChanged();
         }
         else
         {
-            aluno.Endereco.Logradouro = null;
-            aluno.Endereco.Cidade = null;
-            aluno.Endereco.EstadoUF = null;
-            aluno.Endereco.Bairro = null;
+            aluno.Endereco.Logradouro = "";
+            aluno.Endereco.Cidade = "";
+            aluno.Endereco.EstadoUF = "";
+            aluno.Endereco.Bairro = "";
             this.StateHasChanged();
         }
     }
@@ -163,7 +165,7 @@ else
     {
         var response = await _mediator.Send(new EditarAlunoCommand { Aluno = aluno });
 
-        if(response.Errors.Any())
+        if (response.Errors.Any())
         {
             Message = "Ocorreu um erro ao editar o aluno.";
             AlertType = "danger";

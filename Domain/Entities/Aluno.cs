@@ -26,6 +26,7 @@ namespace Domain.Entities
         public string ApplicationUserId { get; set; }
         [ForeignKey("ApplicationUserId")]
         public ApplicationUser ApplicationUser { get; set; }
-
+        [Required]
+        public string Status { get; set; }
     }
 }

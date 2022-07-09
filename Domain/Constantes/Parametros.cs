@@ -5,8 +5,8 @@
         public const string TipoImportacaoUsuario = "U";
         public const string TipoImportacaoAluno = "A";
 
-        public const string StatusFuncionarioAtivo = "A"; 
-        public const string StatusFuncionarioInativo = "I"; 
+        public const string StatusAtivo = "A"; 
+        public const string StatusInativo = "I";
     }
 
     public class DescricaoParametros
@@ -14,7 +14,7 @@
         public const string DescricaoTipoImportacaoUsuario = "Usuários";
         public const string DescricaoTipoImportacaoaLUNO = "Alunos";
 
-        public const string DescriçãoStatusFuncionarioAtivo = "Ativo";
-        public const string DescriçãoStatusFuncionarioInativo = "Inativo";
+        public const string DescriçãoStatusAtivo = "Ativo";
+        public const string DescriçãoStatusInativo = "Inativo";
     }
 }

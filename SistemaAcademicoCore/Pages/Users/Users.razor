@@ -2,6 +2,7 @@
 @page "/users/{message}/{alertType}"
 @inject IMediator _mediator
 @layout MainLayout
+@using Domain.Constantes
 @using SistemaAcademicoApplication.Usuarios.Queries
 
 <PageTitle>Usuários - SistemaAcademico</PageTitle>
@@ -31,6 +32,7 @@ else
                     <tr>
                         <th>Nome</th>
                         <th>Email</th>
+                        <th>Status</th>
                         <th>Data de cadastro</th>
                         <th>
                             <a href="/Identity/Account/Register" title="Novo usuário">
@@ -45,6 +47,7 @@ else
                         <tr>
                             <td>@user.NomeCompleto</td>
                             <td>@user.Email</td>
+                            <td>@user.Status</td>
                             <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
                             <td style="width: 6%;">
                                 <a href="/users/edit/{@user.Id}" title="Editar Usuário">
@@ -77,6 +80,11 @@ else
     {
         var usuariosList = await _mediator.Send(new ObterUsuariosQuery());
         Usuarios = usuariosList.Result;
+
+        foreach(var item in Usuarios)
+        {
+            item.Status = ImprimirStatusUsuario(item.Status);
+        }
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -85,11 +93,24 @@ else
         {
             if (Message != null)
                 ExibirAlert = true;
-            
+
 
             Exibir = true;
             this.StateHasChanged();
             await base.OnAfterRenderAsync(firstRender);
+        }
+    }
+
+    private string ImprimirStatusUsuario(string status)
+    {
+        switch(status)
+        {
+            case Parametros.StatusAtivo:
+                return DescricaoParametros.DescriçãoStatusAtivo;
+            case Parametros.StatusInativo:
+                return DescricaoParametros.DescriçãoStatusInativo;
+            default:
+                return status;
         }
     }
 }

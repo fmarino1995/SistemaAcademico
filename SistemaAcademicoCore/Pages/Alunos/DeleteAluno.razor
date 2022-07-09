@@ -1,0 +1,184 @@
+﻿@page "/students/delete/{AlunoId}"
+@using Domain.Constantes
+@using SistemaAcademicoApplication.Alunos.Commands
+@using SistemaAcademicoApplication.Alunos.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
+<PageTitle>Inativar Aluno - Sistema Academico</PageTitle>
+
+@if (aluno == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <EditForm Model="@aluno" OnValidSubmit="DeleteAlunoAsync">
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Inativar Aluno
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Nome</span>
+                        <div class="content-informa">
+                            @aluno.Nome
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">CPF (apenas números)</span>
+                        <div class="content-informa">
+                            @aluno.Cpf.ToMask("###.###.###-##")
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Matrícula</span>
+                        <div class="content-informa">
+                            @aluno.Matricula
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Data de Nascimento</span>
+                        <div class="content-informa">
+                            @aluno.DataNascimento.ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Data de Cadastro</span>
+                        <div class="content-informa">
+                            @aluno.DataHoraCadastro.ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Usuário de cadastro</span>
+                        <div class="content-informa">
+                            @aluno.UsuarioCriacao
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Email</span>
+                        <div class="content-informa">
+                            @aluno.Email
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="hr1" />
+
+            <div class="card-header">
+                <div class="titulo-card">
+                    Endereço
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">CEP</span>
+                        <div class="content-informa">
+                            @aluno.Endereco.CEP
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Logradouro</span>
+                        <div class="content-informa">
+                            @aluno.Endereco.Logradouro
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Numero</span>
+                        <div class="content-informa">
+                            @aluno.Endereco.Numero
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(aluno.Endereco.Complemento))
+                    {
+                        <div class="col-md-6 form-space">
+                            <span class="tituloinformacoes">Complemento</span>
+                            <div class="content-informa">
+                                @aluno.Endereco.Complemento
+                            </div>
+                        </div>
+                    }
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Bairro</span>
+                        <div class="content-informa">
+                            @aluno.Endereco.Bairro
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">UF</span>
+                        <div class="content-informa">
+                            @aluno.Endereco.EstadoUF
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Cidade</span>
+                        <div class="content-informa">
+                            @aluno.Endereco.Cidade
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <input type="hidden" @bind="aluno.AlunoId" />
+                <a class="btn btn-outline-dark" href="" @onclick="Voltar">Voltar</a>
+                <input type="submit" class="btn btn-outline-danger" value="Inativar" />
+            </div>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string AlunoId { get; set; }
+
+    Aluno aluno;
+    string Message = "";
+    string AlertType = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await _mediator.Send(new ObterAlunoQuery { AlunoId = Convert.ToInt32(AlunoId) });
+
+        if (response.Errors.Any())
+        {
+            Message = "Aluno não encontrado";
+            AlertType = "danger";
+            _navigationManager.NavigateTo($"students/{Message}/{AlertType}", forceLoad: true);
+        }
+
+        aluno = response.Result;
+    }
+
+    private async Task DeleteAlunoAsync()
+    {
+        var response = await _mediator.Send(new ExcluirAlunoCommand { Aluno = aluno });
+
+        if (response.Errors.Any())
+        {
+            Message = "Erro ao inativar o aluno : " + response.Errors.First();
+            AlertType = ConstantesSistema.TipoAlertaErro;
+            _navigationManager.NavigateTo($"students/{Message}/{AlertType}", forceLoad: true);
+        }
+
+        Message = "Aluno inativado com sucesso!";
+        AlertType = ConstantesSistema.TipoAlertaSucesso;
+        _navigationManager.NavigateTo($"students/{Message}/{AlertType}");
+    }
+
+    void Voltar()
+    {
+        _navigationManager.NavigateTo("students");
+    }
+}

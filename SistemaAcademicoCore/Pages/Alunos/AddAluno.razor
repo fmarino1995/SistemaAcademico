@@ -58,6 +58,10 @@
                 <div class="col-md-6 form-space">
                     <span class="tituloinformacoes">CEP</span>
                     <InputText class="form-control" @bind-Value="@AlunoCreate.Endereco.CEP" @onfocusout="@BuscarEndereco" />
+                    @if (!string.IsNullOrEmpty(CepErrorMessage))
+                    {
+                        <span class="text-danger">@CepErrorMessage</span>
+                    }
                 </div>
                 <div class="col-md-6 form-space">
                     <span class="tituloinformacoes">Logradouro</span>
@@ -98,6 +102,7 @@
     List<ApplicationUser> UsersList = new List<ApplicationUser>();
     string Message = "";
     string AlertType = "";
+    string CepErrorMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -111,10 +116,11 @@
         if (!string.IsNullOrEmpty(AlunoCreate.Endereco.CEP))
         {
             var addresses = await new Correios.NET.CorreiosService().GetAddressesAsync(AlunoCreate.Endereco.CEP);
-            AlunoCreate.Endereco.Logradouro = addresses.FirstOrDefault().Street;
-            AlunoCreate.Endereco.Cidade = addresses.FirstOrDefault().City;
-            AlunoCreate.Endereco.EstadoUF = addresses.FirstOrDefault().State;
-            AlunoCreate.Endereco.Bairro = addresses.FirstOrDefault().District;
+            AlunoCreate.Endereco.Logradouro = addresses.Count() > 0 ? addresses.FirstOrDefault().Street : "";
+            AlunoCreate.Endereco.Cidade = addresses.Count() > 0 ? addresses.FirstOrDefault().City : "";
+            AlunoCreate.Endereco.EstadoUF = addresses.Count() > 0 ? addresses.FirstOrDefault().State : "";
+            AlunoCreate.Endereco.Bairro = addresses.Count() > 0 ? addresses.FirstOrDefault().District : "";
+            CepErrorMessage = addresses.Count() > 0 ? "" : "CEP não encontrado";
             this.StateHasChanged();
         }
         else

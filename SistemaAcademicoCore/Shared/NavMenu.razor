@@ -9,53 +9,55 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="#" @onclick="() => expandSubMenuAdm = !expandSubMenuAdm">
-                <span class="oi oi-briefcase" aria-hidden="true"></span> Administração
-            </NavLink>
-            @if (expandSubMenuAdm)
-            {
-                <ul class="nav flex-column">
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="students" @onclick="() => expandSubMenuStudent = !expandSubMenuStudent">
-                            <span class="oi oi-people" aria-hidden="true"></span> Alunos
-                        </NavLink>
-                        @if(expandSubMenuStudent)
-                        {
-                            <ul class="nav flex-column">
-                                <li class="nav-item px-3">
-                                    <NavLink class="nav-link" href="students/import">
-                                        <span class="oi oi-file" aria-hidden="true"></span> Importação
-                                    </NavLink>
-                                </li>
-                            </ul>
-                        }
-                    </li>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="users" @onclick="() => expandSubMenuUser = !expandSubMenuUser">
-                            <span class="oi oi-people" aria-hidden="true"></span> Usuários
-                        </NavLink>
-                        @if (expandSubMenuUser)
-                        {
-                            <ul class="nav flex-column">
-                                <li class="nav-item px-3">
-                                    <NavLink class="nav-link" href="users/import">
-                                        <span class="oi oi-file" aria-hidden="true"></span> Importação
-                                    </NavLink>
-                                </li>
-                            </ul>
-                        }
-                    </li>
-                    <li>
-                        <div class="nav-item px-3">
-                            <NavLink id="menu-principal" class="nav-link" href="roles">
-                                <span class="oi oi-person" aria-hidden="true"></span> Perfis
+        <AuthorizeView Policy="@Policies.IsAdmin">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="#" @onclick="() => expandSubMenuAdm = !expandSubMenuAdm">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span> Administração
+                </NavLink>
+                @if (expandSubMenuAdm)
+                {
+                    <ul class="nav flex-column">
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="students" @onclick="() => expandSubMenuStudent = !expandSubMenuStudent">
+                                <span class="oi oi-people" aria-hidden="true"></span> Alunos
                             </NavLink>
-                        </div>
-                    </li>
-                </ul>
-            }
-        </div>
+                            @if (expandSubMenuStudent)
+                            {
+                                <ul class="nav flex-column">
+                                    <li class="nav-item px-3">
+                                        <NavLink class="nav-link" href="students/import">
+                                            <span class="oi oi-file" aria-hidden="true"></span> Importação
+                                        </NavLink>
+                                    </li>
+                                </ul>
+                            }
+                        </li>
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="users" @onclick="() => expandSubMenuUser = !expandSubMenuUser">
+                                <span class="oi oi-people" aria-hidden="true"></span> Usuários
+                            </NavLink>
+                            @if (expandSubMenuUser)
+                            {
+                                <ul class="nav flex-column">
+                                    <li class="nav-item px-3">
+                                        <NavLink class="nav-link" href="users/import">
+                                            <span class="oi oi-file" aria-hidden="true"></span> Importação
+                                        </NavLink>
+                                    </li>
+                                </ul>
+                            }
+                        </li>
+                        <li>
+                            <div class="nav-item px-3">
+                                <NavLink id="menu-principal" class="nav-link" href="roles">
+                                    <span class="oi oi-person" aria-hidden="true"></span> Perfis
+                                </NavLink>
+                            </div>
+                        </li>
+                    </ul>
+                }
+            </div>
+        </AuthorizeView>
     </nav>
 </div>
 

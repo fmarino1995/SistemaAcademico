@@ -2,6 +2,7 @@
 @using SistemaAcademicoApplication.Roles.Queries
 @using SistemaAcademicoApplication.Usuarios.Commands
 @using SistemaAcademicoApplication.Usuarios.Queries
+@using Domain.Constantes;
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 
@@ -15,21 +16,29 @@
             </div>
         </div>
         <div class="card-body">
-            <Alert AlertType = "@AlertType" Message="@AlertMessage" Exibir="@ExibirAlert" />
+            <Alert AlertType="@AlertType" Message="@AlertMessage" Exibir="@ExibirAlert" />
             <FluentValidationValidator />
             <ValidationSummary />
             <div class="row">
-                <div class="col-md-6 col-lg-6">
+                <div class="col-md-6 col-lg-6 form-space">
                     <span class="tituloinformacoes">Email</span>
                     <InputText readonly class="form-control" @bind-Value="@User.Email"></InputText>
                 </div>
-                <br/>
-                <div class="col-md-6 col-lg-6">
+                <div class="col-md-6 col-lg-6 form-space">
                     <span class="tituloinformacoes">Nome completo</span>
                     <InputText class="form-control" @bind-Value="@User.NomeCompleto"></InputText>
                 </div>
-                <br/>
-                <div class="col-md-6 col-lg-6">
+                <div class="col-md-6 col-lg-6 form-space">
+                    <span class="tituloinformacoes">Status</span>
+                    <select class="form-select" @bind="User.Status">
+                        <option value="">Selecione...</option>
+                        @foreach (var item in tipos)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6 col-lg-6 form-space">
                     <span class="tituloinformacoes">Perfil</span>
                     <InputText readonly class="form-control" @bind-Value="User.RoleName"></InputText>
                 </div>
@@ -38,7 +47,7 @@
         <div class="card-footer">
             <div class="row">
                 <div class="col-md-12">
-                    <a class="btn btn-dark" href="roles">Voltar</a>
+                    <a class="btn btn-dark" href="users">Voltar</a>
                     <button type="submit" class="btn btn-primary">Salvar</button>
                 </div>
             </div>
@@ -55,23 +64,27 @@
     string AlertType = "";
     bool ExibirAlert = false;
 
+    List<string> tipos;
+
     [Parameter]
     public string UserId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        tipos = new List<string>() { "A", "I" };
+
         User = (await _mediator.Send(new ObterUsuarioQuery { UserId = UserId })).Result;
 
         Roles = (await _mediator.Send(new ObterRolesQuery())).Result;
 
-        User.RoleName = Roles.FirstOrDefault(r => r.Id.ToUpper() == User.RoleId).Name;
+        User.RoleName = Roles.FirstOrDefault(r => r.Id.ToLower() == User.RoleId.ToLower()).Name;
     }
 
     private async void UpdateUser()
     {
         var editado = await _mediator.Send(new EditarUsuarioCommand { User = User });
 
-        if(editado.Errors.Any())
+        if (editado.Errors.Any())
         {
             AlertMessage = "Erro ao editar o usuário. Tente novamente";
             AlertType = "dannger";
