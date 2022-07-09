@@ -36,12 +36,12 @@
                     <InputDate class="form-control" @bind-Value="@AlunoCreate.DataNascimento" />
                 </div>
                 <div class="col-md-6 form-space">
-                    <span class="tituloinformacoes">Data de nascimento</span>
-                    <InputSelect class="form-control" @bind-Value="@AlunoCreate.Email">
+                    <span class="tituloinformacoes">Selecione o e-mail de acordo com a conta de usuário</span>
+                    <InputSelect class="form-control" @bind-Value="@AlunoCreate.ApplicationUserId">
                         <option selected value="">|--Selecione--|</option>
-                        @foreach (var email in EmailsList)
+                        @foreach (var user in UsersList)
                         {
-                            <option value="@email">@email</option>
+                            <option value="@user.Id">@user.Email</option>
                         }
                     </InputSelect>
                 </div>
@@ -95,7 +95,7 @@
 
 @code {
     Aluno AlunoCreate;
-    List<string> EmailsList = new List<string>();
+    List<ApplicationUser> UsersList = new List<ApplicationUser>();
     string Message = "";
     string AlertType = "";
 
@@ -103,7 +103,7 @@
     {
         AlunoCreate = new Aluno { Endereco = new Endereco() };
 
-        EmailsList = (await _mediator.Send(new ObterEmailsUsuarioQuery())).Result;
+        UsersList = (await _mediator.Send(new ObterUsuariosQuery())).Result;
     }
 
     protected async void BuscarEndereco()

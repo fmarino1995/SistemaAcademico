@@ -1,4 +1,5 @@
 ﻿@page "/students/edit/{AlunoId}"
+@using SistemaAcademicoApplication.Alunos.Commands
 @using SistemaAcademicoApplication.Alunos.Queries
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
@@ -16,7 +17,7 @@
 }
 else
 {
-    <EditForm Model="aluno" OnValidSubmit="EditAlunoAsync">
+    <EditForm Model="@aluno" OnValidSubmit="EditAlunoAsync">
         <div class="card">
             <div class="card-header">
                 <div class="titulo-card">
@@ -24,54 +25,87 @@ else
                 </div>
             </div>
             <div class="card-body">
+                <FluentValidationValidator/>
+                <ValidationSummary/>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                        <InputText class="form-control space" @bind-Value="@aluno.Nome" />
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">CPF (apenas números)</span>
                         <InputText class="form-control" @bind-Value="@aluno.Cpf" />
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Matrícula</span>
                         <InputText class="form-control" @bind-Value="@aluno.Matricula" />
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Nome</span>
                         <InputText class="form-control" @bind-Value="@aluno.Nome" />
                     </div>
-                    <div class="col-md-6">
-                        <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Data de Nascimento</span>
+                        <InputDate class="form-control" @bind-Value="@aluno.DataNascimento" />
                     </div>
-                    <div class="col-md-6">
-                        <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Data de Cadastro</span>
+                        <input readonly class="form-control" value="@aluno.DataHoraCadastro.ToString("dd/MM/yyyy")" />
                     </div>
-                    <div class="col-md-6">
-                        <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Usuário de cadastro</span>
+                        <InputText readonly class="form-control" @bind-Value="@aluno.UsuarioCriacao" />
                     </div>
-                    <div class="col-md-6">
-                        <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Email</span>
+                        <InputText readonly class="form-control" @bind-Value="@aluno.Email" />
                     </div>
-                    <div class="col-md-6">
-                        <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                </div>
+            </div>
+
+            <hr class="hr1" />
+
+            <div class="card-header">
+                <div class="titulo-card">
+                    Endereço
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">CEP</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Endereco.CEP" @onfocusout="BuscarEndereco" />
                     </div>
-                    <div class="col-md-6">
-                        <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Logradouro</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Logradouro" />
                     </div>
-                    <div class="col-md-6">
-                        <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Nome" />
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Numero</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Numero" />
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Complemento</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Complemento" />
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Bairro</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Bairro" />
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">UF</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Endereco.EstadoUF" />
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <span class="tituloinformacoes">Cidade</span>
+                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Cidade" />
                     </div>
                 </div>
             </div>
             <div class="card-footer">
+                <input type="hidden" @bind="aluno.EnderecoId" />
+                <input type="hidden" @bind="aluno.AlunoId" />
+                <input type="hidden" @bind="aluno.ApplicationUserId" />
                 <a class="btn btn-outline-dark" href="" @onclick="Voltar">Voltar</a>
                 <input type="submit" class="btn btn-outline-primary" value="Salvar" />
             </div>
@@ -81,7 +115,7 @@ else
 
 
 @code {
-    Aluno aluno;
+    Aluno aluno = new Aluno();
     string Message = "";
     string AlertType = "";
 
@@ -90,9 +124,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        aluno.Endereco = new Endereco();
+
         var response = await _mediator.Send(new ObterAlunoQuery { AlunoId = Convert.ToInt32(AlunoId) });
 
-        if(response.Errors.Any())
+        if (response.Errors.Any())
         {
             Message = "Aluno não encontrado";
             AlertType = "danger";
@@ -102,14 +138,47 @@ else
         aluno = response.Result;
     }
 
+    protected async void BuscarEndereco()
+    {
+        if (!string.IsNullOrEmpty(aluno.Endereco.CEP))
+        {
+            var addresses = await new Correios.NET.CorreiosService().GetAddressesAsync(aluno.Endereco.CEP);
+            aluno.Endereco.Logradouro = addresses.FirstOrDefault().Street != null ? addresses.FirstOrDefault().Street : "";
+            aluno.Endereco.Cidade = addresses.FirstOrDefault().City != null ? addresses.FirstOrDefault().City : "";
+            aluno.Endereco.EstadoUF = addresses.FirstOrDefault().State != null ? addresses.FirstOrDefault().State : "";
+            aluno.Endereco.Bairro = addresses.FirstOrDefault().District != null ? addresses.FirstOrDefault().District : "";
+            this.StateHasChanged();
+        }
+        else
+        {
+            aluno.Endereco.Logradouro = null;
+            aluno.Endereco.Cidade = null;
+            aluno.Endereco.EstadoUF = null;
+            aluno.Endereco.Bairro = null;
+            this.StateHasChanged();
+        }
+    }
+
     protected async Task EditAlunoAsync()
     {
-        
+        var response = await _mediator.Send(new EditarAlunoCommand { Aluno = aluno });
+
+        if(response.Errors.Any())
+        {
+            Message = "Ocorreu um erro ao editar o aluno.";
+            AlertType = "danger";
+        }
+        else
+        {
+            Message = "Aluno editado com sucesso!";
+            AlertType = "success";
+        }
+
+        _navigationManager.NavigateTo($"students/{Message}/{AlertType}");
     }
 
     void Voltar()
     {
         _navigationManager.NavigateTo("students", true);
     }
-
 }

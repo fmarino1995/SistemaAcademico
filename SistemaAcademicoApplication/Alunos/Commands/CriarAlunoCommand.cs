@@ -4,6 +4,7 @@ using SistemaAcademicoData.Context;
 using SistemaAcademicoApplication.Common.Responses;
 using SistemaAcademicoApplication.Enderecos.Commands;
 using SistemaAcademicoApplication.Interfaces;
+using SistemaAcademicoApplication.Usuarios.Queries;
 
 namespace SistemaAcademicoApplication.Alunos.Commands
 {
@@ -41,6 +42,12 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                     if (enderecoCreate.Errors.Any())
                         throw new Exception("Erro ao salvar o endereço");
 
+                    var appUser = await _mediator.Send(new ObterUsuarioQuery { UserId = Aluno.ApplicationUserId });
+
+                    if (appUser.Errors.Any())
+                        throw new Exception("Erro ao associar o aluno com a conta de usuário");
+
+                    Aluno.Email = appUser.Result.Email;
                     Aluno.EnderecoId = enderecoCreate.Result.EnderecoId;
                     Aluno.DataHoraCadastro = DateTime.Now;
                     Aluno.UsuarioCriacao = await _currentUserService.GetUserNameAsync();

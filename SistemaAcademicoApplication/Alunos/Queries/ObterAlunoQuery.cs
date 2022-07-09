@@ -24,6 +24,7 @@ namespace SistemaAcademicoApplication.Alunos.Queries
         {
             var aluno = await _context.Alunos
                 .Include(a => a.Endereco)
+                .Include(a => a.ApplicationUser)
                 .FirstOrDefaultAsync(a => a.AlunoId == request.AlunoId);
 
             if (aluno == null)
