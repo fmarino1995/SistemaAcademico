@@ -50,10 +50,10 @@ else
                             <td>@user.Status</td>
                             <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
                             <td style="width: 6%;">
-                                <a href="/users/edit/{@user.Id}" title="Editar Usuário">
+                                <a href="/users/edit/@user.Id" title="Editar Usuário">
                                     <span class="oi oi-pencil" aria-hidden="true"></span>
                                 </a>
-                                <a href="/users/remove/{@user.Id}" title="Inativar usuário">
+                                <a href="/users/remove/@user.Id" title="Inativar usuário">
                                     <span class="oi oi-trash" aria-hidden="true"></span>
                                 </a>
                             </td>
@@ -83,7 +83,7 @@ else
 
         foreach(var item in Usuarios)
         {
-            item.Status = ImprimirStatusUsuario(item.Status);
+            item.StatusFull = ImprimirStatusUsuario(item.Status);
         }
     }
 

@@ -3,7 +3,6 @@ using SistemaAcademicoApplication.Common.Responses;
 using Microsoft.EntityFrameworkCore;
 using SistemaAcademicoData.Context;
 using Domain.Entities;
-using Domain.Constantes;
 
 namespace SistemaAcademicoApplication.Usuarios.Queries
 {
