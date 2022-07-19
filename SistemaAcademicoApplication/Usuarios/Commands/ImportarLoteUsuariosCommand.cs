@@ -13,13 +13,13 @@ using Domain.ViewModels;
 
 namespace SistemaAcademicoApplication.Usuarios.Commands
 {
-    public class ImportarLoteUsuariosCommand : IRequest<Response<ImportarAlunosViewModel>>
+    public class ImportarLoteUsuariosCommand : IRequest<Response<ImportarUsuariosViewModel>>
     {
         public IBrowserFile File { get; set; }
         public string FilePath { get; set; }
     }
 
-    public class ImportarLoteUsuariosCommandHandler : IRequestHandler<ImportarLoteUsuariosCommand, Response<ImportarAlunosViewModel>>
+    public class ImportarLoteUsuariosCommandHandler : IRequestHandler<ImportarLoteUsuariosCommand, Response<ImportarUsuariosViewModel>>
     {
         private readonly IUserService _userService;
         private readonly IMediator _mediator;
@@ -32,9 +32,9 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
             _mediator = mediator;
         }
 
-        public async Task<Response<ImportarAlunosViewModel>> Handle(ImportarLoteUsuariosCommand request, CancellationToken cancellationToken)
+        public async Task<Response<ImportarUsuariosViewModel>> Handle(ImportarLoteUsuariosCommand request, CancellationToken cancellationToken)
         {
-            ImportarAlunosViewModel viewModel = new ImportarAlunosViewModel();
+            ImportarUsuariosViewModel viewModel = new ImportarUsuariosViewModel();
             viewModel.Users = new List<ApplicationUser>();
             viewModel.LogImportacao = new LogImportacao();
             viewModel.LogImportacao.Errors = new List<string>();
@@ -98,7 +98,7 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
                 viewModel.LogImportacao.Mensagem = viewModel.LogImportacao.Errors.Count == 0 ? $"Importação concluída sem erros do arquivo {request.File.Name}"
                     : $"Importação concluída com {viewModel.LogImportacao.Errors.Count} erros no arquivo {request.File.Name}";
                 await _mediator.Send(new CriarLogImportacaoCommand { LogImportacao = viewModel.LogImportacao });
-                return new Response<ImportarAlunosViewModel>(viewModel);
+                return new Response<ImportarUsuariosViewModel>(viewModel);
             }
             catch (Exception ex)
             {
@@ -108,7 +108,7 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
 
                 await _mediator.Send(new CriarLogImportacaoCommand { LogImportacao = viewModel.LogImportacao });
 
-                return new Response<ImportarAlunosViewModel>(viewModel);
+                return new Response<ImportarUsuariosViewModel>(viewModel);
             }
         }
 
