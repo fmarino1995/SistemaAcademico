@@ -20,26 +20,35 @@
             <FluentValidationValidator />
             <ValidationSummary />
             <div class="row">
+
                 <div class="col-md-6 col-lg-6 form-space">
-                    <span class="tituloinformacoes">Email</span>
-                    <InputText readonly class="form-control" @bind-Value="@User.Email"></InputText>
+                    <div class="form-floating mb-3">
+                        <InputText id="floatingEmail" class="form-control" @bind-Value="@User.Email" placeholder="Email" />
+                        <label for="floatingEmail">Email</label>
+                    </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
-                    <span class="tituloinformacoes">Nome completo</span>
-                    <InputText class="form-control" @bind-Value="@User.NomeCompleto"></InputText>
+                    <div class="form-floating mb-3">
+                        <InputText id="floatingNome" class="form-control" @bind-Value="@User.NomeCompleto" placeholder="Nome Completo" />
+                        <label for="floatingNome">Nome Completo</label>
+                    </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
-                    <span class="tituloinformacoes">Status</span>
-                    <select class="form-select" @bind="User.Status">
-                        @foreach (var item in ListaParametros.ListaTipoStatus)
-                        {
-                            <option value="@item.Key">@item.Value</option>
-                        }
-                    </select>
+                    <div class="form-floating">
+                        <InputSelect id="SelectStatus" class="form-select" @bind-Value="User.Status">
+                            @foreach (var item in ListaParametros.ListaTipoStatus)
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </InputSelect>
+                        <label for="SelectStatus">Status</label>
+                    </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
-                    <span class="tituloinformacoes">Perfil</span>
-                    <InputText readonly class="form-control" @bind-Value="User.RoleName"></InputText>
+                    <div class="form-floating mb-3">
+                        <InputText id="floatingPerfil" class="form-control" @bind-Value="@User.RoleName" placeholder="Perfil" />
+                        <label for="floatingPerfil">Perfil</label>
+                    </div>
                 </div>
             </div>
         </div>
