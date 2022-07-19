@@ -28,33 +28,47 @@ else
                 <FluentValidationValidator />
                 <ValidationSummary />
                 <div class="row">
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Nome</span>
-                        <InputText class="form-control space" @bind-Value="@aluno.Nome" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingNome" class="form-control" @bind-Value="@aluno.Nome" placeholder="Nome" />
+                            <label for="floatingNome">Nome</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">CPF (apenas números)</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Cpf" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingCPF" class="form-control" @bind-Value="@aluno.Cpf" placeholder="CPF" />
+                            <label for="floatingCPF">CPF</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Matrícula</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Matricula" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingMatricula" class="form-control" @bind-Value="@aluno.Matricula" placeholder="Matricula" />
+                            <label for="floatingMatricula">Matrícula</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Data de Nascimento</span>
-                        <InputDate class="form-control" @bind-Value="@aluno.DataNascimento" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputDate id="floatingDataNasc" class="form-control" @bind-Value="@aluno.DataNascimento" placeholder="Data de nascimento" />
+                            <label for="floatingDataNasc">Data de nascimento</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Data de Cadastro</span>
-                        <input readonly class="form-control" value="@aluno.DataHoraCadastro.ToString("dd/MM/yyyy")" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <input readonly id="floatingDataCadastro" class="form-control" value="@aluno.DataHoraCadastro.ToString("dd/MM/yyyy")" placeholder="Data de cadastro" />
+                            <label for="floatingDataCadastro">Data de cadastro</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Usuário de cadastro</span>
-                        <InputText readonly class="form-control" @bind-Value="@aluno.UsuarioCriacao" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText readonly id="floatingUsuarioCriacao" class="form-control" @bind-Value="@aluno.UsuarioCriacao" placeholder="Usuário de cadastro" />
+                            <label for="floatingUsuarioCriacao">Usuário de cadastro</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Email</span>
-                        <InputText readonly class="form-control" @bind-Value="@aluno.Email" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText readonly id="floatingEmail" class="form-control" @bind-Value="@aluno.Email" placeholder="Email" />
+                            <label for="floatingEmail">Email</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -68,37 +82,51 @@ else
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">CEP</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Endereco.CEP" @onfocusout="BuscarEndereco" />
-                        @if (!string.IsNullOrEmpty(CepErrorMessage))
-                        {
-                            <span class="text-danger">@CepErrorMessage</span>
-                        }
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingCep" class="form-control" @bind-Value="@aluno.Endereco.CEP" placeholder="CEP" />
+                            <label for="floatingCep">CEP</label>
+                            @if (!string.IsNullOrEmpty(CepErrorMessage))
+                            {
+                                <span class="text-danger">@CepErrorMessage</span>
+                            }
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Logradouro</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Logradouro" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingLogradouro" class="form-control" @bind-Value="@aluno.Endereco.Logradouro" placeholder="Logradouro" />
+                            <label for="floatingLogradouro">Logradouro</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Numero</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Numero" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingNumero" class="form-control" @bind-Value="@aluno.Endereco.Numero" placeholder="Número" />
+                            <label for="floatingNumero">Número</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Complemento</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Complemento" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingComplemento" class="form-control" @bind-Value="@aluno.Endereco.Complemento" placeholder="Complemento" />
+                            <label for="floatingComplemento">Complemento</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Bairro</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Bairro" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingBairro" class="form-control" @bind-Value="@aluno.Endereco.Bairro" placeholder="Bairro" />
+                            <label for="floatingBairro">Bairro</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">UF</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Endereco.EstadoUF" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingUF" class="form-control" @bind-Value="@aluno.Endereco.EstadoUF" placeholder="UF" />
+                            <label for="floatingUF">UF</label>
+                        </div>
                     </div>
-                    <div class="col-md-6 form-space">
-                        <span class="tituloinformacoes">Cidade</span>
-                        <InputText class="form-control" @bind-Value="@aluno.Endereco.Cidade" />
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingCidade" class="form-control" @bind-Value="@aluno.Endereco.Cidade" placeholder="Cidade" />
+                            <label for="floatingCidade">Cidade</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -148,7 +176,7 @@ else
             aluno.Endereco.Cidade = addresses.Count() > 0 ? addresses.FirstOrDefault().City : "";
             aluno.Endereco.EstadoUF = addresses.Count() > 0 ? addresses.FirstOrDefault().State : "";
             aluno.Endereco.Bairro = addresses.Count() > 0 ? addresses.FirstOrDefault().District : "";
-            CepErrorMessage = addresses.Count() > 0 ? "" :"CEP não encontrado";
+            CepErrorMessage = addresses.Count() > 0 ? "" : "CEP não encontrado";
             this.StateHasChanged();
         }
         else
