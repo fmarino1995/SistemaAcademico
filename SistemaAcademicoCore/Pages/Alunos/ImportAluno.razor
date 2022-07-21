@@ -1,11 +1,11 @@
 ﻿@page "/students/import"
+@using SistemaAcademicoApplication.Alunos.Commands
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 
 <PageTitle>Importação Alunos - SistemaAcademico</PageTitle>
 
-@if (!ResultadoImportacao)
-{
+
     <div class="card">
         <div class="card-header">
             <div class="titulo-card">
@@ -38,10 +38,32 @@
             </div>
         </form>
     </div>
-}
-else
+
+@if(ResultadoImportacao)
 {
-    
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Resultado da Importação
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Quantidade Importados</label>
+                    <div class="content-informa">@qtdImportados</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Quantidade não Importados</label>
+                    <div class="content-informa">@qtdNaoImportados</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Log da importação</label>
+                    <textarea readonly rows="10" class="form-control">@log</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 
@@ -54,6 +76,9 @@ else
     bool ExibirAlert = false;
     string AlertType = "";
     bool ResultadoImportacao;
+    string log = "";
+    int qtdImportados;
+    int qtdNaoImportados;
 
     private void OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -66,6 +91,18 @@ else
     {
         string filePath = $"C:\\arquivosImportacaoAluno\\{selectedFile.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
 
+        var importacaoResponse = await _mediator.Send(new ImportarAlunosCommand { File = selectedFile, FilePath = filePath });
 
+        if (importacaoResponse.Errors.Any())
+        {
+            MensagemValidacao = importacaoResponse.Errors.First();
+            this.StateHasChanged();
+        }
+        else
+        {
+            log = importacaoResponse.Result.LogImportacao.Mensagem;
+            ResultadoImportacao = true;
+            this.StateHasChanged();
+        }
     }
 }

@@ -14,6 +14,7 @@ using CsvHelper;
 using System.Globalization;
 using SistemaAcademicoApplication.Enderecos.Commands;
 using SistemaAcademicoApplication.Interfaces;
+using SistemaAcademicoApplication.LogImportacoes.Commands;
 
 namespace SistemaAcademicoApplication.Alunos.Commands
 {
@@ -62,33 +63,20 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                 {
                     Delimiter = ";",
-                    Encoding = Encoding.UTF8
+                    Encoding = Encoding.Latin1
                 };
 
-                using (var reader = new StreamReader(request.FilePath))
+                using (var reader = new StreamReader(request.FilePath, Encoding.Latin1))
                 using (var csv = new CsvReader(reader, config))
                 {
-                    csv.ReadHeader();
                     csv.Read();
+                    csv.ReadHeader();
 
-                    while(csv.Read())
+                    while (csv.Read())
                     {
                         try
                         {
                             var cpfAluno = csv.GetField("CPF");
-
-                            var novoEndereco = new Endereco
-                            {
-                                CEP = csv.GetField("CEP").Replace("-",""),
-                                Logradouro = csv.GetField("LOGRADOURO"),
-                                Numero = csv.GetField("NUMERO"),
-                                Complemento = csv.GetField("COMPLEMENTO"),
-                                Bairro = csv.GetField("BAIRRO"),
-                                Cidade = csv.GetField("CIDADE"),
-                                EstadoUF = csv.GetField("UF").Trim().Length > 2 ? throw new Exception($"UF deve apenas conter 2 caracteres para o aluno de cff : '{cpfAluno}', não foi possível improtar") : csv.GetField("UF")
-                            };
-
-                            var enderecoResponse = await _mediator.Send(new CriarEnderecoCommand { Endereco = novoEndereco });
 
                             var novoAluno = new Aluno
                             {
@@ -96,18 +84,30 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                                 Nome = csv.GetField("NOME"),
                                 Matricula = csv.GetField("MATRICULA"),
                                 DataNascimento = DateTime.TryParse(csv.GetField("DATA_NASCIMENTO"), out dateResult) ? dateResult : throw new Exception($"Formato incorreto para data de nascimento do aluno de cpf '{cpfAluno}', não foi possível importar."),
-                                Email = await VerificarEmailAlunoExits(csv.GetField("EMAIL")) ? throw new Exception($"Email informado para aluno de cpf '{cpfAluno}' já asssociado a outra conta, não foi possivel importar") : csv.GetField("EMAIL"),
-                                EnderecoId = enderecoResponse.Result.EnderecoId,
+                                Email = await VerificarEmailAlunoExits(csv.GetField("EMAIL_USUARIO")) ? throw new Exception($"Email informado para aluno de cpf '{cpfAluno}' já asssociado a outra conta, não foi possivel importar") : csv.GetField("EMAIL"),
                                 DataHoraCadastro = DateTime.Now,
                                 Status = Parametros.StatusAtivo,
-                                UsuarioCriacao = await  _currentUserService.GetUserNameAsync()
+                                UsuarioCriacao = await _currentUserService.GetUserNameAsync(),
+                                Endereco = new Endereco
+                                {
+                                    CEP = csv.GetField("CEP").Replace("-", ""),
+                                    Logradouro = csv.GetField("LOGRADOURO"),
+                                    Numero = csv.GetField("NUMERO"),
+                                    Complemento = csv.GetField("COMPLEMENTO"),
+                                    Bairro = csv.GetField("BAIRRO"),
+                                    Cidade = csv.GetField("CIDADE"),
+                                    EstadoUF = csv.GetField("UF").Trim().Length > 2 ? throw new Exception($"UF deve apenas conter 2 caracteres para o aluno de cff : '{cpfAluno}', não foi possível improtar") : csv.GetField("UF")
+                                },
                             };
-
 
                             var alunoResponse = await _mediator.Send(new CriarAlunoCommand { Aluno = novoAluno });
 
+                            if (alunoResponse.Errors.Any())
+                                throw new Exception($"Aluno de CPF '{cpfAluno}' não importado devido a um erro : " + alunoResponse.Errors.First());
+
+                            viewModel.QuantidadeImportados++;
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             viewModel.LogImportacao.Errors.Add(ex.Message);
                             viewModel.QuantidadeNaoImportados++;
@@ -116,6 +116,28 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                     }
                 }
 
+                
+
+                if (viewModel.LogImportacao.Errors.Any())
+                {
+                    foreach (var error in viewModel.LogImportacao.Errors)
+                    {
+                        viewModel.LogImportacao.Mensagem += string.Format("{0}\r\n", error);
+                        viewModel.LogImportacao.Status = "ERRO";
+                    }
+                }
+                else
+                {
+                    viewModel.LogImportacao.Status = "CONCLUIDO";
+                    viewModel.LogImportacao.Mensagem = "Importação concluída sem erros para o arquivo " + request.File.Name;
+                }
+
+                await _mediator.Send(new CriarLogImportacaoCommand
+                {
+                    LogImportacao = viewModel.LogImportacao
+                });
+
+                return new Response<ImportarAlunosViewModel>(viewModel);
             }
             catch (CsvHelper.MissingFieldException)
             {
@@ -124,7 +146,7 @@ namespace SistemaAcademicoApplication.Alunos.Commands
             }
             catch (Exception ex)
             {
-                errorResponse.AddError("Erro crítico no processo de improtação : " + ex.Message);
+                errorResponse.AddError("Erro crítico no processo de importação : " + ex.Message);
                 return errorResponse;
             }
         }
@@ -133,7 +155,7 @@ namespace SistemaAcademicoApplication.Alunos.Commands
         {
             var response = await _mediator.Send(new VerificarAlunoEmailExistenteCommand { Email = email });
 
-            if(response.Result)
+            if (response.Result)
             {
                 return true;
             }
