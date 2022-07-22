@@ -1,12 +1,11 @@
-﻿@page "/students"
-@page "/students/{message}/{alertType}"
+﻿@page "/professors"
+@page "/professors/{message}/{alertType}"
+@using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 @layout MainLayout
-@using SistemaAcademicoApplication.Alunos.Queries
-@using Salazar.CSharp.String.Mask
 
-<PageTitle>Alunos - SistemaAcademico</PageTitle>
+<PageTitle>Professores - SistemaAcademico</PageTitle>
 
 
 @if (!Exibir)
@@ -43,18 +42,18 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var aluno in AlunosList)
+                    @foreach (var professor in ProfessoresList)
                     {
                         <tr>
-                            <td>@aluno.Nome</td>
-                            <td>@aluno.Cpf.ToMask("###.###.###-##")</td>
-                            <td>@aluno.Matricula</td>
-                            <td>@aluno.Email</td>
+                            <td>@professor.Nome</td>
+                            <td>@professor.Cpf.ToMask("###.###.###-##")</td>
+                            <td>@professor.Matricula</td>
+                            <td>@professor.Email</td>
                             <td style="width: 6%;">
-                                <a href="/students/edit/@aluno.AlunoId" title="Editar Aluno">
+                                <a href="/students/edit/@professor.AlunoId" title="Editar Aluno">
                                     <span class="oi oi-pencil" aria-hidden="true"></span>
                                 </a>
-                                <a href="/students/remove/@aluno.AlunoId" title="Inativar Aluno">
+                                <a href="/students/remove/@professor.AlunoId" title="Inativar Aluno">
                                     <span class="oi oi-trash" aria-hidden="true"></span>
                                 </a>
                             </td>
@@ -64,23 +63,23 @@ else
             </DataTable>
         </div>
     </div>
+    
 }
 
-@code {
 
+@code {
     [Parameter]
     public string Message { get; set; }
     [Parameter]
     public string AlertType { get; set; }
 
-    bool Exibir = false;
-    bool ExibirAlert = false;
-    protected List<Aluno> AlunosList = new List<Aluno>();
+    List<Professor> ProfessoresList = new List<Professor>();
+    bool Exibir;
+    bool ExibirAlert;
 
     protected override async Task OnInitializedAsync()
     {
-        var usuariosList = await _mediator.Send(new ObterAlunosQuery());
-        AlunosList = usuariosList.Result;
+        ProfessoresList = (await _mediator.Send(new ObterProfessoresQuery())).Result;
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -99,6 +98,7 @@ else
 
     protected void GotoCreate()
     {
-        _navigationManager.NavigateTo("students/add", true);
+        _navigationManager.NavigateTo("professors/add", true);
     }
+
 }
