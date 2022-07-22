@@ -1,18 +1,18 @@
-﻿@page "/students/add"
-@using SistemaAcademicoApplication.Alunos.Commands
-@using SistemaAcademicoApplication.Enderecos.Commands
+﻿@page "/professors/add"
+@using SistemaAcademicoApplication.Professores.Commands
+@using SistemaAcademicoApplication.Professores.Queries
 @using SistemaAcademicoApplication.Usuarios.Queries
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 @layout MainLayout
 
-<PageTitle>Novo aluno - Sistema Academico</PageTitle>
+<PageTitle>Novo professor - Sistema Academico</PageTitle>
 
-<EditForm Model="@AlunoCreate" OnValidSubmit="AddAlunoAsync">
+<EditForm Model="@ProfessorCreate" OnValidSubmit="AddProfessorAsync">
     <div class="card">
         <div class="card-header">
             <div class="titulo-card">
-                Novo Aluno
+                Novo Professor
             </div>
         </div>
         <div class="card-body">
@@ -21,33 +21,33 @@
             <div class="row">
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingCpf" class="form-control" @bind-Value="@AlunoCreate.Cpf" placeholder="CPF" />
+                        <InputText id="floatingCpf" class="form-control" @bind-Value="@ProfessorCreate.Cpf" placeholder="CPF" />
                         <label for="floatingCpf">CPF</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingNome" class="form-control" @bind-Value="@AlunoCreate.Nome" placeholder="Nome" />
+                        <InputText id="floatingNome" class="form-control" @bind-Value="@ProfessorCreate.Nome" placeholder="Nome" />
                         <label for="floatingNome">Nome</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingMatricula" class="form-control" @bind-Value="@AlunoCreate.Matricula" placeholder="Matrícula" />
+                        <InputText id="floatingMatricula" class="form-control" @bind-Value="@ProfessorCreate.Matricula" placeholder="Matrícula" />
                         <label for="floatingMatricula">Matrícula</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputDate id="floatingDataNasc" class="form-control" @bind-Value="@AlunoCreate.DataNascimento" placeholder="Data de nascimento" />
+                        <InputDate id="floatingDataNasc" class="form-control" @bind-Value="@ProfessorCreate.DataNascimento" placeholder="Data de nascimento" />
                         <label for="floatingDataNasc">Data de nascimento</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputSelect class="form-select" @bind-Value="@AlunoCreate.ApplicationUserId" @onchange="VerificarEmailUsuario">
+                        <InputSelect class="form-select" @bind-Value="@ProfessorCreate.ApplicationUserId" @onchange="VerificarEmailUsuario">
                             <option selected value="floatingEmail">|--Selecione--|</option>
-                            @foreach (var user in UsersList.Where(u => u.RoleId == "")) // pegar tipo role aluno
+                            @foreach (var user in UsersList) // filtrar por role professor
                             {
                                 <option value="@user.Id">@user.Email</option>
                             }
@@ -71,7 +71,7 @@
             <div class="row">
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingCep" class="form-control" @bind-Value="@AlunoCreate.Endereco.CEP" placeholder="CEP" @onfocusout="@BuscarEndereco" />
+                        <InputText id="floatingCep" class="form-control" @bind-Value="@ProfessorCreate.Endereco.CEP" placeholder="CEP" @onfocusout="@BuscarEndereco" />
                         <label for="floatingCep">CEP</label>
                         @if (!string.IsNullOrEmpty(CepErrorMessage))
                         {
@@ -81,37 +81,37 @@
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingLogradouro" class="form-control" @bind-Value="@AlunoCreate.Endereco.Logradouro" placeholder="Logradouro" />
+                        <InputText id="floatingLogradouro" class="form-control" @bind-Value="@ProfessorCreate.Endereco.Logradouro" placeholder="Logradouro" />
                         <label for="floatingLogradouro">Logradouro</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingNumero" class="form-control" @bind-Value="@AlunoCreate.Endereco.Numero" placeholder="Número" />
+                        <InputText id="floatingNumero" class="form-control" @bind-Value="@ProfessorCreate.Endereco.Numero" placeholder="Número" />
                         <label for="floatingNumero">Número</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingComplemento" class="form-control" @bind-Value="@AlunoCreate.Endereco.Complemento" placeholder="Complemento" />
+                        <InputText id="floatingComplemento" class="form-control" @bind-Value="@ProfessorCreate.Endereco.Complemento" placeholder="Complemento" />
                         <label for="floatingComplemento">Complemento</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingBairro" class="form-control" @bind-Value="@AlunoCreate.Endereco.Bairro" placeholder="Bairro" />
+                        <InputText id="floatingBairro" class="form-control" @bind-Value="@ProfessorCreate.Endereco.Bairro" placeholder="Bairro" />
                         <label for="floatingBairro">Bairro</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingUF" class="form-control" @bind-Value="@AlunoCreate.Endereco.EstadoUF" placeholder="UF" />
+                        <InputText id="floatingUF" class="form-control" @bind-Value="@ProfessorCreate.Endereco.EstadoUF" placeholder="UF" />
                         <label for="floatingUF">UF</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingCidade" class="form-control" @bind-Value="@AlunoCreate.Endereco.Cidade" placeholder="Cidade" />
+                        <InputText id="floatingCidade" class="form-control" @bind-Value="@ProfessorCreate.Endereco.Cidade" placeholder="Cidade" />
                         <label for="floatingCidade">Cidade</label>
                     </div>
                 </div>
@@ -131,10 +131,8 @@
     </div>
 </EditForm>
 
-
 @code {
-    Aluno AlunoCreate;
-    List<ApplicationUser> UsersList = new List<ApplicationUser>();
+    Professor ProfessorCreate;
     string Message = "";
     string AlertType = "";
     string CepErrorMessage = "";
@@ -142,60 +140,60 @@
 
     protected override async Task OnInitializedAsync()
     {
-        AlunoCreate = new Aluno { Endereco = new Endereco() };
+        ProfessorCreate = new Professor { Endereco = new Endereco() };
 
         UsersList = (await _mediator.Send(new ObterUsuariosQuery())).Result;
     }
 
     protected async void BuscarEndereco()
     {
-        if (!string.IsNullOrEmpty(AlunoCreate.Endereco.CEP))
+        if (!string.IsNullOrEmpty(ProfessorCreate.Endereco.CEP))
         {
             var addresses = await new Correios.NET.CorreiosService().GetAddressesAsync(AlunoCreate.Endereco.CEP);
-            AlunoCreate.Endereco.Logradouro = addresses.Count() > 0 ? addresses.FirstOrDefault().Street : "";
-            AlunoCreate.Endereco.Cidade = addresses.Count() > 0 ? addresses.FirstOrDefault().City : "";
-            AlunoCreate.Endereco.EstadoUF = addresses.Count() > 0 ? addresses.FirstOrDefault().State : "";
-            AlunoCreate.Endereco.Bairro = addresses.Count() > 0 ? addresses.FirstOrDefault().District : "";
+            ProfessorCreate.Endereco.Logradouro = addresses.Count() > 0 ? addresses.FirstOrDefault().Street : "";
+            ProfessorCreate.Endereco.Cidade = addresses.Count() > 0 ? addresses.FirstOrDefault().City : "";
+            ProfessorCreate.Endereco.EstadoUF = addresses.Count() > 0 ? addresses.FirstOrDefault().State : "";
+            ProfessorCreate.Endereco.Bairro = addresses.Count() > 0 ? addresses.FirstOrDefault().District : "";
             CepErrorMessage = addresses.Count() > 0 ? "" : "CEP não encontrado";
             this.StateHasChanged();
         }
         else
         {
-            AlunoCreate.Endereco.Logradouro = null;
-            AlunoCreate.Endereco.Cidade = null;
-            AlunoCreate.Endereco.EstadoUF = null;
-            AlunoCreate.Endereco.Bairro = null;
+            ProfessorCreate.Endereco.Logradouro = null;
+            ProfessorCreate.Endereco.Cidade = null;
+            ProfessorCreate.Endereco.EstadoUF = null;
+            ProfessorCreate.Endereco.Bairro = null;
             this.StateHasChanged();
         }
     }
 
-    protected async Task AddAlunoAsync()
+    protected async Task AddProfessorAsync()
     {
-        var createResponse = await _mediator.Send(new CriarAlunoCommand { Aluno = AlunoCreate });
+        var createResponse = await _mediator.Send(new CriarProfessorCommand { Professor = ProfessorCreate });
 
         if (createResponse.Errors.Any())
         {
-            Message = "Erro ao cadastrar o aluno. Tente novamente.";
+            Message = "Erro ao cadastrar o professor. Tente novamente.";
             AlertType = "danger";
         }
         else
         {
-            Message = "Aluno cadastrado com sucesso!";
+            Message = "Professor cadastrado com sucesso!";
             AlertType = "success";
         }
 
-        _navigationManager.NavigateTo($"students/{Message}/{AlertType}");
+        _navigationManager.NavigateTo($"professors/{Message}/{AlertType}");
     }
 
     protected async void VerificarEmailUsuario(ChangeEventArgs e)
     {
         var id = e.Value.ToString();
 
-        var alunoExists = await _mediator.Send(new VerificarAlunoEmailExistenteCommand { Id = id });
+        var alunoExists = await _mediator.Send(new VerificarProfessorEmailExistenteQuery { Id = id });
 
         if (alunoExists.Result)
         {
-            EmailExistsErrorMessage = "Email já alocado a outro aluno.";
+            EmailExistsErrorMessage = "Email já alocado a outro professor.";
             this.StateHasChanged();
         }
         else
@@ -207,6 +205,6 @@
 
     protected void Voltar()
     {
-        _navigationManager.NavigateTo("students", true);
+        _navigationManager.NavigateTo("professors", true);
     }
 }

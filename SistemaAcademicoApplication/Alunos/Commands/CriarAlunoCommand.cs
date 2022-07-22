@@ -52,7 +52,7 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                     Aluno.DataHoraCadastro = DateTime.Now;
                     Aluno.UsuarioCriacao = await _currentUserService.GetUserNameAsync();
                     
-                    _context.Alunos.Add(request.Aluno);
+                    _context.Alunos.Add(Aluno);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync(cancellationToken);
                     return new Response<Aluno>(Aluno);
