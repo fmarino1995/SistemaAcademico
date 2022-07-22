@@ -1,0 +1,215 @@
+﻿@page "/professors/edit/{ProfessorId}"
+@using SistemaAcademicoApplication.Professores.Commands
+@using SistemaAcademicoApplication.Professores.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+
+<PageTitle>Editar Professor - Sistema Academico</PageTitle>
+
+@if (professor == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <EditForm Model="@professor" OnValidSubmit="EditProfessorAsync">
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Editar Professor
+                </div>
+            </div>
+            <div class="card-body">
+                <FluentValidationValidator />
+                <ValidationSummary />
+                <div class="row">
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingNome" class="form-control" @bind-Value="@professor.Nome" placeholder="Nome" />
+                            <label for="floatingNome">Nome</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingCPF" class="form-control" @bind-Value="@professor.Cpf" placeholder="CPF" />
+                            <label for="floatingCPF">CPF</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingMatricula" class="form-control" @bind-Value="@professor.Matricula" placeholder="Matricula" />
+                            <label for="floatingMatricula">Matrícula</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputDate id="floatingDataNasc" class="form-control" @bind-Value="@professor.DataNascimento" placeholder="Data de nascimento" />
+                            <label for="floatingDataNasc">Data de nascimento</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <input readonly id="floatingDataCadastro" class="form-control" value="@professor.DataHoraCadastro.ToString("dd/MM/yyyy")" placeholder="Data de cadastro" />
+                            <label for="floatingDataCadastro">Data de cadastro</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText readonly id="floatingUsuarioCriacao" class="form-control" @bind-Value="@professor.UsuarioCriacao" placeholder="Usuário de cadastro" />
+                            <label for="floatingUsuarioCriacao">Usuário de cadastro</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText readonly id="floatingEmail" class="form-control" @bind-Value="@professor.Email" placeholder="Email" />
+                            <label for="floatingEmail">Email</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="hr1" />
+
+            <div class="card-header">
+                <div class="titulo-card">
+                    Endereço
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingCep" class="form-control" @bind-Value="@professor.Endereco.CEP" placeholder="CEP" @onfocusout="BuscarEndereco" />
+                            <label for="floatingCep">CEP</label>
+                            @if (!string.IsNullOrEmpty(CepErrorMessage))
+                            {
+                                <span class="text-danger">@CepErrorMessage</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingLogradouro" class="form-control" @bind-Value="@professor.Endereco.Logradouro" placeholder="Logradouro" />
+                            <label for="floatingLogradouro">Logradouro</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingNumero" class="form-control" @bind-Value="@professor.Endereco.Numero" placeholder="Número" />
+                            <label for="floatingNumero">Número</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingComplemento" class="form-control" @bind-Value="@professor.Endereco.Complemento" placeholder="Complemento" />
+                            <label for="floatingComplemento">Complemento</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingBairro" class="form-control" @bind-Value="@professor.Endereco.Bairro" placeholder="Bairro" />
+                            <label for="floatingBairro">Bairro</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingUF" class="form-control" @bind-Value="@professor.Endereco.EstadoUF" placeholder="UF" />
+                            <label for="floatingUF">UF</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingCidade" class="form-control" @bind-Value="@professor.Endereco.Cidade" placeholder="Cidade" />
+                            <label for="floatingCidade">Cidade</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <input type="hidden" @bind="professor.EnderecoId" />
+                <input type="hidden" @bind="professor.ProfessorId" />
+                <input type="hidden" @bind="professor.ApplicationUserId" />
+                <a class="btn btn-outline-dark" href="" @onclick="Voltar">Voltar</a>
+                <input type="submit" class="btn btn-outline-primary" value="Salvar" />
+            </div>
+        </div>
+    </EditForm>
+}
+
+
+@code {
+    Professor professor = new Professor();
+    string Message = "";
+    string AlertType = "";
+    string CepErrorMessage = "";
+
+    [Parameter]
+    public string ProfessorId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        professor.Endereco = new Endereco();
+
+        var response = await _mediator.Send(new ObterProfessorQuery { ProfessorId = Convert.ToInt32(ProfessorId) });
+
+        if (response.Errors.Any())
+        {
+            Message = "Professor não encontrado";
+            AlertType = "danger";
+            _navigationManager.NavigateTo($"professors/{Message}/{AlertType}", true);
+        }
+
+        professor = response.Result;
+    }
+
+    protected async void BuscarEndereco()
+    {
+        if (!string.IsNullOrEmpty(aluno.Endereco.CEP))
+        {
+            var addresses = await new Correios.NET.CorreiosService().GetAddressesAsync(professor.Endereco.CEP);
+            professor.Endereco.Logradouro = addresses.Count() > 0 ? addresses.FirstOrDefault().Street : "";
+            professor.Endereco.Cidade = addresses.Count() > 0 ? addresses.FirstOrDefault().City : "";
+            professor.Endereco.EstadoUF = addresses.Count() > 0 ? addresses.FirstOrDefault().State : "";
+            professor.Endereco.Bairro = addresses.Count() > 0 ? addresses.FirstOrDefault().District : "";
+            CepErrorMessage = addresses.Count() > 0 ? "" : "CEP não encontrado";
+            this.StateHasChanged();
+        }
+        else
+        {
+            professor.Endereco.Logradouro = "";
+            professor.Endereco.Cidade = "";
+            professor.Endereco.EstadoUF = "";
+            professor.Endereco.Bairro = "";
+            this.StateHasChanged();
+        }
+    }
+
+    protected async Task EditProfessorAsync()
+    {
+        var response = await _mediator.Send(new EditarProfessorCommand { Professor = professor });
+
+        if (response.Errors.Any())
+        {
+            Message = "Ocorreu um erro ao editar o professor.";
+            AlertType = "danger";
+        }
+        else
+        {
+            Message = "Professor editado com sucesso!";
+            AlertType = "success";
+        }
+
+        _navigationManager.NavigateTo($"professors/{Message}/{AlertType}");
+    }
+
+    void Voltar()
+    {
+        _navigationManager.NavigateTo("professors", true);
+    }
+
+}
