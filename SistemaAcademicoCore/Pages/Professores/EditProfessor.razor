@@ -1,4 +1,5 @@
 ﻿@page "/professors/edit/{ProfessorId}"
+@using Domain.Constantes
 @using SistemaAcademicoApplication.Professores.Commands
 @using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
@@ -196,12 +197,12 @@ else
         if (response.Errors.Any())
         {
             Message = "Ocorreu um erro ao editar o professor.";
-            AlertType = "danger";
+            AlertType = ConstantesSistema.TipoAlertaErro;
         }
         else
         {
             Message = "Professor editado com sucesso!";
-            AlertType = "success";
+            AlertType = ConstantesSistema.TipoAlertaSucesso;
         }
 
         _navigationManager.NavigateTo($"professors/{Message}/{AlertType}");

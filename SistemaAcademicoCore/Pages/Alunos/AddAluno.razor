@@ -176,12 +176,12 @@
         if (createResponse.Errors.Any())
         {
             Message = "Erro ao cadastrar o aluno. Tente novamente.";
-            AlertType = "danger";
+            AlertType = ConstantesSistema.TipoAlertaErro;
         }
         else
         {
             Message = "Aluno cadastrado com sucesso!";
-            AlertType = "success";
+            AlertType = ConstantesSistema.TipoAlertaSucesso;
         }
 
         _navigationManager.NavigateTo($"students/{Message}/{AlertType}");

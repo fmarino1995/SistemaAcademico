@@ -1,13 +1,9 @@
-﻿@page "/students/delete/{AlunoId}"
+﻿@page "/professors/delete/{ProfessorId}"
 @using Domain.Constantes
-@using SistemaAcademicoApplication.Alunos.Commands
-@using SistemaAcademicoApplication.Alunos.Queries
+@using SistemaAcademicoApplication.Professores.Commands
+@using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
-
-@attribute [Authorize(Policy = Policies.IsAdmin)]
-
-<PageTitle>Inativar Aluno - Sistema Academico</PageTitle>
 
 @if (aluno == null)
 {
@@ -20,11 +16,11 @@
 }
 else
 {
-    <EditForm Model="@aluno" OnValidSubmit="DeleteAlunoAsync">
+    <EditForm Model="@professor" OnValidSubmit="DeleteProfessorAsync">
         <div class="card">
             <div class="card-header">
                 <div class="titulo-card">
-                    Inativar Aluno
+                    Inativar Professor
                 </div>
             </div>
             <div class="card-body">
@@ -32,43 +28,43 @@ else
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Nome</span>
                         <div class="content-informa">
-                            @aluno.Nome
+                            @professor.Nome
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">CPF (apenas números)</span>
                         <div class="content-informa">
-                            @aluno.Cpf.ToMask("###.###.###-##")
+                            @professor.Cpf.ToMask("###.###.###-##")
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Matrícula</span>
                         <div class="content-informa">
-                            @aluno.Matricula
+                            @professor.Matricula
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Data de Nascimento</span>
                         <div class="content-informa">
-                            @aluno.DataNascimento.ToString("dd/MM/yyyy")
+                            @professor.DataNascimento.ToString("dd/MM/yyyy")
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Data de Cadastro</span>
                         <div class="content-informa">
-                            @aluno.DataHoraCadastro.ToString("dd/MM/yyyy")
+                            @professor.DataHoraCadastro.ToString("dd/MM/yyyy")
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Usuário de cadastro</span>
                         <div class="content-informa">
-                            @aluno.UsuarioCriacao
+                            @professor.UsuarioCriacao
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Email</span>
                         <div class="content-informa">
-                            @aluno.Email
+                            @professor.Email
                         </div>
                     </div>
                 </div>
@@ -86,52 +82,52 @@ else
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">CEP</span>
                         <div class="content-informa">
-                            @aluno.Endereco.CEP
+                            @professor.Endereco.CEP
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Logradouro</span>
                         <div class="content-informa">
-                            @aluno.Endereco.Logradouro
+                            @professor.Endereco.Logradouro
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Numero</span>
                         <div class="content-informa">
-                            @aluno.Endereco.Numero
+                            @professor.Endereco.Numero
                         </div>
                     </div>
-                    @if (!string.IsNullOrEmpty(aluno.Endereco.Complemento))
+                    @if (!string.IsNullOrEmpty(professor.Endereco.Complemento))
                     {
                         <div class="col-md-6 form-space">
                             <span class="tituloinformacoes">Complemento</span>
                             <div class="content-informa">
-                                @aluno.Endereco.Complemento
+                                @professor.Endereco.Complemento
                             </div>
                         </div>
                     }
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Bairro</span>
                         <div class="content-informa">
-                            @aluno.Endereco.Bairro
+                            @professor.Endereco.Bairro
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">UF</span>
                         <div class="content-informa">
-                            @aluno.Endereco.EstadoUF
+                            @professor.Endereco.EstadoUF
                         </div>
                     </div>
                     <div class="col-md-6 form-space">
                         <span class="tituloinformacoes">Cidade</span>
                         <div class="content-informa">
-                            @aluno.Endereco.Cidade
+                            @professor.Endereco.Cidade
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-footer">
-                <input type="hidden" @bind="aluno.AlunoId" />
+                <input type="hidden" @bind="professor.ProfessorId" />
                 <a class="btn btn-outline-dark" href="" @onclick="Voltar">Voltar</a>
                 <input type="submit" class="btn btn-outline-danger" value="Inativar" />
             </div>
@@ -139,46 +135,47 @@ else
     </EditForm>
 }
 
+
 @code {
     [Parameter]
-    public string AlunoId { get; set; }
+    public string ProfessorId { get; set; }
 
-    Aluno aluno;
+    Professor professor;
     string Message = "";
     string AlertType = "";
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await _mediator.Send(new ObterAlunoQuery { AlunoId = Convert.ToInt32(AlunoId) });
+        var response = await _mediator.Send(new ObterProfessorQuery { ProfessorId = Convert.ToInt32(ProfessorId) });
 
         if (response.Errors.Any())
         {
             Message = "Aluno não encontrado";
-            AlertType = ConstantesSistema.TipoAlertaErro;
-            _navigationManager.NavigateTo($"students/{Message}/{AlertType}", forceLoad: true);
+            AlertType = "danger";
+            _navigationManager.NavigateTo($"professors/{Message}/{AlertType}", forceLoad: true);
         }
 
-        aluno = response.Result;
+        professor = response.Result;
     }
 
-    private async Task DeleteAlunoAsync()
+    private async Task DeleteProfessorAsync()
     {
-        var response = await _mediator.Send(new ExcluirAlunoCommand { Aluno = aluno });
+        var response = await _mediator.Send(new ExcluirProfessorCommand { Professor = professor });
 
         if (response.Errors.Any())
         {
-            Message = "Erro ao inativar o aluno : " + response.Errors.First();
+            Message = "Erro ao inativar o professor : " + response.Errors.First();
             AlertType = ConstantesSistema.TipoAlertaErro;
             _navigationManager.NavigateTo($"students/{Message}/{AlertType}", forceLoad: true);
         }
 
-        Message = "Aluno inativado com sucesso!";
+        Message = "Professor inativado com sucesso!";
         AlertType = ConstantesSistema.TipoAlertaSucesso;
-        _navigationManager.NavigateTo($"students/{Message}/{AlertType}");
+        _navigationManager.NavigateTo($"professors/{Message}/{AlertType}");
     }
 
     void Voltar()
     {
-        _navigationManager.NavigateTo("students");
+        _navigationManager.NavigateTo("professors");
     }
 }

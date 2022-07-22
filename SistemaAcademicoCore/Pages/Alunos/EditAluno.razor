@@ -160,7 +160,7 @@ else
         if (response.Errors.Any())
         {
             Message = "Aluno não encontrado";
-            AlertType = "danger";
+            AlertType = ConstantesSistema.TipoAlertaErro;
             _navigationManager.NavigateTo($"students/{Message}/{AlertType}", true);
         }
 
@@ -196,12 +196,12 @@ else
         if (response.Errors.Any())
         {
             Message = "Ocorreu um erro ao editar o aluno.";
-            AlertType = "danger";
+            AlertType = ConstantesSistema.TipoAlertaErro;
         }
         else
         {
             Message = "Aluno editado com sucesso!";
-            AlertType = "success";
+            AlertType = ConstantesSistema.TipoAlertaSucesso;
         }
 
         _navigationManager.NavigateTo($"students/{Message}/{AlertType}");

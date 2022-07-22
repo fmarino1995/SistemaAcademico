@@ -174,12 +174,12 @@
         if (createResponse.Errors.Any())
         {
             Message = "Erro ao cadastrar o professor. Tente novamente.";
-            AlertType = "danger";
+            AlertType = ConstantesSistema.TipoAlertaErro;
         }
         else
         {
             Message = "Professor cadastrado com sucesso!";
-            AlertType = "success";
+            AlertType = ConstantesSistema.TipoAlertaSucesso;
         }
 
         _navigationManager.NavigateTo($"professors/{Message}/{AlertType}");

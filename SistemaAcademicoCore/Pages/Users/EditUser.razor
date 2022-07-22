@@ -96,14 +96,14 @@
         if (editado.Errors.Any())
         {
             AlertMessage = "Erro ao editar o usuário. Tente novamente";
-            AlertType = "dannger";
+            AlertType = ConstantesSistema.TipoAlertaErro;
             ExibirAlert = true;
             this.StateHasChanged();
         }
         else
         {
             AlertMessage = "Usuário editado com sucesso!";
-            AlertType = "success";
+            AlertType = ConstantesSistema.TipoAlertaSucesso;
 
             _navigationManager.NavigateTo($"users/{AlertMessage}/{AlertType}");
         }
