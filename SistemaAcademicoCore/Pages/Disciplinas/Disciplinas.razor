@@ -1,7 +1,99 @@
-﻿@page "discipline"
+﻿@page "/disciplines"
+@page "/disciplines/{Message}/{AlertType}"
+@using SistemaAcademicoApplication.Disciplinas.Queries
+@layout MainLayout
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
 
-<h3>Disciplinas</h3>
+<PageTitle>Disciplinas - SistemaAcademico</PageTitle>
+
+@if (!Exibir)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <Alerta Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Alunos
+            </div>
+        </div>
+        <div class="card-body">
+            <DataTable Searchable="true" Exibir="@Exibir">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Turno</th>
+                        <th>Professor</th>
+                        <th>
+                            <a href="" @onclick="GotoCreate" title="Nova disciplina">
+                                <span class="oi oi-plus"></span>
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var disciplina in DisciplinasList)
+                    {
+                        <tr>
+                            <td>@disciplina.Nome</td>
+                            <td>@disciplina.Turno</td>
+                            <td>@disciplina.Professor.Nome</td>
+                            <td style="width: 6%;">
+                                <a href="/professors/edit/@disciplina.DisplicinaId" title="Editar Disciplina">
+                                    <span class="oi oi-pencil" aria-hidden="true"></span>
+                                </a>
+                                <a href="/professors/remove/@disciplina.DisplicinaId" title="Excluir Disciplina">
+                                    <span class="oi oi-trash" aria-hidden="true"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </DataTable>
+        </div>
+    </div>
+    
+}
 
 @code {
+    [Parameter]
+    public string Message { get; set; }
+    [Parameter]
+    public string AlertType { get; set; }
 
+    List<Disciplina> DisciplinasList = new List<Disciplina>();
+    bool Exibir;
+    bool ExibirAlert;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DisciplinasList = (await _mediator.Send(new ObterDisciplinasQuery())).Result;
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            if (Message != null)
+                ExibirAlert = true;
+
+
+            Exibir = true;
+            this.StateHasChanged();
+            await base.OnAfterRenderAsync(firstRender);
+        }
+    }
+
+    protected void GotoCreate()
+    {
+        _navigationManager.NavigateTo("disciplines/add", true);
+    }
 }
