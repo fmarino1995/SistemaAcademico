@@ -7,6 +7,8 @@
 
 <PageTitle>Nova Disciplina - SistemaAcademico</PageTitle>
 
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
 <EditForm Model="@DisciplinaCreate" OnValidSubmit="AddDisciplinaAsync">
     <div class="card">
         <div class="card-header">

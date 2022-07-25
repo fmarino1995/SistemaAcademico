@@ -4,6 +4,10 @@
 @inject NavigationManager _navigationManager
 @layout MainLayout
 
+<PageTitle>Deletar Disciplina - Sistema Academico</PageTitle>
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
 @if (disciplina == null)
 {
     <br />

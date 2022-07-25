@@ -5,6 +5,10 @@
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 
+<PageTitle>Deletar Professor - SistemaAcademico</PageTitle>
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
 @if (professor == null)
 {
     <br />

@@ -6,6 +6,8 @@
 
 <PageTitle>Editar Aluno - Sistema Academico</PageTitle>
 
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
 @if (aluno == null)
 {
     <br />

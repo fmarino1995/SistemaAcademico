@@ -7,6 +7,8 @@
 
 <PageTitle>Professores - SistemaAcademico</PageTitle>
 
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
 
 @if (!Exibir)
 {

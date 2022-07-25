@@ -8,6 +8,8 @@
 
 <PageTitle>Novo professor - Sistema Academico</PageTitle>
 
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
 <EditForm Model="@ProfessorCreate" OnValidSubmit="AddProfessorAsync">
     <div class="card">
         <div class="card-header">

@@ -7,6 +7,7 @@
 
 <PageTitle>Usuários - SistemaAcademico</PageTitle>
 
+@attribute [Authorize(Policy = Policies.IsAdmin)]
 
 @if (Exibir == false)
 {

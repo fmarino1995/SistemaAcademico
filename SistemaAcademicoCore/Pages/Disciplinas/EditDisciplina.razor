@@ -8,6 +8,8 @@
 
 <PageTitle>Editar Disciplina - SistemaAcademico</PageTitle>
 
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
 @if (DisciplinaEdit == null)
 {
     <br />
