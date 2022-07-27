@@ -1,5 +1,4 @@
 ﻿@page "/users"
-@page "/users/{message}/{alertType}"
 @inject IMediator _mediator
 @inject IToastService _toastService
 @layout MainLayout
@@ -91,9 +90,6 @@ else
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        //if (Message != null)
-        //    ExibirAlert = true;
-
         if (!firstRender)
         {
             Exibir = true;

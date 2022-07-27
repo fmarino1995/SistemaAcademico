@@ -2,6 +2,7 @@
 @using SistemaAcademicoApplication.Alunos.Commands
 @using SistemaAcademicoApplication.Alunos.Queries
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 
 <PageTitle>Editar Aluno - Sistema Academico</PageTitle>
@@ -147,7 +148,6 @@ else
 @code {
     Aluno aluno = new Aluno();
     string Message = "";
-    string AlertType = "";
     string CepErrorMessage = "";
 
     [Parameter]
@@ -162,8 +162,8 @@ else
         if (response.Errors.Any())
         {
             Message = "Aluno não encontrado";
-            AlertType = ConstantesSistema.TipoAlertaErro;
-            _navigationManager.NavigateTo($"students/{Message}/{AlertType}", true);
+            _toastService.ShowError(Message);
+            _navigationManager.NavigateTo($"students", forceLoad: true);
         }
 
         aluno = response.Result;
@@ -198,19 +198,19 @@ else
         if (response.Errors.Any())
         {
             Message = "Ocorreu um erro ao editar o aluno.";
-            AlertType = ConstantesSistema.TipoAlertaErro;
+            _toastService.ShowError(Message);
         }
         else
         {
             Message = "Aluno editado com sucesso!";
-            AlertType = ConstantesSistema.TipoAlertaSucesso;
+            _toastService.ShowSuccess(Message);
         }
 
-        _navigationManager.NavigateTo($"students/{Message}/{AlertType}");
+        _navigationManager.NavigateTo("students");
     }
 
     void Voltar()
     {
-        _navigationManager.NavigateTo("students", true);
+        _navigationManager.NavigateTo("students", forceLoad: true);
     }
 }

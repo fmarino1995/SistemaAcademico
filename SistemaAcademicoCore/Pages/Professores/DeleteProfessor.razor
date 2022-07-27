@@ -3,6 +3,7 @@
 @using SistemaAcademicoApplication.Professores.Commands
 @using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 
 <PageTitle>Deletar Professor - SistemaAcademico</PageTitle>
@@ -146,7 +147,6 @@ else
 
     Professor professor;
     string Message = "";
-    string AlertType = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -155,8 +155,8 @@ else
         if (response.Errors.Any())
         {
             Message = "Aluno não encontrado";
-            AlertType = "danger";
-            _navigationManager.NavigateTo($"professors/{Message}/{AlertType}", forceLoad: true);
+            _toastService.ShowError(Message);
+            _navigationManager.NavigateTo("professors", forceLoad: true);
         }
 
         professor = response.Result;
@@ -169,17 +169,19 @@ else
         if (response.Errors.Any())
         {
             Message = "Erro ao inativar o professor : " + response.Errors.First();
-            AlertType = ConstantesSistema.TipoAlertaErro;
-            _navigationManager.NavigateTo($"students/{Message}/{AlertType}", forceLoad: true);
+            _toastService.ShowError(Message);
+        }
+        else
+        {
+            Message = "Professor inativado com sucesso!";
+            _toastService.ShowSuccess(Message);
         }
 
-        Message = "Professor inativado com sucesso!";
-        AlertType = ConstantesSistema.TipoAlertaSucesso;
-        _navigationManager.NavigateTo($"professors/{Message}/{AlertType}");
+        _navigationManager.NavigateTo($"professors");
     }
 
     void Voltar()
     {
-        _navigationManager.NavigateTo("professors");
+        _navigationManager.NavigateTo("professors", forceLoad: true);
     }
 }

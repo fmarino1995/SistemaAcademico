@@ -2,6 +2,7 @@
 @using SistemaAcademicoApplication.Disciplinas.Commands
 @using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 @layout MainLayout
 
@@ -59,7 +60,6 @@
     Disciplina DisciplinaCreate;
     List<Professor> Professores = new List<Professor>();
     string Message = "";
-    string AlertType = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,15 +75,15 @@
         if(disciplinaResponse.Errors.Any())
         {
             Message = "Erro ao criar a disciplina: " + disciplinaResponse.Errors.First();
-            AlertType = ConstantesSistema.TipoAlertaErro;
+            _toastService.ShowError(Message);
         }
         else
         {
             Message = "Disciplina criada com sucesso!";
-            AlertType = ConstantesSistema.TipoAlertaSucesso;
+            _toastService.ShowSuccess(Message);
         }
 
-        _navigationManager.NavigateTo($"disciplines/{Message}/{AlertType}");
+        _navigationManager.NavigateTo("disciplines");
     }
 
     void Voltar()

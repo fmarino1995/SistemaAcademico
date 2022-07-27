@@ -3,6 +3,7 @@
 @using SistemaAcademicoApplication.Disciplinas.Queries
 @using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 @layout MainLayout
 
@@ -73,7 +74,6 @@ else
     Disciplina DisciplinaEdit;
     List<Professor> Professores = new List<Professor>();
     string Message = "";
-    string AlertType = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,15 +89,15 @@ else
         if (editResponse.Errors.Any())
         {
             Message = "Erro ao editar a disciplina: " + editResponse.Errors.First();
-            AlertType = ConstantesSistema.TipoAlertaErro;
+            _toastService.ShowError(Message);
         }
         else
         {
             Message = "Disciplina editada com sucesso!";
-            AlertType = ConstantesSistema.TipoAlertaSucesso;
+            _toastService.ShowSuccess(Message);
         }
 
-        _navigationManager.NavigateTo($"disciplines/{Message}/{AlertType}");
+        _navigationManager.NavigateTo("disciplines");
     }
 
     void Voltar()

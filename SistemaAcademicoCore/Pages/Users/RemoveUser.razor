@@ -3,6 +3,7 @@
 @using SistemaAcademicoApplication.Usuarios.Commands
 @using SistemaAcademicoApplication.Usuarios.Queries
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 
 <PageTitle>Remover Usuário - SistemaAcademico</PageTitle>
@@ -20,16 +21,6 @@
 }
 else
 {
-    @if (Exibir)
-    {
-        <div class="alert alert-@AlertType alert-dismissible fade show" role="alert">
-            <strong>@Message</strong>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <br />
-    }
     <form @onsubmit="OnSubmit">
         <div class="card">
             <div class="card-header">
@@ -66,9 +57,7 @@ else
 @code {
     [Parameter]
     public string UserId { get; set; }
-    private bool Exibir = false;
-    private string Message = "";
-    private string AlertType = "";
+    string Message = "";
 
     protected ApplicationUser User;
 
@@ -85,16 +74,15 @@ else
 
         if (!response.Result)
         {
-            AlertType = ConstantesSistema.TipoAlertaErro;
-            Message = response.Errors.First();
-            Exibir = true;
+            Message = "Ocorreu um erro ao excluir o usuário. Tente novamente";
+            _toastService.ShowError(Message);
             this.StateHasChanged();
         }
         else
         {
-            AlertType = ConstantesSistema.TipoAlertaSucesso;
             Message = "Usuário excluido com sucesso!";
-            _navigationManager.NavigateTo($"users/{Message}/{AlertType}");
+            _toastService.ShowSuccess(Message);
+            _navigationManager.NavigateTo("users");
         }
     }
 }

@@ -2,6 +2,7 @@
 @using SistemaAcademicoApplication.Alunos.Commands
 @using SistemaAcademicoApplication.Enderecos.Commands
 @using SistemaAcademicoApplication.Usuarios.Queries
+@inject IToastService _toastService
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 @layout MainLayout
@@ -136,7 +137,6 @@
     Aluno AlunoCreate;
     List<ApplicationUser> UsersList = new List<ApplicationUser>();
     string Message = "";
-    string AlertType = "";
     string CepErrorMessage = "";
     string EmailExistsErrorMessage = string.Empty;
 
@@ -176,15 +176,15 @@
         if (createResponse.Errors.Any())
         {
             Message = "Erro ao cadastrar o aluno. Tente novamente.";
-            AlertType = ConstantesSistema.TipoAlertaErro;
+            _toastService.ShowError(Message);
         }
         else
         {
             Message = "Aluno cadastrado com sucesso!";
-            AlertType = ConstantesSistema.TipoAlertaSucesso;
+            _toastService.ShowSuccess(Message);
         }
 
-        _navigationManager.NavigateTo($"students/{Message}/{AlertType}");
+        _navigationManager.NavigateTo("students");
     }
 
     protected async void VerificarEmailUsuario(ChangeEventArgs e)

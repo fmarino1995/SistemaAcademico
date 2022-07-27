@@ -3,6 +3,7 @@
 @using SistemaAcademicoApplication.Professores.Queries
 @using SistemaAcademicoApplication.Usuarios.Queries
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 @layout MainLayout
 
@@ -137,7 +138,6 @@
     Professor ProfessorCreate;
     List<ApplicationUser> UsersList = new List<ApplicationUser>();
     string Message = "";
-    string AlertType = "";
     string CepErrorMessage = "";
     string EmailExistsErrorMessage = string.Empty;
 
@@ -177,15 +177,15 @@
         if (createResponse.Errors.Any())
         {
             Message = "Erro ao cadastrar o professor. Tente novamente.";
-            AlertType = ConstantesSistema.TipoAlertaErro;
+            _toastService.ShowError(Message);
         }
         else
         {
             Message = "Professor cadastrado com sucesso!";
-            AlertType = ConstantesSistema.TipoAlertaSucesso;
+            _toastService.ShowSuccess(Message);
         }
 
-        _navigationManager.NavigateTo($"professors/{Message}/{AlertType}");
+        _navigationManager.NavigateTo("professor");
     }
 
     protected async void VerificarEmailUsuario(ChangeEventArgs e)

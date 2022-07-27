@@ -3,6 +3,7 @@
 @using SistemaAcademicoApplication.Professores.Commands
 @using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 
 <PageTitle>Editar Professor - Sistema Academico</PageTitle>
@@ -148,7 +149,6 @@ else
 @code {
     Professor professor = new Professor();
     string Message = "";
-    string AlertType = "";
     string CepErrorMessage = "";
 
     [Parameter]
@@ -163,8 +163,8 @@ else
         if (response.Errors.Any())
         {
             Message = "Professor não encontrado";
-            AlertType = "danger";
-            _navigationManager.NavigateTo($"professors/{Message}/{AlertType}", true);
+            _toastService.ShowError(Message);
+            _navigationManager.NavigateTo("professors", forceLoad: true);
         }
 
         professor = response.Result;
@@ -199,20 +199,19 @@ else
         if (response.Errors.Any())
         {
             Message = "Ocorreu um erro ao editar o professor.";
-            AlertType = ConstantesSistema.TipoAlertaErro;
+            _toastService.ShowError(Message);
         }
         else
         {
             Message = "Professor editado com sucesso!";
-            AlertType = ConstantesSistema.TipoAlertaSucesso;
+            _toastService.ShowSuccess(Message);
         }
 
-        _navigationManager.NavigateTo($"professors/{Message}/{AlertType}");
+        _navigationManager.NavigateTo("professors");
     }
 
     void Voltar()
     {
-        _navigationManager.NavigateTo("professors", true);
+        _navigationManager.NavigateTo("professors", forceLoad: true);
     }
-
 }

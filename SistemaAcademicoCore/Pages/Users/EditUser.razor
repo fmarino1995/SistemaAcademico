@@ -19,7 +19,6 @@
             </div>
         </div>
         <div class="card-body">
-            <Alerta AlertType="@AlertType" Message="@AlertMessage" Exibir="@ExibirAlert" />
             <FluentValidationValidator />
             <ValidationSummary />
             <div class="row">
@@ -70,9 +69,7 @@
     ApplicationUser User = new ApplicationUser();
     List<IdentityRole> Roles = new List<IdentityRole>();
     string SelectedName;
-    string AlertMessage = "";
-    string AlertType = "";
-    bool ExibirAlert = false;
+    string Message = "";
 
     List<string> tipos;
 
@@ -98,18 +95,15 @@
 
         if (editado.Errors.Any())
         {
-            AlertMessage = "Erro ao editar o usuário. Tente novamente";
-            AlertType = ConstantesSistema.TipoAlertaErro;
-            ExibirAlert = true;
+            Message = "Erro ao editar o usuário. Tente novamente";
+            _toastService.ShowError(Message);
             this.StateHasChanged();
         }
         else
         {
-            AlertMessage = "Usuário editado com sucesso!";
-            AlertType = ConstantesSistema.TipoAlertaSucesso;
-            _toastService.ShowSuccess(AlertMessage);
+            Message = "Usuário editado com sucesso!";
+            _toastService.ShowSuccess(Message);
 
-            //_navigationManager.NavigateTo($"users/{AlertMessage}/{AlertType}");
             _navigationManager.NavigateTo("users");
         }
     }

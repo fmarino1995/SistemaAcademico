@@ -3,6 +3,7 @@
 @using SistemaAcademicoApplication.Alunos.Commands
 @using SistemaAcademicoApplication.Alunos.Queries
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 
 @attribute [Authorize(Policy = Policies.IsAdmin)]
@@ -145,7 +146,6 @@ else
 
     Aluno aluno;
     string Message = "";
-    string AlertType = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,8 +154,8 @@ else
         if (response.Errors.Any())
         {
             Message = "Aluno não encontrado";
-            AlertType = ConstantesSistema.TipoAlertaErro;
-            _navigationManager.NavigateTo($"students/{Message}/{AlertType}", forceLoad: true);
+            _toastService.ShowError(Message);
+            _navigationManager.NavigateTo($"students", forceLoad: true);
         }
 
         aluno = response.Result;
@@ -168,17 +168,17 @@ else
         if (response.Errors.Any())
         {
             Message = "Erro ao inativar o aluno : " + response.Errors.First();
-            AlertType = ConstantesSistema.TipoAlertaErro;
-            _navigationManager.NavigateTo($"students/{Message}/{AlertType}", forceLoad: true);
+            _toastService.ShowError(Message);
+            _navigationManager.NavigateTo("students", forceLoad: true);
         }
 
         Message = "Aluno inativado com sucesso!";
-        AlertType = ConstantesSistema.TipoAlertaSucesso;
-        _navigationManager.NavigateTo($"students/{Message}/{AlertType}");
+        _toastService.ShowSuccess(Message);
+        _navigationManager.NavigateTo($"students");
     }
 
     void Voltar()
     {
-        _navigationManager.NavigateTo("students");
+        _navigationManager.NavigateTo("students", forceLoad: true);
     }
 }

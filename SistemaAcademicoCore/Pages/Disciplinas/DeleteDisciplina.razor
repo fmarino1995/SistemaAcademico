@@ -1,6 +1,8 @@
 ﻿@page "/disciplines/delete/{DisciplinaId}"
 @using SistemaAcademicoApplication.Disciplinas.Commands
+@using SistemaAcademicoApplication.Disciplinas.Queries
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 @layout MainLayout
 
@@ -62,24 +64,35 @@ else
 
     Disciplina disciplina;
     string Message = "";
-    string AlertType = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = Convert.ToInt32(DisciplinaId) });
+
+        if (response.Errors.Any())
+        {
+            Message = "Disciplina não encontrada";
+            _toastService.ShowError(Message);
+            Voltar();
+        }
+    }
 
     private async Task DeleteDisciplinaAsync()
     {
         var deleteResponse = await _mediator.Send(new ExcluirDisciplinaCommand { Disciplina = disciplina });
 
-        if(deleteResponse.Errors.Any())
+        if (deleteResponse.Errors.Any())
         {
             Message = "Erro ao excluir a disciplina: " + deleteResponse.Errors.First();
-            AlertType = ConstantesSistema.TipoAlertaErro;
+            _toastService.ShowError(Message);
         }
         else
         {
             Message = "Disciplina excluída com sucesso!";
-            AlertType = ConstantesSistema.TipoAlertaSucesso;
+            _toastService.ShowSuccess(Message);
         }
 
-        _navigationManager.NavigateTo($"disciplines/{Message}/{AlertType}");
+        _navigationManager.NavigateTo("disciplines");
     }
 
     void Voltar()

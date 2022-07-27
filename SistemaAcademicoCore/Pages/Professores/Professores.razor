@@ -1,5 +1,4 @@
 ﻿@page "/professors"
-@page "/professors/{message}/{alertType}"
 @using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
@@ -88,10 +87,6 @@ else
     {
         if (!firstRender)
         {
-            if (Message != null)
-                ExibirAlert = true;
-
-
             Exibir = true;
             this.StateHasChanged();
             await base.OnAfterRenderAsync(firstRender);
@@ -104,5 +99,4 @@ else
     {
         _navigationManager.NavigateTo("professors/add", true);
     }
-
 }

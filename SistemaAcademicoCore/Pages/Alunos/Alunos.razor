@@ -1,5 +1,4 @@
 ﻿@page "/students"
-@page "/students/{message}/{alertType}"
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 @layout MainLayout
@@ -88,10 +87,6 @@ else
     {
         if (!firstRender)
         {
-            if (Message != null)
-                ExibirAlert = true;
-
-
             Exibir = true;
             this.StateHasChanged();
             await base.OnAfterRenderAsync(firstRender);
