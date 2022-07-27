@@ -11,6 +11,7 @@ namespace SistemaAcademicoInfrastructure
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IToastService, ToastService>();
 
             return services;
         }

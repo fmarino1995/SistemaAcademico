@@ -172,7 +172,7 @@ else
 
     protected async void BuscarEndereco()
     {
-        if (!string.IsNullOrEmpty(aluno.Endereco.CEP))
+        if (!string.IsNullOrEmpty(professor.Endereco.CEP))
         {
             var addresses = await new Correios.NET.CorreiosService().GetAddressesAsync(professor.Endereco.CEP);
             professor.Endereco.Logradouro = addresses.Count() > 0 ? addresses.FirstOrDefault().Street : "";

@@ -135,6 +135,7 @@
 
 @code {
     Professor ProfessorCreate;
+    List<ApplicationUser> UsersList = new List<ApplicationUser>();
     string Message = "";
     string AlertType = "";
     string CepErrorMessage = "";
@@ -151,7 +152,7 @@
     {
         if (!string.IsNullOrEmpty(ProfessorCreate.Endereco.CEP))
         {
-            var addresses = await new Correios.NET.CorreiosService().GetAddressesAsync(AlunoCreate.Endereco.CEP);
+            var addresses = await new Correios.NET.CorreiosService().GetAddressesAsync(ProfessorCreate.Endereco.CEP);
             ProfessorCreate.Endereco.Logradouro = addresses.Count() > 0 ? addresses.FirstOrDefault().Street : "";
             ProfessorCreate.Endereco.Cidade = addresses.Count() > 0 ? addresses.FirstOrDefault().City : "";
             ProfessorCreate.Endereco.EstadoUF = addresses.Count() > 0 ? addresses.FirstOrDefault().State : "";

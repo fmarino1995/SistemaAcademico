@@ -4,6 +4,7 @@
 @using SistemaAcademicoApplication.Usuarios.Queries
 @using Domain.Constantes;
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 
 <PageTitle>Editar Usuário - SistemaAcademico</PageTitle>
@@ -18,7 +19,7 @@
             </div>
         </div>
         <div class="card-body">
-            <Alert AlertType="@AlertType" Message="@AlertMessage" Exibir="@ExibirAlert" />
+            <Alerta AlertType="@AlertType" Message="@AlertMessage" Exibir="@ExibirAlert" />
             <FluentValidationValidator />
             <ValidationSummary />
             <div class="row">
@@ -106,8 +107,10 @@
         {
             AlertMessage = "Usuário editado com sucesso!";
             AlertType = ConstantesSistema.TipoAlertaSucesso;
+            _toastService.ShowSuccess(AlertMessage);
 
-            _navigationManager.NavigateTo($"users/{AlertMessage}/{AlertType}");
+            //_navigationManager.NavigateTo($"users/{AlertMessage}/{AlertType}");
+            _navigationManager.NavigateTo("users");
         }
     }
 }

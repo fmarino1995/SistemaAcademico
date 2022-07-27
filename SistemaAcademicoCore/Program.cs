@@ -1,4 +1,3 @@
-using BlazorBootstrap;
 using Domain.Entities;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -10,6 +9,7 @@ using SistemaAcademicoApplication;
 using SistemaAcademicoCore.Areas.Identity;
 using SistemaAcademicoData.Context;
 using SistemaAcademicoInfrastructure;
+using SistemaAcademicoInfrastructure.Services;
 using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,7 +54,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddBlazorBootstrap();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
 builder.Services.AddApplication();

@@ -1,6 +1,7 @@
 ﻿@page "/users"
 @page "/users/{message}/{alertType}"
 @inject IMediator _mediator
+@inject IToastService _toastService
 @layout MainLayout
 @using Domain.Constantes
 @using SistemaAcademicoApplication.Usuarios.Queries
@@ -20,7 +21,7 @@
 }
 else
 {
-    <Alerta Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
+    @*<Alerta Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />*@
     <div class="card">
         <div class="card-header">
             <div class="titulo-card">
@@ -82,7 +83,7 @@ else
         var usuariosList = await _mediator.Send(new ObterUsuariosQuery());
         Usuarios = usuariosList.Result;
 
-        foreach(var item in Usuarios)
+        foreach (var item in Usuarios)
         {
             item.StatusFull = ImprimirStatusUsuario(item.Status);
         }
@@ -90,21 +91,20 @@ else
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
+        //if (Message != null)
+        //    ExibirAlert = true;
+
         if (!firstRender)
         {
-            if (Message != null)
-                ExibirAlert = true;
-
-
             Exibir = true;
-            this.StateHasChanged();
             await base.OnAfterRenderAsync(firstRender);
+            this.StateHasChanged();
         }
     }
 
     private string ImprimirStatusUsuario(string status)
     {
-        switch(status)
+        switch (status)
         {
             case Parametros.StatusAtivo:
                 return DescricaoParametros.DescriçãoStatusAtivo;

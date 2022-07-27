@@ -33,11 +33,11 @@ else
                 <ValidationSummary />
                 <div class="row">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingNome" class="form-control" @bind-Value="@DisciplinaCreate.Nome" placeholder="Nome" />
+                        <InputText id="floatingNome" class="form-control" @bind-Value="@DisciplinaEdit.Nome" placeholder="Nome" />
                         <label for="floatingNome">Nome</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <InputSelect id="floatingTurno" class="form-select" @bind-Value="@DisciplinaCreate.Turno" placeholder="Turno">
+                        <InputSelect id="floatingTurno" class="form-select" @bind-Value="@DisciplinaEdit.Turno" placeholder="Turno">
                             @foreach (var turno in ListaParametros.ListaTipoTurno)
                             {
                                 <option value="@turno.Key">@turno.Value</option>
@@ -46,7 +46,7 @@ else
                         <label for="floatingTurno">Turno</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <InputSelect id="floatingProfessor" class="form-select" @bind-Value="@DisciplinaCreate.ProfessorId" placeholder="Professor">
+                        <InputSelect id="floatingProfessor" class="form-select" @bind-Value="@DisciplinaEdit.ProfessorId" placeholder="Professor">
                         <option value="0">--|Selecione|--</option>
                             @foreach (var professor in Professores)
                             {
