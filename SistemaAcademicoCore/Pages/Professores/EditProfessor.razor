@@ -164,7 +164,7 @@ else
 
 
 @code {
-    Professor professor = new Professor();
+    Professor professor;
     List<ApplicationUser> UsersList = new List<ApplicationUser>();
     string Message = "";
     string CepErrorMessage = "";
@@ -175,8 +175,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        professor.Endereco = new Endereco();
-
         var response = await _mediator.Send(new ObterProfessorQuery { ProfessorId = Convert.ToInt32(ProfessorId) });
 
         if (response.Errors.Any())
