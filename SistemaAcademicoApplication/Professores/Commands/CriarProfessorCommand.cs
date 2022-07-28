@@ -10,6 +10,7 @@ using Domain.Entities;
 using SistemaAcademicoApplication.Interfaces;
 using SistemaAcademicoApplication.Enderecos.Commands;
 using SistemaAcademicoApplication.Usuarios.Queries;
+using Domain.Constantes;
 
 namespace SistemaAcademicoApplication.Professores.Commands
 {
@@ -22,13 +23,11 @@ namespace SistemaAcademicoApplication.Professores.Commands
     {
         private readonly SistemaAcademicoContext _context;
         private readonly IMediator _mediator;
-        private readonly ICurrentUserService _currentUserService;
 
-        public CriarProfessorCommandHandler(SistemaAcademicoContext context, IMediator mediator, ICurrentUserService currentUserService)
+        public CriarProfessorCommandHandler(SistemaAcademicoContext context, IMediator mediator)
         {
             _context = context;
             _mediator = mediator;
-            _currentUserService = currentUserService;
         }
 
         public async Task<Response<Professor>> Handle(CriarProfessorCommand request, CancellationToken cancellationToken)
@@ -55,7 +54,7 @@ namespace SistemaAcademicoApplication.Professores.Commands
                     Professor.Email = appUser.Result.Email;
                     Professor.EnderecoId = enderecoCreate.Result.EnderecoId;
                     Professor.DataHoraCadastro = DateTime.Now;
-                    Professor.UsuarioCriacao = await _currentUserService.GetUserNameAsync();
+                    Professor.Status = Parametros.StatusAtivo;
 
                     _context.Professores.Add(Professor);
                     await _context.SaveChangesAsync();

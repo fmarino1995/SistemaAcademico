@@ -20,7 +20,6 @@
 }
 else
 {
-    <Alerta Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
     <div class="card">
         <div class="card-header">
             <div class="titulo-card">
@@ -36,7 +35,7 @@ else
                         <th>Matrícula</th>
                         <th>Email</th>
                         <th>
-                            <a href="" @onclick="GotoCreate" title="Novo professor">
+                            <a href="/professors/add" title="Novo professor">
                                 <span class="oi oi-plus"></span>
                             </a>
                         </th>

@@ -2,6 +2,7 @@
 @using Domain.Constantes
 @using SistemaAcademicoApplication.Professores.Commands
 @using SistemaAcademicoApplication.Professores.Queries
+@using SistemaAcademicoApplication.Usuarios.Queries
 @inject IMediator _mediator
 @inject IToastService _toastService
 @inject NavigationManager _navigationManager
@@ -46,7 +47,7 @@ else
                     </div>
                     <div class="col-md-6 col-lg-6 form-space">
                         <div class="form-floating mb-3">
-                            <InputText id="floatingMatricula" class="form-control" @bind-Value="@professor.Matricula" placeholder="Matricula" />
+                            <InputText readonly id="floatingMatricula" class="form-control" @bind-Value="@professor.Matricula" placeholder="Matricula" />
                             <label for="floatingMatricula">Matrícula</label>
                         </div>
                     </div>
@@ -70,8 +71,17 @@ else
                     </div>
                     <div class="col-md-6 col-lg-6 form-space">
                         <div class="form-floating mb-3">
-                            <InputText readonly id="floatingEmail" class="form-control" @bind-Value="@professor.Email" placeholder="Email" />
-                            <label for="floatingEmail">Email</label>
+                            <InputSelect class="form-select" @bind-Value="@professor.ApplicationUserId" @onchange="VerificarEmailUsuario">
+                                @foreach (var user in UsersList.Where(x => x.RoleId == ConstantesSistema.RoleProfessor))
+                                {
+                                <option value="@user.Id">@user.Email</option>
+                                }
+                        </InputSelect>
+                        <label for="floatingEmail">Email de usuário</label>
+                        @if (!string.IsNullOrEmpty(EmailExistsErrorMessage))
+                            {
+                                <span class="text-danger">@EmailExistsErrorMessage</span>
+                            }
                         </div>
                     </div>
                 </div>
@@ -139,7 +149,14 @@ else
                 <input type="hidden" @bind="professor.ProfessorId" />
                 <input type="hidden" @bind="professor.ApplicationUserId" />
                 <a class="btn btn-outline-dark" href="" @onclick="Voltar">Voltar</a>
-                <input type="submit" class="btn btn-outline-primary" value="Salvar" />
+                @if (!string.IsNullOrEmpty(EmailExistsErrorMessage))
+                {
+                    <input type="submit" disabled class="btn btn-outline-primary" value="Salvar" />
+                }
+                else
+                {
+                    <input type="submit" class="btn btn-outline-primary" value="Salvar" />
+                }
             </div>
         </div>
     </EditForm>
@@ -148,8 +165,10 @@ else
 
 @code {
     Professor professor = new Professor();
+    List<ApplicationUser> UsersList = new List<ApplicationUser>();
     string Message = "";
     string CepErrorMessage = "";
+    string EmailExistsErrorMessage = "";
 
     [Parameter]
     public string ProfessorId { get; set; }
@@ -168,6 +187,8 @@ else
         }
 
         professor = response.Result;
+
+        UsersList = (await _mediator.Send(new ObterUsuariosQuery())).Result;
     }
 
     protected async void BuscarEndereco()
@@ -208,6 +229,24 @@ else
         }
 
         _navigationManager.NavigateTo("professors");
+    }
+
+    protected async void VerificarEmailUsuario(ChangeEventArgs e)
+    {
+        var id = e.Value.ToString();
+
+        var alunoExists = await _mediator.Send(new VerificarProfessorEmailExistenteQuery { Id = id });
+
+        if (alunoExists.Result)
+        {
+            EmailExistsErrorMessage = "Email já alocado a outro professor.";
+            this.StateHasChanged();
+        }
+        else
+        {
+            EmailExistsErrorMessage = string.Empty;
+            this.StateHasChanged();
+        }
     }
 
     void Voltar()
