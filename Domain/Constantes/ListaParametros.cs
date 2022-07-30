@@ -4,8 +4,8 @@
     {
         public static List<KeyValuePair<string, string>> ListaTipoStatus = new List<KeyValuePair<string, string>>
         {
-            new KeyValuePair<string, string>(Parametros.StatusAtivo, DescricaoParametros.DescriçãoStatusAtivo),
-            new KeyValuePair<string, string>(Parametros.StatusInativo, DescricaoParametros.DescriçãoStatusInativo)
+            new KeyValuePair<string, string>(Parametros.StatusAtivo, DescricaoParametros.DescricaoStatusAtivo),
+            new KeyValuePair<string, string>(Parametros.StatusInativo, DescricaoParametros.DescricaoStatusInativo)
         };
 
         public static List<KeyValuePair<string, string>> ListaTipoTurno = new List<KeyValuePair<string, string>>

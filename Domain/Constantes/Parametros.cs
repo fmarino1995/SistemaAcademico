@@ -17,8 +17,8 @@
         public const string DescricaoTipoImportacaoUsuario = "Usuários";
         public const string DescricaoTipoImportacaoaLUNO = "Alunos";
 
-        public const string DescriçãoStatusAtivo = "Ativo";
-        public const string DescriçãoStatusInativo = "Inativo";
+        public const string DescricaoStatusAtivo = "Ativo";
+        public const string DescricaoStatusInativo = "Inativo";
 
         public const string DescricaoTipoTurnoDiurno = "Manha";
         public const string DescricaoTipoTurnoNoturno = "Noite";

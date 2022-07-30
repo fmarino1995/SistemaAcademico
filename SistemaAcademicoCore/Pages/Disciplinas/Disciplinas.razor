@@ -43,25 +43,34 @@ else
                 <tbody>
                     @foreach (var disciplina in DisciplinasList)
                     {
-                        <tr>
-                            <td>@disciplina.Nome</td>
-                            <td>@disciplina.Turno</td>
-                            <td>@disciplina.Professor.Nome</td>
-                            <td style="width: 6%;">
-                                <a href="/professors/edit/@disciplina.DisplicinaId" title="Editar Disciplina">
-                                    <span class="oi oi-pencil" aria-hidden="true"></span>
-                                </a>
-                                <a href="/professors/remove/@disciplina.DisplicinaId" title="Excluir Disciplina">
-                                    <span class="oi oi-trash" aria-hidden="true"></span>
-                                </a>
-                            </td>
-                        </tr>
+                        @if (DisciplinasList.Count > 0)
+                        {
+                            <tr>
+                                <td>@disciplina.Nome</td>
+                                <td>@disciplina.Turno</td>
+                                <td>@disciplina.Professor.Nome</td>
+                                <td style="width: 6%;">
+                                    <a href="/professors/edit/@disciplina.DisplicinaId" title="Editar Disciplina">
+                                        <span class="oi oi-pencil" aria-hidden="true"></span>
+                                    </a>
+                                    <a href="/professors/remove/@disciplina.DisplicinaId" title="Excluir Disciplina">
+                                        <span class="oi oi-trash" aria-hidden="true"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td validn="top" colspan="4" class="dataTables_empty">Nenhum registro disponível na tabela</td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </DataTable>
         </div>
     </div>
-    
+
 }
 
 @code {

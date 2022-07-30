@@ -1,13 +1,11 @@
 ﻿@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
 
-@if (Exibir)
-{
-    <div>
-        <table id="@id" class="table table-bordered table-striped table-sm" @attributes=UserAttributes>
-            @ChildContent
-        </table>
-    </div>
-}
+<div>
+    <table id="@id" class="table table-bordered table-striped table-sm" @attributes=UserAttributes>
+        @ChildContent
+    </table>
+</div>
+
 
 
 @code
@@ -24,22 +22,14 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> UserAttributes { get; set; }
 
-    [Parameter]
-    public bool Exibir { get; set; } = false;
-
 
     protected override void OnParametersSet()
     {
         StateHasChanged();
-        base.OnParametersSet();
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        if(!firstRender)
-        {
-            await JSRuntime.InvokeAsync<string>("AddDataTable", new object[] { $"#{id}", Searchable });
-            StateHasChanged();
-        }
+        await JSRuntime.InvokeAsync<string>("AddDataTable", new object[] { $"#{id}", Searchable });
     }
 }

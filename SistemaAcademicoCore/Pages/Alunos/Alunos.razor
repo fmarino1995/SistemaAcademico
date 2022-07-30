@@ -9,7 +9,7 @@
 
 @attribute [Authorize(Policy = Policies.IsAdmin)]
 
-@if (!Exibir)
+@if (AlunosList == null)
 {
     <br />
     <br />
@@ -20,7 +20,6 @@
 }
 else
 {
-    <Alerta Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
     <div class="card">
         <div class="card-header">
             <div class="titulo-card">
@@ -28,6 +27,24 @@ else
             </div>
         </div>
         <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-space">
+                        <label>Status</label>
+                        <select class="form-select" @onchange="AlteraFiltro">
+                            <option value="T">Todos</option>
+                            @foreach (var item in ListaParametros.ListaTipoStatus)
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
             <DataTable Searchable="true" Exibir="@Exibir">
                 <thead class="thead-light">
                     <tr>
@@ -35,6 +52,7 @@ else
                         <th>CPF</th>
                         <th>Matrícula</th>
                         <th>Email</th>
+                        <th>Status</th>
                         <th>
                             <a href="" @onclick="GotoCreate" title="Novo aluno">
                                 <span class="oi oi-plus"></span>
@@ -43,22 +61,33 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var aluno in AlunosList)
+                    @if (AlunosList.Count == 0)
                     {
                         <tr>
-                            <td>@aluno.Nome</td>
-                            <td>@aluno.Cpf.ToMask("###.###.###-##")</td>
-                            <td>@aluno.Matricula</td>
-                            <td>@aluno.Email</td>
-                            <td style="width: 6%;">
-                                <a href="/students/edit/@aluno.AlunoId" title="Editar Aluno">
-                                    <span class="oi oi-pencil" aria-hidden="true"></span>
-                                </a>
-                                <a href="/students/remove/@aluno.AlunoId" title="Inativar Aluno">
-                                    <span class="oi oi-trash" aria-hidden="true"></span>
-                                </a>
-                            </td>
+                            <td validn="top" colspan="6" class="dataTables_empty text-center">Nenhum registro disponível na tabela</td>
                         </tr>
+                    }
+                    else
+                    {
+                        @foreach (var aluno in AlunosList)
+                        {
+
+                            <tr>
+                                <td>@aluno.Nome</td>
+                                <td>@aluno.Cpf.ToMask("###.###.###-##")</td>
+                                <td>@aluno.Matricula</td>
+                                <td>@aluno.Email</td>
+                                <td>@ImprimirStatus(aluno.Status)</td>
+                                <td style="width: 6%;">
+                                    <a href="/students/edit/@aluno.AlunoId" title="Editar Aluno">
+                                        <span class="oi oi-pencil" aria-hidden="true"></span>
+                                    </a>
+                                    <a href="/students/remove/@aluno.AlunoId" title="Inativar Aluno">
+                                        <span class="oi oi-trash" aria-hidden="true"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </DataTable>
@@ -67,31 +96,46 @@ else
 }
 
 @code {
-
-    [Parameter]
-    public string Message { get; set; }
-    [Parameter]
-    public string AlertType { get; set; }
-
     bool Exibir = false;
-    bool ExibirAlert = false;
-    protected List<Aluno> AlunosList = new List<Aluno>();
+    protected List<Aluno> AlunosListOriginal;
+    protected List<Aluno> AlunosList;
+    string filter;
 
     protected override async Task OnInitializedAsync()
     {
         var usuariosList = await _mediator.Send(new ObterAlunosQuery());
-        AlunosList = usuariosList.Result;
+        AlunosListOriginal = usuariosList.Result;
+        AlunosList = AlunosListOriginal;
     }
 
-    protected async override Task OnAfterRenderAsync(bool firstRender)
+    protected void AlteraFiltro(ChangeEventArgs e)
     {
-        if (!firstRender)
+        filter = e.Value.ToString();
+        if (filter.Equals("T"))
         {
-            Exibir = true;
-            this.StateHasChanged();
-            await base.OnAfterRenderAsync(firstRender);
+            AlunosList = AlunosListOriginal;
+        }
+        else
+        {
+            AlunosList = AlunosListOriginal.Where(x => x.Status.Equals(filter)).ToList();
+        }
+
+        StateHasChanged();
+    }
+
+    private string ImprimirStatus(string status)
+    {
+        switch (status)
+        {
+            case Parametros.StatusAtivo:
+                return DescricaoParametros.DescricaoStatusAtivo;
+            case Parametros.StatusInativo:
+                return DescricaoParametros.DescricaoStatusInativo;
+            default:
+                return status;
         }
     }
+
 
     protected void GotoCreate()
     {
