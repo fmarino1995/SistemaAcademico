@@ -16,6 +16,7 @@ namespace Domain.Entities
         public string Cpf { get; set; }
         [Required]
         public string Matricula { get; set; }
+        public DateTime DataNascimento { get; set; }
         public DateTime DataHoraCadastro { get; set; }
         [Required]
         public string UsuarioCriacao { get; set; }

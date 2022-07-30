@@ -60,6 +60,10 @@ namespace SistemaAcademicoData.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UsuarioCriacao")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -331,6 +335,9 @@ namespace SistemaAcademicoData.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DataHoraCadastro")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DataNascimento")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")

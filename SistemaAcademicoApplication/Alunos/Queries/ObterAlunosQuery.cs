@@ -3,6 +3,7 @@ using SistemaAcademicoApplication.Common.Responses;
 using Domain.Entities;
 using SistemaAcademicoData.Context;
 using Microsoft.EntityFrameworkCore;
+using Domain.Constantes;
 
 namespace SistemaAcademicoApplication.Alunos.Queries
 {
@@ -22,6 +23,7 @@ namespace SistemaAcademicoApplication.Alunos.Queries
         public async Task<Response<List<Aluno>>> Handle(ObterAlunosQuery request, CancellationToken cancellationToken)
         {
             var alunos = await _context.Alunos
+                .Where(a => a.Status == Parametros.StatusAtivo)
                 .OrderBy(a => a.Nome)
                 .ToListAsync();
 

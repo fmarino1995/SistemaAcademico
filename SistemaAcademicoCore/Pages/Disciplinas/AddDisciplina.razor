@@ -1,0 +1,92 @@
+﻿@page "/disciplines/add"
+@using SistemaAcademicoApplication.Disciplinas.Commands
+@using SistemaAcademicoApplication.Professores.Queries
+@inject IMediator _mediator
+@inject IToastService _toastService
+@inject NavigationManager _navigationManager
+@layout MainLayout
+
+<PageTitle>Nova Disciplina - SistemaAcademico</PageTitle>
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
+<EditForm Model="@DisciplinaCreate" OnValidSubmit="AddDisciplinaAsync">
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Nova Disciplina
+            </div>
+        </div>
+        <div class="card-body">
+            <FluentValidationValidator />
+            <ValidationSummary />
+            <div class="row">
+                <div class="form-floating mb-3">
+                    <InputText id="floatingNome" class="form-control" @bind-Value="@DisciplinaCreate.Nome" placeholder="Nome" />
+                    <label for="floatingNome">Nome</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <InputSelect id="floatingTurno" class="form-select" @bind-Value="@DisciplinaCreate.Turno" placeholder="Turno">
+                        <option value="">--|Selecione|--</option>
+                        @foreach (var turno in ListaParametros.ListaTipoTurno)
+                        {
+                            <option value="@turno.Key">@turno.Value</option>
+                        }
+                    </InputSelect>
+                    <label for="floatingTurno">Turno</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <InputSelect id="floatingProfessor" class="form-select" @bind-Value="@DisciplinaCreate.ProfessorId" placeholder="Professor">
+                        <option value="0">--|Selecione|--</option>
+                        @foreach (var professor in Professores)
+                        {
+                            <option value="@professor.ProfessorId">@professor.Nome</option>
+                        }
+                    </InputSelect>
+                    <label for="floatingProfessor">Professor</label>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a class="btn btn-dark" @onclick="Voltar">Voltar</a>
+            <input type="submit" class="btn btn-primary" value="Salvar" />
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    Disciplina DisciplinaCreate;
+    List<Professor> Professores = new List<Professor>();
+    string Message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        DisciplinaCreate = new Disciplina();
+
+        Professores = (await _mediator.Send(new ObterProfessoresQuery())).Result;
+    }
+
+    private async Task AddDisciplinaAsync()
+    {
+        var disciplinaResponse = await _mediator.Send(new CriarDisciplinaCommand { Disciplina = DisciplinaCreate });
+
+        if(disciplinaResponse.Errors.Any())
+        {
+            Message = "Erro ao criar a disciplina: " + disciplinaResponse.Errors.First();
+            _toastService.ShowError(Message);
+        }
+        else
+        {
+            Message = "Disciplina criada com sucesso!";
+            _toastService.ShowSuccess(Message);
+        }
+
+        _navigationManager.NavigateTo("disciplines");
+    }
+
+    void Voltar()
+    {
+        _navigationManager.NavigateTo("disciplines", forceLoad: true);
+    }
+}

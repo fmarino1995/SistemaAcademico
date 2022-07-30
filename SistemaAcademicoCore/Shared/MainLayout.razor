@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager _navigationManager
+@using SistemaAcademicoApplication.Config
 
 
 <PageTitle>SistemaAcademico - @DateTime.Now.Year</PageTitle>
@@ -7,6 +8,9 @@
 <div class="page">
     <div class="sidebar">
         <NavMenu />
+        <div class="fixed-bottom text-muted">
+            &copy; <strong>@DateTime.Now.Year - Sistema Acadêmico</strong>
+        </div>
     </div>
 
     <main>
@@ -15,6 +19,13 @@
         </div>
 
         <div id="content-page">
+
+            <Toast Position="@ToastPosition.TopCenter"
+                   Timeout="10"
+                   SuccessClass="success-toast-override"
+                   SuccessIconClass="fa fa-thumbs-up"
+                   ErrorIconClass="fa fa-bug" />
+
             @Body
         </div>
     </main>

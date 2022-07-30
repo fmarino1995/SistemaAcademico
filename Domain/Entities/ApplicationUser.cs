@@ -22,5 +22,7 @@ namespace Domain.Entities
         public string Senha { get; set; }
         [NotMapped]
         public string RoleName { get; set; }
+        [NotMapped]
+        public string StatusFull { get; set; }
     }
 }

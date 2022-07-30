@@ -27,12 +27,7 @@ namespace Domain.ValidationEntities
                 .NotNull()
                 .WithMessage("Digite a data de nascimento do aluno");
 
-            RuleFor(x => x.Email)
-                .NotEmpty()
-                .NotNull()
-                .WithMessage("Selecione o e-mail do aluno");
-
-            RuleFor(x => x.Email)
+            RuleFor(x => x.ApplicationUserId)
                 .NotEmpty()
                 .NotNull()
                 .WithMessage("Selecione o e-mail do aluno");

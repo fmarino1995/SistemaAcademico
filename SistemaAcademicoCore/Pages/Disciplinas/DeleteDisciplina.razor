@@ -1,0 +1,102 @@
+﻿@page "/disciplines/delete/{DisciplinaId}"
+@using SistemaAcademicoApplication.Disciplinas.Commands
+@using SistemaAcademicoApplication.Disciplinas.Queries
+@inject IMediator _mediator
+@inject IToastService _toastService
+@inject NavigationManager _navigationManager
+@layout MainLayout
+
+<PageTitle>Deletar Disciplina - Sistema Academico</PageTitle>
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
+@if (disciplina == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <EditForm Model="@disciplina" OnValidSubmit="DeleteDisciplinaAsync">
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Deletar Disciplina
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Nome</span>
+                        <div class="content-informa">
+                            @disciplina.Nome
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Turno</span>
+                        <div class="content-informa">
+                            @disciplina.Turno
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="tituloinformacoes">Professor</span>
+                        <div class="content-informa">
+                            @disciplina.Professor.Nome
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-dark" @onclick="Voltar">Voltar</a>
+                <input type="submit" class="btn btn-primary" value="Excluir" />
+            </div>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string DisciplinaId { get; set; }
+
+    Disciplina disciplina;
+    string Message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = Convert.ToInt32(DisciplinaId) });
+
+        if (response.Errors.Any())
+        {
+            Message = "Disciplina não encontrada";
+            _toastService.ShowError(Message);
+            Voltar();
+        }
+    }
+
+    private async Task DeleteDisciplinaAsync()
+    {
+        var deleteResponse = await _mediator.Send(new ExcluirDisciplinaCommand { Disciplina = disciplina });
+
+        if (deleteResponse.Errors.Any())
+        {
+            Message = "Erro ao excluir a disciplina: " + deleteResponse.Errors.First();
+            _toastService.ShowError(Message);
+        }
+        else
+        {
+            Message = "Disciplina excluída com sucesso!";
+            _toastService.ShowSuccess(Message);
+        }
+
+        _navigationManager.NavigateTo("disciplines");
+    }
+
+    void Voltar()
+    {
+        _navigationManager.NavigateTo("disciplines", forceLoad: true);
+    }
+}

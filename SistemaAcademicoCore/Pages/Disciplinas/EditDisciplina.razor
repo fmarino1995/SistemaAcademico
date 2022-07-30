@@ -1,0 +1,107 @@
+﻿@page "/disciplines/edit/{DisciplinaId}"
+@using SistemaAcademicoApplication.Disciplinas.Commands
+@using SistemaAcademicoApplication.Disciplinas.Queries
+@using SistemaAcademicoApplication.Professores.Queries
+@inject IMediator _mediator
+@inject IToastService _toastService
+@inject NavigationManager _navigationManager
+@layout MainLayout
+
+<PageTitle>Editar Disciplina - SistemaAcademico</PageTitle>
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
+@if (DisciplinaEdit == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <EditForm Model="@DisciplinaEdit" OnValidSubmit="EditDisciplinaAsync">
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Nova Disciplina
+                </div>
+            </div>
+            <div class="card-body">
+                <FluentValidationValidator />
+                <ValidationSummary />
+                <div class="row">
+                    <div class="form-floating mb-3">
+                        <InputText id="floatingNome" class="form-control" @bind-Value="@DisciplinaEdit.Nome" placeholder="Nome" />
+                        <label for="floatingNome">Nome</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputSelect id="floatingTurno" class="form-select" @bind-Value="@DisciplinaEdit.Turno" placeholder="Turno">
+                            @foreach (var turno in ListaParametros.ListaTipoTurno)
+                            {
+                                <option value="@turno.Key">@turno.Value</option>
+                            }
+                        </InputSelect>
+                        <label for="floatingTurno">Turno</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputSelect id="floatingProfessor" class="form-select" @bind-Value="@DisciplinaEdit.ProfessorId" placeholder="Professor">
+                        <option value="0">--|Selecione|--</option>
+                            @foreach (var professor in Professores)
+                            {
+                                <option value="@professor.ProfessorId">@professor.Nome</option>
+                            }
+                        </InputSelect>
+                        <label for="floatingProfessor">Professor</label>
+                     </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-dark" @onclick="Voltar">Voltar</a>
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+            </div>
+        </div>
+    </EditForm>
+}
+
+
+@code {
+    [Parameter]
+    public string DisciplinaId { get; set; }
+
+    Disciplina DisciplinaEdit;
+    List<Professor> Professores = new List<Professor>();
+    string Message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        DisciplinaEdit = (await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = Convert.ToInt32(DisciplinaId) })).Result;
+
+        Professores = (await _mediator.Send(new ObterProfessoresQuery())).Result;
+    }
+
+    private async Task EditDisciplinaAsync()
+    {
+        var editResponse = await _mediator.Send(new EditarDisciplinaCommand { Disciplina = DisciplinaEdit });
+
+        if (editResponse.Errors.Any())
+        {
+            Message = "Erro ao editar a disciplina: " + editResponse.Errors.First();
+            _toastService.ShowError(Message);
+        }
+        else
+        {
+            Message = "Disciplina editada com sucesso!";
+            _toastService.ShowSuccess(Message);
+        }
+
+        _navigationManager.NavigateTo("disciplines");
+    }
+
+    void Voltar()
+    {
+        _navigationManager.NavigateTo("disciplines", forceLoad: true);
+    }
+}

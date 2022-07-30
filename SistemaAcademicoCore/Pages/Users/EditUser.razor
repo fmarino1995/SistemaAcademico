@@ -2,10 +2,14 @@
 @using SistemaAcademicoApplication.Roles.Queries
 @using SistemaAcademicoApplication.Usuarios.Commands
 @using SistemaAcademicoApplication.Usuarios.Queries
+@using Domain.Constantes;
 @inject IMediator _mediator
+@inject IToastService _toastService
 @inject NavigationManager _navigationManager
 
 <PageTitle>Editar Usuário - SistemaAcademico</PageTitle>
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
 
 <EditForm Model="@User" OnValidSubmit="UpdateUser">
     <div class="card">
@@ -15,30 +19,44 @@
             </div>
         </div>
         <div class="card-body">
-            <Alert AlertType = "@AlertType" Message="@AlertMessage" Exibir="@ExibirAlert" />
             <FluentValidationValidator />
             <ValidationSummary />
             <div class="row">
-                <div class="col-md-6 col-lg-6">
-                    <span class="tituloinformacoes">Email</span>
-                    <InputText readonly class="form-control" @bind-Value="@User.Email"></InputText>
+                <div class="col-md-6 col-lg-6 form-space">
+                    <div class="form-floating mb-3">
+                        <InputText id="floatingEmail" class="form-control" @bind-Value="@User.Email" placeholder="Email" />
+                        <label for="floatingEmail">Email</label>
+                    </div>
                 </div>
-                <br/>
-                <div class="col-md-6 col-lg-6">
-                    <span class="tituloinformacoes">Nome completo</span>
-                    <InputText class="form-control" @bind-Value="@User.NomeCompleto"></InputText>
+                <div class="col-md-6 col-lg-6 form-space">
+                    <div class="form-floating mb-3">
+                        <InputText id="floatingNome" class="form-control" @bind-Value="@User.NomeCompleto" placeholder="Nome Completo" />
+                        <label for="floatingNome">Nome Completo</label>
+                    </div>
                 </div>
-                <br/>
-                <div class="col-md-6 col-lg-6">
-                    <span class="tituloinformacoes">Perfil</span>
-                    <InputText readonly class="form-control" @bind-Value="User.RoleName"></InputText>
+                <div class="col-md-6 col-lg-6 form-space">
+                    <div class="form-floating">
+                        <InputSelect id="SelectStatus" class="form-select" @bind-Value="User.Status">
+                            @foreach (var item in ListaParametros.ListaTipoStatus)
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </InputSelect>
+                        <label for="SelectStatus">Status</label>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 form-space">
+                    <div class="form-floating mb-3">
+                        <InputText id="floatingPerfil" class="form-control" @bind-Value="@User.RoleName" placeholder="Perfil" />
+                        <label for="floatingPerfil">Perfil</label>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="card-footer">
             <div class="row">
                 <div class="col-md-12">
-                    <a class="btn btn-dark" href="roles">Voltar</a>
+                    <a class="btn btn-dark" href="users">Voltar</a>
                     <button type="submit" class="btn btn-primary">Salvar</button>
                 </div>
             </div>
@@ -51,39 +69,42 @@
     ApplicationUser User = new ApplicationUser();
     List<IdentityRole> Roles = new List<IdentityRole>();
     string SelectedName;
-    string AlertMessage = "";
-    string AlertType = "";
-    bool ExibirAlert = false;
+    string Message = "";
+
+    List<string> tipos;
 
     [Parameter]
     public string UserId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        User = (await _mediator.Send(new ObterUsuarioQuery { UserId = UserId })).Result;
+        tipos = new List<string>() { "A", "I" };
+
+        var user = (await _mediator.Send(new ObterUsuarioQuery { UserId = UserId }));
+
+        User = user.Result;
 
         Roles = (await _mediator.Send(new ObterRolesQuery())).Result;
 
-        User.RoleName = Roles.FirstOrDefault(r => r.Id.ToUpper() == User.RoleId).Name;
+        User.RoleName = Roles.FirstOrDefault(r => r.Id.ToLower() == User.RoleId.ToLower()).Name;
     }
 
     private async void UpdateUser()
     {
         var editado = await _mediator.Send(new EditarUsuarioCommand { User = User });
 
-        if(editado.Errors.Any())
+        if (editado.Errors.Any())
         {
-            AlertMessage = "Erro ao editar o usuário. Tente novamente";
-            AlertType = "dannger";
-            ExibirAlert = true;
+            Message = "Erro ao editar o usuário. Tente novamente";
+            _toastService.ShowError(Message);
             this.StateHasChanged();
         }
         else
         {
-            AlertMessage = "Usuário editado com sucesso!";
-            AlertType = "success";
+            Message = "Usuário editado com sucesso!";
+            _toastService.ShowSuccess(Message);
 
-            _navigationManager.NavigateTo($"users/{AlertMessage}/{AlertType}");
+            _navigationManager.NavigateTo("users");
         }
     }
 }

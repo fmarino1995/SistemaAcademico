@@ -1,0 +1,143 @@
+﻿@page "/professors"
+@using SistemaAcademicoApplication.Professores.Queries
+@using Microsoft.EntityFrameworkCore;
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+@layout MainLayout
+
+<PageTitle>Professores - SistemaAcademico</PageTitle>
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
+
+@if (ProfessoresList == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/jAYUbVXgESSti/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Professores
+            </div>
+        </div>
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-space">
+                        <label>Status</label>
+                        <select class="form-select" @onchange="AlteraFiltro">
+                            <option value="T">Todos</option>
+                            @foreach (var item in ListaParametros.ListaTipoStatus)
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <DataTable Searchable="true">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Matrícula</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>
+                            <a href="/professors/add" title="Novo professor">
+                                <span class="oi oi-plus"></span>
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ProfessoresList.Count == 0)
+                    {
+                        <tr>
+                            <td validn="top" colspan="6" class="dataTables_empty text-center">Nenhum registro disponível na tabela</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var professor in ProfessoresList)
+                        {
+                            <tr>
+                                <td>@professor.Nome</td>
+                                <td>@professor.Cpf.ToMask("###.###.###-##")</td>
+                                <td>@professor.Matricula</td>
+                                <td>@professor.Email</td>
+                                <td>@ImprimirStatus(professor.Status)</td>
+                                <td style="width: 6%;">
+                                    <a href="/professors/edit/@professor.ProfessorId" title="Editar Professor">
+                                        <span class="oi oi-pencil" aria-hidden="true"></span>
+                                    </a>
+                                    <a href="/professors/remove/@professor.ProfessorId" title="Inativar Professor">
+                                        <span class="oi oi-trash" aria-hidden="true"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </DataTable>
+        </div>
+    </div>
+}
+
+
+@code {
+    List<Professor> ProfessoresListOriginal = new List<Professor>();
+    List<Professor> ProfessoresList = new List<Professor>();
+    bool Exibir;
+    string filter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProfessoresListOriginal = (await _mediator.Send(new ObterProfessoresQuery())).Result;
+        ProfessoresList = ProfessoresListOriginal;
+    }
+
+    protected void AlteraFiltro(ChangeEventArgs e)
+    {
+        filter = e.Value.ToString();
+        if (filter.Equals("T"))
+        {
+            ProfessoresList = ProfessoresListOriginal;
+        }
+        else
+        {
+            ProfessoresList = ProfessoresListOriginal.Where(x => x.Status.Equals(filter)).ToList();
+        }
+
+        StateHasChanged();
+    }
+
+    private string ImprimirStatus(string status)
+    {
+        switch (status)
+        {
+            case Parametros.StatusAtivo:
+                return DescricaoParametros.DescricaoStatusAtivo;
+            case Parametros.StatusInativo:
+                return DescricaoParametros.DescricaoStatusInativo;
+            default:
+                return status;
+        }
+    }
+
+    protected void GotoCreate()
+    {
+        _navigationManager.NavigateTo("professors/add", true);
+    }
+}

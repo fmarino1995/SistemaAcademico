@@ -1,0 +1,109 @@
+﻿@page "/students/import"
+@using SistemaAcademicoApplication.Alunos.Commands
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+
+<PageTitle>Importação Alunos - SistemaAcademico</PageTitle>
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Importação de alunos
+            </div>
+        </div>
+        <form @onsubmit="OnSubmit">
+            <div class="card-body">
+                <p class="text-dark"><strong>@FileMessage</strong></p>
+                <InputFile OnChange="OnInputFileChange" />
+                <p class="text-danger">@MensagemValidacao</p>
+                <br />
+                <a href="/Modelos/MODELO_IMPORTACAO_ALUNOS.csv" download="MODELO_IMPORTACAO_ALUNOS.csv">Baixe o modelo aqui</a>
+                <br /><br />
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="/users" class="btn btn-outline-dark">Voltar</a>
+                        @if (selectedFile == null)
+                        {
+                            <button type="submit" disabled class="btn btn-outline-primary ml-1">Enviar</button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn btn-outline-primary">Enviar</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+@if(ResultadoImportacao)
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Resultado da Importação
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Quantidade Importados</label>
+                    <div class="content-informa">@qtdImportados</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Quantidade não Importados</label>
+                    <div class="content-informa">@qtdNaoImportados</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Log da importação</label>
+                    <textarea readonly rows="10" class="form-control">@log</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    string FileMessage = "Nenhum arquivo selecionado";
+    string MensagemValidacao = string.Empty;
+    IBrowserFile selectedFile;
+
+    string Message = "";
+    bool ExibirAlert = false;
+    string AlertType = "";
+    bool ResultadoImportacao;
+    string log = "";
+    int qtdImportados;
+    int qtdNaoImportados;
+
+    private void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        FileMessage = $"{e.File.Name} selecionado";
+        selectedFile = e.File;
+        this.StateHasChanged();
+    }
+
+    private async void OnSubmit()
+    {
+        string filePath = $"C:\\arquivosImportacaoAluno\\{selectedFile.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
+
+        var importacaoResponse = await _mediator.Send(new ImportarAlunosCommand { File = selectedFile, FilePath = filePath });
+
+        if (importacaoResponse.Errors.Any())
+        {
+            MensagemValidacao = importacaoResponse.Errors.First();
+            this.StateHasChanged();
+        }
+        else
+        {
+            log = importacaoResponse.Result.LogImportacao.Mensagem;
+            ResultadoImportacao = true;
+            this.StateHasChanged();
+        }
+    }
+}

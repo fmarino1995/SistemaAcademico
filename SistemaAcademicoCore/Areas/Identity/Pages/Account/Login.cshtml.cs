@@ -118,8 +118,16 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                var usuarioAtivo = await _mediator.Send(new VerificarUsuarioAtivoCommand { Email = Input.Email });
+
+                if(!usuarioAtivo.Result)
+                {
+                    ModelState.AddModelError(string.Empty, "Tentativa de login inválida");
+                    ViewData["LoginError"] = "Esse usuário foi inativado";
+                    return Page();
+                }
+
+
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
@@ -152,7 +160,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Tentativa de login inválida");
                     ViewData["LoginError"] = "Senha ou usuário incorreto";
                     return Page();
                 }

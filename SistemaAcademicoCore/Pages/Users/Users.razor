@@ -1,13 +1,15 @@
 ﻿@page "/users"
-@page "/users/{message}/{alertType}"
 @inject IMediator _mediator
+@inject IToastService _toastService
 @layout MainLayout
+@using Domain.Constantes
 @using SistemaAcademicoApplication.Usuarios.Queries
 
 <PageTitle>Usuários - SistemaAcademico</PageTitle>
 
+@attribute [Authorize(Policy = Policies.IsAdmin)]
 
-@if (Exibir == false)
+@if (Usuarios == null)
 {
     <br />
     <br />
@@ -18,7 +20,6 @@
 }
 else
 {
-    <Alerta Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
     <div class="card">
         <div class="card-header">
             <div class="titulo-card">
@@ -26,11 +27,30 @@ else
             </div>
         </div>
         <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-space">
+                        <label>Status</label>
+                        <select class="form-select" @onchange="AlteraFiltro">
+                            <option value="T">Todos</option>
+                            @foreach (var item in ListaParametros.ListaTipoStatus)
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
             <DataTable Searchable="true" Exibir="@Exibir">
                 <thead class="thead-light">
                     <tr>
                         <th>Nome</th>
                         <th>Email</th>
+                        <th>Status</th>
                         <th>Data de cadastro</th>
                         <th>
                             <a href="/Identity/Account/Register" title="Novo usuário">
@@ -40,21 +60,31 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var user in Usuarios)
+                    @if (Usuarios.Count == 0)
                     {
                         <tr>
-                            <td>@user.NomeCompleto</td>
-                            <td>@user.Email</td>
-                            <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
-                            <td style="width: 6%;">
-                                <a href="/users/edit/{@user.Id}" title="Editar Usuário">
-                                    <span class="oi oi-pencil" aria-hidden="true"></span>
-                                </a>
-                                <a href="/users/remove/{@user.Id}" title="Inativar usuário">
-                                    <span class="oi oi-trash" aria-hidden="true"></span>
-                                </a>
-                            </td>
+                            <td validn="top" colspan="5" class="dataTables_empty text-center">Nenhum registro disponível na tabela</td>
                         </tr>
+                    }
+                    else
+                    {
+                        @foreach (var user in Usuarios)
+                        {
+                            <tr>
+                                <td>@user.NomeCompleto</td>
+                                <td>@user.Email</td>
+                                <td>@ImprimirStatusUsuario(user.Status)</td>
+                                <td>@user.DataCriacao.ToString("dd/MM/yyyy")</td>
+                                <td style="width: 6%;">
+                                    <a href="/users/edit/@user.Id" title="Editar Usuário">
+                                        <span class="oi oi-pencil" aria-hidden="true"></span>
+                                    </a>
+                                    <a href="/users/remove/@user.Id" title="Inativar usuário">
+                                        <span class="oi oi-trash" aria-hidden="true"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </DataTable>
@@ -63,33 +93,44 @@ else
 }
 
 @code {
-
-    [Parameter]
-    public string Message { get; set; }
-    [Parameter]
-    public string AlertType { get; set; }
-
     protected bool Exibir = false;
-    public bool ExibirAlert = false;
-    protected List<ApplicationUser> Usuarios = new List<ApplicationUser>();
+    protected List<ApplicationUser> UsuariosOriginal;
+    protected List<ApplicationUser> Usuarios;
+    string filter;
 
     protected override async Task OnInitializedAsync()
     {
         var usuariosList = await _mediator.Send(new ObterUsuariosQuery());
-        Usuarios = usuariosList.Result;
+        UsuariosOriginal = usuariosList.Result;
+        Usuarios = UsuariosOriginal;
+
     }
 
-    protected async override Task OnAfterRenderAsync(bool firstRender)
+    protected void AlteraFiltro(ChangeEventArgs e)
     {
-        if (!firstRender)
+        filter = e.Value.ToString();
+        if (filter.Equals("T"))
         {
-            if (Message != null)
-                ExibirAlert = true;
-            
+            Usuarios = UsuariosOriginal;
+        }
+        else
+        {
+            Usuarios = UsuariosOriginal.Where(x => x.Status.Equals(filter)).ToList();
+        }
 
-            Exibir = true;
-            this.StateHasChanged();
-            await base.OnAfterRenderAsync(firstRender);
+        StateHasChanged();
+    }
+
+    private string ImprimirStatusUsuario(string status)
+    {
+        switch (status)
+        {
+            case Parametros.StatusAtivo:
+                return DescricaoParametros.DescricaoStatusAtivo;
+            case Parametros.StatusInativo:
+                return DescricaoParametros.DescricaoStatusInativo;
+            default:
+                return status;
         }
     }
 }
