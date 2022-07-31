@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
@@ -28,5 +29,7 @@ namespace Domain.Entities
         public ApplicationUser ApplicationUser { get; set; }
         [Required]
         public string Status { get; set; }
+        [Required]
+        public string Turno { get; set; }
     }
 }

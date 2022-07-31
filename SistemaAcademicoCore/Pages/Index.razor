@@ -5,39 +5,98 @@
 @layout MainLayout
 @inject IMediator _mediator
 
-@attribute [Authorize(Policy = Policies.IsAdmin)]
+@attribute [Authorize(Policy = Policies.IsAluno)]
 
-<PageTitle>Início - SistemaAcademico</PageTitle>
+<AuthorizeView Policy="@Policies.IsAdmin">
 
-@*<Alert Exibir="@Exibir" Message="@Message" AlertType="@AlertType"></Alert>*@
-<Alert Color="AlertColor.Success" Dismissable="true"> <Icon Name="IconName.CheckCircleFill" class="me-2"></Icon> Mensagem enviada com sucesso</Alert>
+    <PageTitle>Administração - SistemaAcademico</PageTitle>
 
-<h1>DashBoard</h1>
-
-
-@if (Avisos == null)
-{
-    <br />
-    <br />
-    <br />
-    <center>
-        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
-    </center>
-}
-else
-{
-    <div class="card">
-        <div class="card-header">
-            <div class="titulo-card">
-                Quadro de avisos
+    @if (Avisos == null)
+    {
+        <br />
+        <br />
+        <br />
+        <center>
+            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+        </center>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Quadro de avisos - Admin
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                </div>
             </div>
         </div>
-        <div class="card-body">
-            <div class="form-group">
+    }
+</AuthorizeView>
+
+<AuthorizeView Policy="@Policies.IsAluno">
+    <Authorized>
+        <PageTitle>Aluno - SistemaAcademico</PageTitle>
+        @if (Avisos == null)
+        {
+            <br />
+            <br />
+            <br />
+            <center>
+                <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+            </center>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header">
+                    <div class="titulo-card">
+                        Quadro de avisos - Aluno
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                    </div>
+                </div>
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>Não autorizado</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+<AuthorizeView Policy="@Policies.IsProfessor">
+    <PageTitle>Professor - SistemaAcademico</PageTitle>
+
+    @if (Avisos == null)
+    {
+        <br />
+        <br />
+        <br />
+        <center>
+            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+        </center>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Quadro de avisos - Professor
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                </div>
             </div>
         </div>
-    </div>
-}
+    }
+</AuthorizeView>
+
+
 
 
 
