@@ -10,5 +10,6 @@ namespace Domain.Entities
         public virtual Aluno Aluno { get; set; }
         public int DisciplinaId { get; set; }
         public virtual Disciplina Disciplina { get; set; }
+        public int TotalAulasValidas { get; set; }
     }
 }
