@@ -1,42 +1,43 @@
 ﻿@page "/"
-@page "/{Message}/{AlertType}"
+@page "/{Message}"
 @using SistemaAcademicoApplication.Avisos.Queries
 @using System.Security.Claims
 @layout MainLayout
 @inject IMediator _mediator
+@inject IToastService _toastService
 
-@attribute [Authorize(Policy = Policies.IsAluno)]
+@*@attribute [Authorize(Policy = Policies.IsAdmin)]*@
 
-<AuthorizeView Policy="@Policies.IsAdmin">
 
-    <PageTitle>Administração - SistemaAcademico</PageTitle>
 
-    @if (Avisos == null)
-    {
-        <br />
-        <br />
-        <br />
-        <center>
-            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
-        </center>
-    }
-    else
-    {
-        <div class="card">
-            <div class="card-header">
-                <div class="titulo-card">
-                    Quadro de avisos - Admin
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                </div>
+<PageTitle>Administração - SistemaAcademico</PageTitle>
+
+@if (Avisos == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Quadro de avisos - Admin
             </div>
         </div>
-    }
-</AuthorizeView>
+        <div class="card-body">
+            <div class="form-group">
+            </div>
+        </div>
+    </div>
+}
 
-<AuthorizeView Policy="@Policies.IsAluno">
+
+@*<AuthorizeView Policy="@Policies.IsAluno">
     <Authorized>
         <PageTitle>Aluno - SistemaAcademico</PageTitle>
         @if (Avisos == null)
@@ -94,22 +95,13 @@
             </div>
         </div>
     }
-</AuthorizeView>
-
-
-
-
-
-
+</AuthorizeView>*@
 
 @code {
     [Parameter]
     public string Message { get; set; }
-    [Parameter]
-    public string AlertType { get; set; }
 
     private List<Aviso> Avisos;
-    private bool Exibir = false;
     bool IsUserAuthenticated;
     ClaimsPrincipal user;
 
@@ -119,18 +111,21 @@
 
         if (ultimosAvisos.Errors.Any())
         {
-            Message = "Erro ao carregar os últimos avisos. Tente novamente";
-            AlertType = "danger";
-        }
-        else
-        {
-            Avisos = ultimosAvisos.Result;
+            _toastService.ShowInfo("Erro ao carregar os últimos avisos");
         }
 
-        if (Message != null)
+        Avisos = ultimosAvisos.Result;
+
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
         {
-            Exibir = true;
-            this.StateHasChanged();
+            if (Message != null)
+            {
+                _toastService.ShowError(Message);
+            }
         }
     }
 }

@@ -49,8 +49,8 @@
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputSelect class="form-select" @bind-Value="@ProfessorCreate.ApplicationUserId" @onchange="VerificarEmailUsuario">
-                            <option selected value="floatingEmail">|--Selecione--|</option>
+                        <InputSelect id="floatingEmail" class="form-select" @bind-Value="@ProfessorCreate.ApplicationUserId" @onchange="VerificarEmailUsuario">
+                            <option selected value="">|--Selecione--|</option>
                             @foreach (var user in UsersList.Where(x => x.RoleId == ConstantesSistema.RoleProfessor)) 
                             {
                                 <option value="@user.Id">@user.Email</option>

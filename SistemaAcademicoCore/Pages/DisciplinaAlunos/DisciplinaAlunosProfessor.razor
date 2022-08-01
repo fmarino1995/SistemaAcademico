@@ -1,0 +1,116 @@
+﻿@page "/webagenda/professors"
+@using Domain.ViewModels
+@using SistemaAcademicoApplication.Disciplinas.Queries
+@using SistemaAcademicoApplication.Professores.Queries
+@inject IMediator _mediator
+@inject ICurrentUserService _currentUserService
+@inject IToastService _toastService
+@inject NavigationManager _navigationManager
+
+
+@if (DisciplinasProfessorList == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/jAYUbVXgESSti/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <EditForm Model="@ViewModel">
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Pauta Web - Professor
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <select id="floatingDisciplinaTurno" class="form-select" @onchange="AlteraTurno">
+                                <option value="">Selecione o turno</option>
+                                @foreach(var item in ListaParametros.ListaTipoTurno)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                            <label for="floatingDisciplinaTurno">Turno</label>
+                        </div>
+                    </div>
+                    @if(!string.IsNullOrEmpty(turno))
+                    {
+                        <div class="col-md-6 col-lg-6 form-space">
+                            <div class="form-floating mb-3">
+                                <InputSelect id="floatingDisciplina" class="form-select" @bind-Value="@ViewModel.Professor.ProfessorId">
+                                    <option value="">Selecione a disciplina</option>
+                                    @foreach(var item in DisciplinasProfessorList.Where(x => x.Turno == turno || string.IsNullOrEmpty(turno)))
+                                    {
+                                        <option value="@item.DisplicinaId">@item.Nome</option>
+                                    }
+                                </InputSelect>
+                                <label for="floatingDisciplina">Disciplina</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="/" class="btn btn-dark">Voltar</a>
+                        <input type="submit" class="btn btn-primary" value="Salvar" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+
+}
+
+
+@code {
+    DisciplinaAlunoProfessorViewModel ViewModel;
+    List<Disciplina> DisciplinasProfessorList;
+    string turno;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuarioLogado = await _currentUserService.GetUserNameAsync();
+
+        var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery { Email = usuarioLogado });
+
+        if (professorLogado.Errors.Any())
+        {
+            VoltarToast("Erro ao consultar o registro de professor.");
+        }
+
+        DisciplinasProfessorList = await GetDisciplinasProfessorAsync(professorLogado.Result.ProfessorId);
+
+        if (DisciplinasProfessorList.Count == 0)
+        {
+            VoltarToast("Nenhuma disciplina encontrada para seu usuário.");
+        }
+
+
+
+    }
+
+    private void AlteraTurno(ChangeEventArgs e)
+    {
+        turno = e.Value.ToString();
+        StateHasChanged();
+    }
+
+    private async Task<List<Disciplina>> GetDisciplinasProfessorAsync(int professorId)
+    {
+        return await Task.FromResult((await _mediator.Send(new ObterDisciplinasProfessorIdQuery { ProfessorId = professorId })).Result);
+    }
+
+    void VoltarToast(string message)
+    {
+        _navigationManager.NavigateTo($"/{message}");
+    }
+}

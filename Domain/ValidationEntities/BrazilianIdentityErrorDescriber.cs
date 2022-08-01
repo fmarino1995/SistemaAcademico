@@ -18,5 +18,9 @@ namespace Domain.ValidationEntities
         {
             return new IdentityError { Code = nameof(DuplicateEmail), Description = $"'{email}', já está associado a outra conta" };
         }
+        public override IdentityError PasswordRequiresLower()
+        {
+            return new IdentityError { Code = nameof(PasswordRequiresLower), Description = "Senha precisa conter ao menos uma letra (a - z)" };
+        }
     }
 }

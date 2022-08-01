@@ -101,7 +101,6 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "Selecione um perfil para o usuário")]
             [Display(Name = "Perfil")]
             public string PerfilId { get; set; }
-            
         }
 
 
@@ -111,8 +110,6 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             Perfis = (await _mediator.Send(new ObterRolesQuery())).Result;
-
-            ViewData["SelectPerfis"] = Perfis;
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -165,11 +162,16 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                     {
                         error.Description = new BrazilianIdentityErrorDescriber().DuplicateUserName(Input.Email).Description;
                     }
+                    else if (error.Code == "PasswordRequiresLower")
+                    {
+                        error.Description = new BrazilianIdentityErrorDescriber().PasswordRequiresLower().Description;
+                    }
 
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
+            Perfis = (await _mediator.Send(new ObterRolesQuery())).Result;
             // If we got this far, something failed, redisplay form
             return Page();
         }
