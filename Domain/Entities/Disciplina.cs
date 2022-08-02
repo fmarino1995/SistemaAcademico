@@ -12,5 +12,10 @@ namespace Domain.Entities
         public virtual Professor Professor { get; set; }
         [Required]
         public string Turno { get; set; }
+        [Required]
+        public string Sigla { get; set; }
+        [Required]
+        public string Matricula { get; set; }
+        public string PreRequisito { get; set; }
     }
 }

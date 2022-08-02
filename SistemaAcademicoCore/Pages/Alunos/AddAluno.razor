@@ -34,12 +34,6 @@
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingMatricula" class="form-control" @bind-Value="@AlunoCreate.Matricula" placeholder="Matrícula" />
-                        <label for="floatingMatricula">Matrícula</label>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-6 form-space">
-                    <div class="form-floating mb-3">
                         <InputDate id="floatingDataNasc" class="form-control" @bind-Value="@AlunoCreate.DataNascimento" placeholder="Data de nascimento" />
                         <label for="floatingDataNasc">Data de nascimento</label>
                     </div>
@@ -171,6 +165,8 @@
 
     protected async Task AddAlunoAsync()
     {
+        AlunoCreate.Matricula = Guid.NewGuid().ToString();
+
         var createResponse = await _mediator.Send(new CriarAlunoCommand { Aluno = AlunoCreate });
 
         if (createResponse.Errors.Any())

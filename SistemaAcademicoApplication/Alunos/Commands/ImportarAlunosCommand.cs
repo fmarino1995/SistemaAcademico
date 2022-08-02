@@ -82,7 +82,7 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                             {
                                 Cpf = cpfAluno,
                                 Nome = csv.GetField("NOME"),
-                                Matricula = csv.GetField("MATRICULA"),
+                                Matricula = Guid.NewGuid().ToString(),
                                 DataNascimento = DateTime.TryParse(csv.GetField("DATA_NASCIMENTO"), out dateResult) ? dateResult : throw new Exception($"Formato incorreto para data de nascimento do aluno de cpf '{cpfAluno}', não foi possível importar."),
                                 Email = await VerificarEmailAlunoExits(csv.GetField("EMAIL_USUARIO")) ? throw new Exception($"Email informado para aluno de cpf '{cpfAluno}' já asssociado a outra conta, não foi possivel importar") : csv.GetField("EMAIL"),
                                 DataHoraCadastro = DateTime.Now,
