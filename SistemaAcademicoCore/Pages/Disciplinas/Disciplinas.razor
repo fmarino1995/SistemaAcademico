@@ -8,7 +8,7 @@
 
 @attribute [Authorize(Policy = Policies.IsAdmin)]
 
-@if (!Exibir)
+@if (DisciplinasList == null)
 {
     <br />
     <br />
@@ -19,19 +19,35 @@
 }
 else
 {
-    <Alerta Exibir="@ExibirAlert" Message="@Message" AlertType="@AlertType" />
     <div class="card">
         <div class="card-header">
             <div class="titulo-card">
-                Alunos
+                Disciplinas
             </div>
         </div>
         <div class="card-body">
-            <DataTable Searchable="true" Exibir="@Exibir">
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-space">
+                        <label for="selectPeriodo">Período</label>
+                        <select id="selectPeriodo" class="form-select" @onchange="AlteraPeriodo">
+                            <option selected value="9991">Todos</option>
+                            @foreach (var item in ListaParametros.ListaPeriodos)
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <DataTable Searchable="true">
                 <thead class="thead-light">
                     <tr>
                         <th>Nome</th>
                         <th>Turno</th>
+                        <th>Período</th>
                         <th>Professor</th>
                         <th>
                             <a href="" @onclick="GotoCreate" title="Nova disciplina">
@@ -47,13 +63,14 @@ else
                         {
                             <tr>
                                 <td>@disciplina.Nome</td>
-                                <td>@disciplina.Turno</td>
+                                <td>@ImprimirTurno(disciplina.Turno)</td>
+                                <td>@ImprimirPeriodo(disciplina.PeriodoDisciplina)</td>
                                 <td>@disciplina.Professor.Nome</td>
                                 <td style="width: 6%;">
-                                    <a href="/professors/edit/@disciplina.DisplicinaId" title="Editar Disciplina">
+                                    <a href="/disciplines/edit/@disciplina.DisplicinaId" title="Editar Disciplina">
                                         <span class="oi oi-pencil" aria-hidden="true"></span>
                                     </a>
-                                    <a href="/professors/remove/@disciplina.DisplicinaId" title="Excluir Disciplina">
+                                    <a href="/disciplines/remove/@disciplina.DisplicinaId" title="Excluir Disciplina">
                                         <span class="oi oi-trash" aria-hidden="true"></span>
                                     </a>
                                 </td>
@@ -74,36 +91,67 @@ else
 }
 
 @code {
-    [Parameter]
-    public string Message { get; set; }
-    [Parameter]
-    public string AlertType { get; set; }
-
-    List<Disciplina> DisciplinasList = new List<Disciplina>();
-    bool Exibir;
-    bool ExibirAlert;
+    List<Disciplina> DisciplinasList;
+    List<Disciplina> DisciplinaOriginal;
+    string filter;
 
     protected override async Task OnInitializedAsync()
     {
-        DisciplinasList = (await _mediator.Send(new ObterDisciplinasQuery())).Result;
-    }
-
-    protected async override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-        {
-            if (Message != null)
-                ExibirAlert = true;
-
-
-            Exibir = true;
-            this.StateHasChanged();
-            await base.OnAfterRenderAsync(firstRender);
-        }
+        DisciplinaOriginal = (await _mediator.Send(new ObterDisciplinasQuery())).Result;
+        DisciplinasList = DisciplinaOriginal;
     }
 
     protected void GotoCreate()
     {
         _navigationManager.NavigateTo("disciplines/add", true);
+    }
+
+    protected void AlteraPeriodo(ChangeEventArgs e)
+    {
+        filter = e.Value.ToString();
+        var periodo = Convert.ToInt32(filter);
+
+        if (periodo == 9991) //valor default para todos
+        {
+            DisciplinasList = DisciplinaOriginal;
+        }
+        else
+        {
+            DisciplinasList = DisciplinaOriginal.Where(x => x.PeriodoDisciplina == periodo).ToList();
+        }
+
+        StateHasChanged();
+    }
+
+    private string ImprimirTurno(string turno)
+    {
+        switch (turno)
+        {
+            case Parametros.TipoTurnoDiurno:
+                return DescricaoParametros.DescricaoTipoTurnoDiurno;
+            case Parametros.TipoTurnoNoturno:
+                return DescricaoParametros.DescricaoTipoTurnoNoturno;
+            default:
+                return turno;
+        }
+    }
+
+    private string ImprimirPeriodo(int periodo)
+    {
+        switch (periodo)
+        {
+            case Parametros.PrimeiroPeriodo:
+                return DescricaoParametros.DescricaoPrimeiroPeriodo;
+                case Parametros.SegundoPeriodo:
+                return DescricaoParametros.DescricaoSegundoPeriodo;
+                case Parametros.TerceiroPeriodo:
+                return DescricaoParametros.DescricaoTerceiroPeriodo;
+                case Parametros.QuartoPeriodo:
+                return DescricaoParametros.DescricaoQuartoPeriodo;
+                case Parametros.QuintoPeriodo:
+                return DescricaoParametros.DescricaoQuintoPeriodo;
+            default:
+                return "Não encontrado";
+        }
     }
 }
