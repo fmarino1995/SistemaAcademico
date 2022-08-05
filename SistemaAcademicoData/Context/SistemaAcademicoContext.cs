@@ -18,7 +18,6 @@ namespace SistemaAcademicoData.Context
         public DbSet<LogImportacao> LogImportacoes { get; set; }
         public DbSet<DisciplinaAluno> DisciplinasAlunos { get; set; }
         public DbSet<Aviso> Avisos { get; set; }
-        public DbSet<NotaAluno> NotaAlunos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

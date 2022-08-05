@@ -5,7 +5,7 @@ namespace Domain.Entities
     public class Disciplina
     {
         [Key]
-        public int DisplicinaId { get; set; }
+        public int DisciplinaId { get; set; }
         [Required]
         public string Nome { get; set; }
         public int ProfessorId { get; set; }

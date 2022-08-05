@@ -19,54 +19,72 @@
 }
 else
 {
-    <EditForm Model="@ViewModel">
-        <div class="card">
-            <div class="card-header">
-                <div class="titulo-card">
-                    Pauta Web - Professor
-                </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Pauta Web - Professor
             </div>
-            <div class="card-body">
-                <div class="row">
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 col-lg-6 form-space">
+                    <div class="form-floating mb-3">
+                        <select id="floatingDisciplinaTurno" class="form-select" @onchange="AlteraTurno">
+                            <option value="">Selecione o turno</option>
+                            @foreach (var item in ListaParametros.ListaTipoTurno)
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </select>
+                        <label for="floatingDisciplinaTurno">Turno</label>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(turno))
+                {
                     <div class="col-md-6 col-lg-6 form-space">
                         <div class="form-floating mb-3">
-                            <select id="floatingDisciplinaTurno" class="form-select" @onchange="AlteraTurno">
-                                <option value="">Selecione o turno</option>
-                                @foreach(var item in ListaParametros.ListaTipoTurno)
+                            <select id="floatingDisciplina" class="form-select" >
+                                <option value="">Selecione a disciplina</option>
+                                @foreach (var item in DisciplinasProfessorList.Where(x => x.Turno == turno || string.IsNullOrEmpty(turno)))
                                 {
-                                    <option value="@item.Key">@item.Value</option>
+                                    <option value="@item.DisciplinaId">@item.Nome</option>
                                 }
                             </select>
-                            <label for="floatingDisciplinaTurno">Turno</label>
+                            <label for="floatingDisciplina">Disciplina</label>
                         </div>
                     </div>
-                    @if(!string.IsNullOrEmpty(turno))
-                    {
-                        <div class="col-md-6 col-lg-6 form-space">
-                            <div class="form-floating mb-3">
-                                <InputSelect id="floatingDisciplina" class="form-select" @bind-Value="@ViewModel.Professor.ProfessorId">
-                                    <option value="">Selecione a disciplina</option>
-                                    @foreach(var item in DisciplinasProfessorList.Where(x => x.Turno == turno || string.IsNullOrEmpty(turno)))
-                                    {
-                                        <option value="@item.DisplicinaId">@item.Nome</option>
-                                    }
-                                </InputSelect>
-                                <label for="floatingDisciplina">Disciplina</label>
-                            </div>
-                        </div>
-                    }
-                </div>
+                }
             </div>
-            <div class="card-footer">
-                <div class="row">
-                    <div class="col-md-12">
-                        <a href="/" class="btn btn-dark">Voltar</a>
-                        <input type="submit" class="btn btn-primary" value="Salvar" />
-                    </div>
+
+            @*@if()
+        {
+        <DataTable Searchable="true">
+        <thead class="thead-light">
+        <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+        </DataTable>
+        }*@
+
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/" class="btn btn-dark">Voltar</a>
+                    <input type="submit" class="btn btn-primary" value="Salvar" />
                 </div>
             </div>
         </div>
-    </EditForm>
+    </div>
+
 
 }
 
@@ -78,8 +96,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var usuarioLogado = await _currentUserService.GetUserNameAsync();
-
+        ViewModel = new DisciplinaAlunoProfessorViewModel();
+        var usuarioLogado = await GetUsuarioLogadoAsync();
         var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery { Email = usuarioLogado });
 
         if (professorLogado.Errors.Any())
@@ -94,8 +112,26 @@ else
             VoltarToast("Nenhuma disciplina encontrada para seu usuário.");
         }
 
+        foreach(var disciplina in DisciplinasProfessorList)
+        {
+            
+        }
 
 
+
+
+
+
+
+
+
+
+    }
+
+    private async Task<string> GetUsuarioLogadoAsync()
+    {
+        var currentUser = await _currentUserService.GetUserNameAsync();
+        return await Task.FromResult(currentUser);
     }
 
     private void AlteraTurno(ChangeEventArgs e)

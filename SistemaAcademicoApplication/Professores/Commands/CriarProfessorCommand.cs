@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SistemaAcademicoApplication.Common.Responses;
+﻿using SistemaAcademicoApplication.Common.Responses;
 using SistemaAcademicoData.Context;
 using MediatR;
 using Domain.Entities;
-using SistemaAcademicoApplication.Interfaces;
 using SistemaAcademicoApplication.Enderecos.Commands;
 using SistemaAcademicoApplication.Usuarios.Queries;
 using Domain.Constantes;

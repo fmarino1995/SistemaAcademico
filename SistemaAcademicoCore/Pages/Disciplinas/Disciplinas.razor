@@ -6,7 +6,14 @@
 
 <PageTitle>Disciplinas - SistemaAcademico</PageTitle>
 
-@attribute [Authorize(Policy = Policies.IsAdmin)]
+@attribute [Authorize]
+
+<AuthorizeView Policy="@Policies.IsProfessor">
+    <Authorized>
+        <p>sOMENTE PROFESSOR VE ISSO</p>
+
+    </Authorized>
+</AuthorizeView>
 
 @if (DisciplinasList == null)
 {
@@ -67,10 +74,10 @@ else
                                 <td>@ImprimirPeriodo(disciplina.PeriodoDisciplina)</td>
                                 <td>@disciplina.Professor.Nome</td>
                                 <td style="width: 6%;">
-                                    <a href="/disciplines/edit/@disciplina.DisplicinaId" title="Editar Disciplina">
+                                    <a href="/disciplines/edit/@disciplina.DisciplinaId" title="Editar Disciplina">
                                         <span class="oi oi-pencil" aria-hidden="true"></span>
                                     </a>
-                                    <a href="/disciplines/remove/@disciplina.DisplicinaId" title="Excluir Disciplina">
+                                    <a href="/disciplines/remove/@disciplina.DisciplinaId" title="Excluir Disciplina">
                                         <span class="oi oi-trash" aria-hidden="true"></span>
                                     </a>
                                 </td>
