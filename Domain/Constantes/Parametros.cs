@@ -4,6 +4,7 @@
     {
         public const string TipoImportacaoUsuario = "U";
         public const string TipoImportacaoAluno = "A";
+        public const string TipoImportacaoAlunoDisciplina = "AD";
 
         public const string StatusAtivo = "A"; 
         public const string StatusInativo = "I";
@@ -22,6 +23,7 @@
     {
         public const string DescricaoTipoImportacaoUsuario = "Usuários";
         public const string DescricaoTipoImportacaoaLUNO = "Alunos";
+        public const string DescricaoTipoImportacaoAlunoDisciplina = "Alunos Disciplina";
 
         public const string DescricaoStatusAtivo = "Ativo";
         public const string DescricaoStatusInativo = "Inativo";

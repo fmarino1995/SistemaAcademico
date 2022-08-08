@@ -1,109 +1,233 @@
 ﻿@page "/disciplines"
 @using SistemaAcademicoApplication.Disciplinas.Queries
+@using SistemaAcademicoApplication.Professores.Queries
 @layout MainLayout
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
+@inject ICurrentUserService _currentUserService
 
 <PageTitle>Disciplinas - SistemaAcademico</PageTitle>
 
 @attribute [Authorize]
 
+<!--Professor-->
 <AuthorizeView Policy="@Policies.IsProfessor">
-    <Authorized>
-        <p>sOMENTE PROFESSOR VE ISSO</p>
 
-    </Authorized>
-</AuthorizeView>
-
-@if (DisciplinasList == null)
-{
-    <br />
-    <br />
-    <br />
-    <center>
-        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
-    </center>
-}
-else
-{
-    <div class="card">
-        <div class="card-header">
-            <div class="titulo-card">
-                Disciplinas
-            </div>
-        </div>
-        <div class="card-body">
-
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-space">
-                        <label for="selectPeriodo">Período</label>
-                        <select id="selectPeriodo" class="form-select" @onchange="AlteraPeriodo">
-                            <option selected value="9991">Todos</option>
-                            @foreach (var item in ListaParametros.ListaPeriodos)
-                            {
-                                <option value="@item.Key">@item.Value</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <DataTable Searchable="true">
+    <Modal @ref="Modal" Title="Confirmação">
+        <div class="modal-body">
+            <table class="table table-bordered table-striped" width="100%">
                 <thead class="thead-light">
                     <tr>
                         <th>Nome</th>
-                        <th>Turno</th>
-                        <th>Período</th>
-                        <th>Professor</th>
-                        <th>
-                            <a href="" @onclick="GotoCreate" title="Nova disciplina">
-                                <span class="oi oi-plus"></span>
-                            </a>
-                        </th>
+                        <th>Email</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var disciplina in DisciplinasList)
-                    {
-                        @if (DisciplinasList.Count > 0)
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <a href="/disciplines" @onclick="() => Modal.Close()" class="btn btn-dark">Voltar</a>
+        </div>
+    </Modal>
+
+    @if (DisciplinasList == null)
+    {
+        <br />
+        <br />
+        <br />
+        <center>
+            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+        </center>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Disciplinas
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-space">
+                            <label for="selectPeriodo">Período</label>
+                            <select id="selectPeriodo" class="form-select" @onchange="AlteraPeriodo">
+                                <option selected value="9991">Todos</option>
+                                @foreach (var item in ListaParametros.ListaPeriodos)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <DataTable Searchable="true">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Turno</th>
+                            <th>Período</th>
+                            <th>Professor</th>
+                            <th>
+                                Ações
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (DisciplinasList.Count() == 0)
                         {
+
                             <tr>
-                                <td>@disciplina.Nome</td>
-                                <td>@ImprimirTurno(disciplina.Turno)</td>
-                                <td>@ImprimirPeriodo(disciplina.PeriodoDisciplina)</td>
-                                <td>@disciplina.Professor.Nome</td>
-                                <td style="width: 6%;">
-                                    <a href="/disciplines/edit/@disciplina.DisciplinaId" title="Editar Disciplina">
-                                        <span class="oi oi-pencil" aria-hidden="true"></span>
-                                    </a>
-                                    <a href="/disciplines/remove/@disciplina.DisciplinaId" title="Excluir Disciplina">
-                                        <span class="oi oi-trash" aria-hidden="true"></span>
-                                    </a>
-                                </td>
+                                <td validn="top" colspan="4" class="dataTables_empty">Nenhuma disciplina disponível para seu usuário</td>
                             </tr>
                         }
                         else
                         {
-                            <tr>
-                                <td validn="top" colspan="4" class="dataTables_empty">Nenhum registro disponível na tabela</td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </DataTable>
-        </div>
-    </div>
+                            @foreach (var disciplina in DisciplinasList.Where(d => d.ProfessorId == ProfessorLogado.ProfessorId))
+                            {
+                                <tr>
+                                    <td>@disciplina.Nome</td>
+                                    <td>@ImprimirTurno(disciplina.Turno)</td>
+                                    <td>@ImprimirPeriodo(disciplina.PeriodoDisciplina)</td>
+                                    <td>@disciplina.Professor.Nome</td>
+                                    <td style="width: 6%;">
+                                        <a href="/disciplines/students/import/@disciplina.DisciplinaId" title="Adicionar Alunos">
+                                            <span class="oi oi-people"></span>
+                                        </a>
+                                        <a href="javascript:void(0)" @onclick="() => Modal.Open()" title="Listar Alunos">
+                                            <span class="oi oi-person"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
 
-}
+                        }
+                    </tbody>
+                </DataTable>
+            </div>
+        </div>
+
+    }
+</AuthorizeView>
+
+<!--Admin-->
+<AuthorizeView Policy="@Policies.IsAdmin">
+
+    @if (DisciplinasList == null)
+    {
+        <br />
+        <br />
+        <br />
+        <center>
+            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+        </center>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Disciplinas
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-space">
+                            <label for="selectPeriodo">Período</label>
+                            <select id="selectPeriodo" class="form-select" @onchange="AlteraPeriodo">
+                                <option selected value="9991">Todos</option>
+                                @foreach (var item in ListaParametros.ListaPeriodos)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <DataTable Searchable="true">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Turno</th>
+                            <th>Período</th>
+                            <th>Professor</th>
+                            <th>
+                                <a href="" @onclick="GotoCreate" title="Nova disciplina">
+                                    <span class="oi oi-plus"></span>
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var disciplina in DisciplinasList)
+                        {
+                            @if (DisciplinasList.Count > 0)
+                            {
+                                <tr>
+                                    <td>@disciplina.Nome</td>
+                                    <td>@ImprimirTurno(disciplina.Turno)</td>
+                                    <td>@ImprimirPeriodo(disciplina.PeriodoDisciplina)</td>
+                                    <td>@disciplina.Professor.Nome</td>
+                                    <td style="width: 6%;">
+                                        <a href="/disciplines/edit/@disciplina.DisciplinaId" title="Editar Disciplina">
+                                            <span class="oi oi-pencil" aria-hidden="true"></span>
+                                        </a>
+                                        <a href="/disciplines/remove/@disciplina.DisciplinaId" title="Excluir Disciplina">
+                                            <span class="oi oi-trash" aria-hidden="true"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td validn="top" colspan="4" class="dataTables_empty">Nenhum registro disponível na tabela</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </DataTable>
+            </div>
+        </div>
+
+    }
+</AuthorizeView>
+
+
 
 @code {
     List<Disciplina> DisciplinasList;
     List<Disciplina> DisciplinaOriginal;
+    Professor ProfessorLogado;
     string filter;
+    string modalTitle = "Alunos";
+
+    public Modal Modal { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery
+            {
+                Email = await _currentUserService.GetUserNameAsync()
+            });
+
+        ProfessorLogado = professorLogado.Result;
+
+
+
         DisciplinaOriginal = (await _mediator.Send(new ObterDisciplinasQuery())).Result;
         DisciplinasList = DisciplinaOriginal;
     }
@@ -127,7 +251,7 @@ else
             DisciplinasList = DisciplinaOriginal.Where(x => x.PeriodoDisciplina == periodo).ToList();
         }
 
-        StateHasChanged();
+        this.StateHasChanged();
     }
 
     private string ImprimirTurno(string turno)
@@ -143,19 +267,24 @@ else
         }
     }
 
+    private void ShowModal()
+    {
+
+    }
+
     private string ImprimirPeriodo(int periodo)
     {
         switch (periodo)
         {
             case Parametros.PrimeiroPeriodo:
                 return DescricaoParametros.DescricaoPrimeiroPeriodo;
-                case Parametros.SegundoPeriodo:
+            case Parametros.SegundoPeriodo:
                 return DescricaoParametros.DescricaoSegundoPeriodo;
-                case Parametros.TerceiroPeriodo:
+            case Parametros.TerceiroPeriodo:
                 return DescricaoParametros.DescricaoTerceiroPeriodo;
-                case Parametros.QuartoPeriodo:
+            case Parametros.QuartoPeriodo:
                 return DescricaoParametros.DescricaoQuartoPeriodo;
-                case Parametros.QuintoPeriodo:
+            case Parametros.QuintoPeriodo:
                 return DescricaoParametros.DescricaoQuintoPeriodo;
             default:
                 return "Não encontrado";

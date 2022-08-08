@@ -1,0 +1,72 @@
+﻿@page "/disciplines/students/import/{DisciplinaId:int}"
+@using SistemaAcademicoApplication.Disciplinas.Queries
+@using SistemaAcademicoApplication.Professores.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+@inject ICurrentUserService _currentUserService
+
+@attribute [Authorize(Policy = Policies.IsProfessor)]
+
+<div class="card">
+    <div class="card-header">
+        <div class="titulo-card">
+            Importação de alunos para disciplina
+        </div>
+    </div>
+    <form @onsubmit="OnSubmit">
+        <div class="card-body">
+            <p class="text-dark"><strong>@FileMessage</strong></p>
+            <InputFile OnChange="OnInputFileChange" />
+            <br/>
+            <br/>
+            <br/>
+            <a href="/Modelos/MODELO_IMPORTACAO_ALUNOS_DISCIPLINA.csv" download="MODELO_IMPORTACAO_ALUNOS_DISCIPLINA.csv">Baixe o modelo de importação aqui</a>
+            <br /><br />
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/disciplines" class="btn btn-outline-dark">Voltar</a>
+                    @if (selectedFile == null)
+                    {
+                        <button type="submit" disabled class="btn btn-outline-primary ml-1">Enviar</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-outline-primary">Enviar</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@code {
+    [Parameter]
+    public int DisciplinaId { get; set; }
+
+    IBrowserFile selectedFile;
+    string FileMessage = "Nenhum arquivo selecionado";
+    Disciplina Disciplina;
+
+    private void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        FileMessage = $"{e.File.Name} selecionado";
+        selectedFile = e.File;
+        this.StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuario = await _currentUserService.GetUserNameAsync();
+        var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery { Email = usuario });
+        Disciplina = (await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = DisciplinaId })).Result;
+    }
+
+    private void OnSubmit()
+    {
+        string filePath = $"C:\\arquivosImportacaoAlunosDisciplina\\{selectedFile.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
+
+
+    }
+}

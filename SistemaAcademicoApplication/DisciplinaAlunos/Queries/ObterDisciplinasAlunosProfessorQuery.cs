@@ -15,7 +15,7 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Queries
     public class ObterDisciplinasAlunosProfessorQuery : IRequest<Response<DisciplinaAlunoProfessorViewModel>>
     {
         public int ProfessorId { get; set; }
-        public int Ano { get; set; }
+        public int DisciplinaId { get; set; }
     }
 
     public class ObterDisciplinasAlunosProfessorQueryHandler : IRequestHandler<ObterDisciplinasAlunosProfessorQuery, Response<DisciplinaAlunoProfessorViewModel>>
@@ -29,6 +29,7 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Queries
 
         public async Task<Response<DisciplinaAlunoProfessorViewModel>> Handle(ObterDisciplinasAlunosProfessorQuery request, CancellationToken cancellationToken)
         {
+            
             
                                
 

@@ -9,6 +9,7 @@
 @inject IWebHostEnvironment _env
 @inject NavigationManager _navigationManager
 @inject UserManager<ApplicationUser> _userManager
+@inject IToastService _toastService
 
 <PageTitle>Importação Usuários - SistemaAcademico</PageTitle>
 
@@ -55,10 +56,7 @@
     string FileMessage = "Nenhum arquivo selecionado";
     string MensagemValidacao = string.Empty;
     IBrowserFile selectedFiles;
-
-    string Message = "";
-    bool ExibirAlert = false;
-    string AlertType = "";
+    string Message;
 
     private void OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -91,9 +89,8 @@
             await _emailService.SendEmailAsync(emailModel);
         }
 
-        ExibirAlert = true;
         Message = "Importação concluída com sucesso!";
-        AlertType = "primary";
-        _navigationManager.NavigateTo($"users/{Message}/{AlertType}");
+        _toastService.ShowSuccess(Message);
+        _navigationManager.NavigateTo("users");
     }
 }

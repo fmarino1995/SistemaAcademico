@@ -45,13 +45,13 @@
                     <div class="form-floating mb-3">
                         <select id="floatingEmail" class="form-select" @onchange="VerificarEmailUsuario">
                             <option value="">|--Selecione--|</option>
-                            @foreach (var user in UsersList.Where(x => x.RoleId == ConstantesSistema.RoleProfessor)) 
+                            @foreach (var user in UsersEmailList.Where(x => x.RoleId == ConstantesSistema.RoleProfessor)) 
                             {
                                 <option value="@user.Id">@user.Email</option>
                             }
                         </select>
                         <label for="floatingEmail">Email de usuário</label>
-                        @if(UsersList.Where(x => x.RoleId == ConstantesSistema.RoleProfessor).Count() == 0)
+                        @if(UsersEmailList.Where(x => x.RoleId == ConstantesSistema.RoleProfessor).Count() == 0)
                         {
                             <span class="text-danger">@("Nenhum usuário cadastrado como professor")</span>
                         }
@@ -136,6 +136,7 @@
 @code {
     Professor ProfessorCreate;
     List<ApplicationUser> UsersList = new List<ApplicationUser>();
+    List<ApplicationUser> UsersEmailList = new List<ApplicationUser>();
     string Message = "";
     string CepErrorMessage = "";
     string EmailExistsErrorMessage = string.Empty;
@@ -145,6 +146,8 @@
         ProfessorCreate = new Professor { Endereco = new Endereco() };
 
         UsersList = (await _mediator.Send(new ObterUsuariosQuery())).Result;
+
+        UsersEmailList = (await _mediator.Send(new ObterUsuariosNovosProfessorQuery())).Result;
     }
 
     protected async void BuscarEndereco()
