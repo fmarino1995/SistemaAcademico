@@ -20,7 +20,6 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
         public IBrowserFile File { get; set; }
         public string FilePath { get; set; }
         public int DisciplinaId { get; set; }
-        public int Semestre { get; set; }
     }
 
     public class ImportarAlunosDisciplinaCommandHandler : IRequestHandler<ImportarAlunosDisciplinaCommand, Response<ImportacaoAlunosDisciplinaViewModel>>
@@ -81,8 +80,11 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
 
                             if (aluno.Errors.Any())
                             {
-                                throw new Exception($"Aluno de email {email} não encontrado");
+                                throw new Exception($"Aluno de email '{email}' não encontrado");
                             }
+
+                            var semestre = _context.DisciplinasAlunos
+                                .Any(s => s.Ano == DateTime.Now.Year && s.Semestre == 1) ? 2 : 1;
 
                             var disciplinaAluno = new DisciplinaAluno
                             {
@@ -92,7 +94,7 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
                                 Ano = DateTime.Now.Year,
                                 QuantidadeFalta = 0,
                                 QuantidadePresenca = 0,
-                                Semestre = request.Semestre
+                                Semestre = semestre
                             };
 
                             viewModel.EmailAlunos.Add(email);

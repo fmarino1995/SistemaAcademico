@@ -22,13 +22,33 @@
             <div class="row">
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
+                        <select class="form-select" @onchange="VerificarEmailUsuario">
+                            <option selected value="floatingEmail">|--Selecione--|</option>
+                            @foreach (var user in UsersList.Where(u => u.RoleId == ConstantesSistema.RoleAluno))
+                            {
+                                <option value="@user.Id">@user.Email</option>
+                            }
+                        </select>
+                        <label for="floatingEmail">Email de usuário</label>
+                        @if(UsersList.Where(x => x.RoleId == ConstantesSistema.RoleAluno).Count() == 0)
+                        {
+                            <span class="text-danger">@("Nenhum usuário cadastrado como aluno")</span>
+                        }
+                        @if (!string.IsNullOrEmpty(EmailExistsErrorMessage))
+                        {
+                            <span class="text-danger">@EmailExistsErrorMessage</span>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 form-space">
+                    <div class="form-floating mb-3">
                         <InputText id="floatingCpf" class="form-control" @bind-Value="@AlunoCreate.Cpf" placeholder="CPF" />
                         <label for="floatingCpf">CPF</label>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingNome" class="form-control" @bind-Value="@AlunoCreate.Nome" placeholder="Nome" />
+                        <InputText readonly id="floatingNome" class="form-control" @bind-Value="@AlunoCreate.Nome" placeholder="Nome" />
                         <label for="floatingNome">Nome</label>
                     </div>
                 </div>
@@ -36,22 +56,6 @@
                     <div class="form-floating mb-3">
                         <InputDate id="floatingDataNasc" class="form-control" @bind-Value="@AlunoCreate.DataNascimento" placeholder="Data de nascimento" />
                         <label for="floatingDataNasc">Data de nascimento</label>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-6 form-space">
-                    <div class="form-floating mb-3">
-                        <InputSelect class="form-select" @bind-Value="@AlunoCreate.ApplicationUserId" @onchange="VerificarEmailUsuario">
-                            <option selected value="floatingEmail">|--Selecione--|</option>
-                            @foreach (var user in UsersList.Where(u => u.RoleId == "")) // pegar tipo role aluno
-                            {
-                                <option value="@user.Id">@user.Email</option>
-                            }
-                        </InputSelect>
-                        <label for="floatingEmail">Email de usuário</label>
-                        @if (!string.IsNullOrEmpty(EmailExistsErrorMessage))
-                        {
-                            <span class="text-danger">@EmailExistsErrorMessage</span>
-                        }
                     </div>
                 </div>
             </div>
@@ -66,7 +70,7 @@
             <div class="row">
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingCep" class="form-control" @bind-Value="@AlunoCreate.Endereco.CEP" placeholder="CEP" @onfocusout="@BuscarEndereco" />
+                        <InputText id="floatingCep" class="form-control" @bind-Value="@AlunoCreate.Endereco.CEP" placeholder="CEP" @onblur="@BuscarEndereco" />
                         <label for="floatingCep">CEP</label>
                         @if (!string.IsNullOrEmpty(CepErrorMessage))
                         {
@@ -138,7 +142,7 @@
     {
         AlunoCreate = new Aluno { Endereco = new Endereco() };
 
-        UsersList = (await _mediator.Send(new ObterUsuariosQuery())).Result;
+        UsersList = (await _mediator.Send(new ObterUsuariosNovosAlunoQuery())).Result;
     }
 
     protected async void BuscarEndereco()
@@ -197,6 +201,11 @@
         else
         {
             EmailExistsErrorMessage = string.Empty;
+            AlunoCreate.Nome = "Carregando...";
+            this.StateHasChanged();
+            var usuario = await _mediator.Send(new ObterUsuarioQuery { UserId = id });
+            AlunoCreate.Nome = usuario.Result.NomeCompleto;
+            AlunoCreate.ApplicationUserId = id;
             this.StateHasChanged();
         }
     }

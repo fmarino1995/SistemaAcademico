@@ -1,4 +1,5 @@
 ﻿@page "/disciplines/students/import/{DisciplinaId:int}"
+@using SistemaAcademicoApplication.DisciplinaAlunos.Commands
 @using SistemaAcademicoApplication.Disciplinas.Queries
 @using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
@@ -18,6 +19,7 @@
             <p class="text-dark"><strong>@FileMessage</strong></p>
             <InputFile OnChange="OnInputFileChange" />
             <br/>
+            <p class="text-danger">@MensagemValidacao</p>
             <br/>
             <br/>
             <a href="/Modelos/MODELO_IMPORTACAO_ALUNOS_DISCIPLINA.csv" download="MODELO_IMPORTACAO_ALUNOS_DISCIPLINA.csv">Baixe o modelo de importação aqui</a>
@@ -41,6 +43,35 @@
     </form>
 </div>
 
+@if(ResultadoImportacao)
+{
+    <hr class="hr1"/>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Resultado da Importação
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Quantidade Importados</label>
+                    <div class="content-informa">@qtdImportados</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Quantidade não Importados</label>
+                    <div class="content-informa">@qtdNaoImportados</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Log da importação</label>
+                    <textarea readonly rows="10" class="form-control">@log</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter]
     public int DisciplinaId { get; set; }
@@ -48,6 +79,11 @@
     IBrowserFile selectedFile;
     string FileMessage = "Nenhum arquivo selecionado";
     Disciplina Disciplina;
+    bool ResultadoImportacao;
+    int qtdImportados;
+    int qtdNaoImportados;
+    string MensagemValidacao = string.Empty;
+    string log;
 
     private void OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -63,10 +99,28 @@
         Disciplina = (await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = DisciplinaId })).Result;
     }
 
-    private void OnSubmit()
+    private async void OnSubmit()
     {
         string filePath = $"C:\\arquivosImportacaoAlunosDisciplina\\{selectedFile.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
 
+        var importacaoResponse = await _mediator.Send(new ImportarAlunosDisciplinaCommand
+        {
+            DisciplinaId = DisciplinaId,
+            File = selectedFile,
+            FilePath = filePath
+        });
+
+        if (importacaoResponse.Errors.Any())
+        {
+            MensagemValidacao = importacaoResponse.Errors.First();
+            this.StateHasChanged();
+        }
+        else
+        {
+            log = importacaoResponse.Result.LogImportacao.Mensagem;
+            ResultadoImportacao = true;
+            this.StateHasChanged();
+        }
 
     }
 }
