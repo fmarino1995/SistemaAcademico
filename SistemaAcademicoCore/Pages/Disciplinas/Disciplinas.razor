@@ -296,12 +296,12 @@
     {
         Modal.Open();
 
-        var disciplinasAlunos = await _mediator.Send(new ObterDisciplinasAlunosProfessorQuery
-            {
-                DisciplinaId = disciplinaId,
-                ProfessorId = ProfessorLogado.ProfessorId,
-                Turno = turno
-            });
+        var disciplinasAlunos = await _mediator.Send(new ObterAlunosDisciplinaProfessorQuery
+        {
+            DisciplinaId = disciplinaId,
+            ProfessorId = ProfessorLogado.ProfessorId,
+            Turno = turno
+        });
 
         DisciplinasAlunos = disciplinasAlunos.Result;
         StateHasChanged();

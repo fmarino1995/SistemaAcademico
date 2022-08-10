@@ -12,23 +12,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SistemaAcademicoApplication.DisciplinaAlunos.Queries
 {
-    public class ObterDisciplinasAlunosProfessorQuery : IRequest<Response<List<DisciplinaAluno>>>
+    public class ObterAlunosDisciplinaProfessorQuery : IRequest<Response<List<DisciplinaAluno>>>
     {
         public int ProfessorId { get; set; }
         public int DisciplinaId { get; set; }
         public string Turno { get; set; }
     }
 
-    public class ObterDisciplinasAlunosProfessorQueryHandler : IRequestHandler<ObterDisciplinasAlunosProfessorQuery, Response<List<DisciplinaAluno>>>
+    public class ObterAlunosDisciplinaProfessorQueryHandler : IRequestHandler<ObterAlunosDisciplinaProfessorQuery, Response<List<DisciplinaAluno>>>
     {
         private readonly SistemaAcademicoContext _context;
 
-        public ObterDisciplinasAlunosProfessorQueryHandler(SistemaAcademicoContext context)
+        public ObterAlunosDisciplinaProfessorQueryHandler(SistemaAcademicoContext context)
         {
             _context = context;
         }
 
-        public async Task<Response<List<DisciplinaAluno>>> Handle(ObterDisciplinasAlunosProfessorQuery request, CancellationToken cancellationToken)
+        public async Task<Response<List<DisciplinaAluno>>> Handle(ObterAlunosDisciplinaProfessorQuery request, CancellationToken cancellationToken)
         {
             var semestre = DateTime.Now.Month <= 6 ? 1 : 2; // criar tabela para semestre vigente .
 

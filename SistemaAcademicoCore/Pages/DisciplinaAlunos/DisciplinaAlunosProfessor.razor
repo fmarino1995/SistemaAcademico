@@ -1,5 +1,6 @@
 ﻿@page "/webagenda/professors"
 @using Domain.ViewModels
+@using SistemaAcademicoApplication.DisciplinaAlunos.Queries
 @using SistemaAcademicoApplication.Disciplinas.Queries
 @using SistemaAcademicoApplication.Professores.Queries
 @inject IMediator _mediator
@@ -44,7 +45,7 @@ else
                 {
                     <div class="col-md-6 col-lg-6 form-space">
                         <div class="form-floating mb-3">
-                            <select id="floatingDisciplina" class="form-select" >
+                            <select id="floatingDisciplina" class="form-select" @onchange="AlteraDisciplina">
                                 <option value="">Selecione a disciplina</option>
                                 @foreach (var item in DisciplinasProfessorList.Where(x => x.Turno == turno || string.IsNullOrEmpty(turno)))
                                 {
@@ -57,23 +58,23 @@ else
                 }
             </div>
 
-            @*@if()
-        {
-        <DataTable Searchable="true">
-        <thead class="thead-light">
-        <tr>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        </tr>
-        </thead>
-        <tbody>
+            @if (exibirTable)
+            {
+                <DataTable Searchable="true">
+                    <thead class="thead-light">
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-        </tbody>
-        </DataTable>
-        }*@
+                    </tbody>
+                </DataTable>
+            }
 
         </div>
         <div class="card-footer">
@@ -93,7 +94,10 @@ else
 @code {
     DisciplinaAlunoProfessorViewModel ViewModel;
     List<Disciplina> DisciplinasProfessorList;
+    List<DisciplinaAluno> PautaWebProfessor;
+    Professor ProfessorLogado;
     string turno;
+    bool exibirTable;
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,32 +105,35 @@ else
         var usuarioLogado = await GetUsuarioLogadoAsync();
         var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery { Email = usuarioLogado });
 
+        ProfessorLogado = professorLogado.Result;
+
         if (professorLogado.Errors.Any())
         {
             VoltarToast("Erro ao consultar o registro de professor.");
         }
 
-        DisciplinasProfessorList = await GetDisciplinasProfessorAsync(professorLogado.Result.ProfessorId);
+        DisciplinasProfessorList = await GetDisciplinasProfessorAsync(ProfessorLogado.ProfessorId);
 
         if (DisciplinasProfessorList.Count == 0)
         {
             VoltarToast("Nenhuma disciplina encontrada para seu usuário.");
         }
+    }
 
-        foreach(var disciplina in DisciplinasProfessorList)
-        {
-            
-        }
+    private async Task AlteraDisciplina(ChangeEventArgs ev)
+    {
+        var disciplinaId = Convert.ToInt32(ev.Value.ToString());
 
+        var response = await _mediator.Send(new ObterPautaWebProfessorQuery
+            {
+                DisciplinaId = disciplinaId,
+                ProfessorId = ProfessorLogado.ProfessorId,
+                Turno = turno
+            });
 
-
-
-
-
-
-
-
-
+        PautaWebProfessor = response.Result;
+        exibirTable = true;
+        StateHasChanged();
     }
 
     private async Task<string> GetUsuarioLogadoAsync()
