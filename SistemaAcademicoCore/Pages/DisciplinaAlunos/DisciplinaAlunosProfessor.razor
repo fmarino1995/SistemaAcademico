@@ -10,6 +10,8 @@
 
 @attribute [Authorize(Policy = Policies.IsProfessor)]
 
+<PageTitle>Pauta Web - Professor</PageTitle>
+
 @if (DisciplinasProfessorList == null)
 {
     <br />
@@ -63,15 +65,36 @@ else
                 <DataTable Searchable="true">
                     <thead class="thead-light">
                         <tr>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Semestre</th>
+                            <th>Nota Avaliação 1</th>
+                            <th>Nota Avaliação 2</th>
+                            <th>Prova Final</th>
+                            <th>Nota Final</th>
+                            <th>Presença</th>
+                            <th>Falta</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach(var item in PautaWebProfessor)
+                        {
+                            <tr>
+                                <td>@item.Aluno.Nome</td>
+                                <td>@item.Aluno.Email</td>
+                                <td>@item.Ano/@item.Semestre</td>
+                                <td>@item.NotaAvaliacao1</td>
+                                <td>@item.NotaAvaliacao2</td>
+                                <td>@item.ProvaFinal</td>
+                                <td>@item.NotaFinal</td>
+                                <td>@item.QuantidadePresenca</td>
+                                <td>@item.QuantidadeFalta</td>
+                                <td>
 
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </DataTable>
             }
@@ -125,11 +148,11 @@ else
         var disciplinaId = Convert.ToInt32(ev.Value.ToString());
 
         var response = await _mediator.Send(new ObterPautaWebProfessorQuery
-            {
-                DisciplinaId = disciplinaId,
-                ProfessorId = ProfessorLogado.ProfessorId,
-                Turno = turno
-            });
+        {
+            DisciplinaId = disciplinaId,
+            ProfessorId = ProfessorLogado.ProfessorId,
+            Turno = turno
+        });
 
         PautaWebProfessor = response.Result;
         exibirTable = true;
