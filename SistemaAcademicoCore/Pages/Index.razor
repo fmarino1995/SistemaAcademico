@@ -5,71 +5,48 @@
 @layout MainLayout
 @inject IMediator _mediator
 @inject IToastService _toastService
+@inject ICurrentUserService _currentUserService
+@attribute [Authorize]
 
-@*@attribute [Authorize(Policy = Policies.IsAdmin)]*@
+<AuthorizeView Policy="@Policies.IsAdmin">
 
+    <PageTitle>Administração - SistemaAcademico</PageTitle>
 
-
-<PageTitle>Administração - SistemaAcademico</PageTitle>
-
-@if (Avisos == null)
-{
-    <br />
-    <br />
-    <br />
-    <center>
-        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
-    </center>
-}
-else
-{
-    <div class="card">
-        <div class="card-header">
-            <div class="titulo-card">
-                Quadro de avisos - Admin
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="form-group">
-            </div>
-        </div>
-    </div>
-}
-
-
-@*<AuthorizeView Policy="@Policies.IsAluno">
-    <Authorized>
-        <PageTitle>Aluno - SistemaAcademico</PageTitle>
-        @if (Avisos == null)
-        {
-            <br />
-            <br />
-            <br />
-            <center>
-                <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
-            </center>
-        }
-        else
-        {
-            <div class="card">
-                <div class="card-header">
-                    <div class="titulo-card">
-                        Quadro de avisos - Aluno
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                    </div>
+    @if (Avisos == null)
+    {
+        <br />
+        <br />
+        <br />
+        <center>
+            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+        </center>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Quadro de avisos - Admin
                 </div>
             </div>
-        }
-    </Authorized>
-    <NotAuthorized>
-        <p>Não autorizado</p>
-    </NotAuthorized>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    @foreach (var aviso in Avisos)
+                    {
+                        <li class="list-group-item">
+                            <p>@aviso.Titulo - @aviso.DataCriacao.ToString("dd-MM-yyyy")</p>
+                            <p>@aviso.Texto</p>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
 </AuthorizeView>
 
+
 <AuthorizeView Policy="@Policies.IsProfessor">
+
     <PageTitle>Professor - SistemaAcademico</PageTitle>
 
     @if (Avisos == null)
@@ -90,12 +67,55 @@ else
                 </div>
             </div>
             <div class="card-body">
-                <div class="form-group">
-                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var aviso in Avisos)
+                    {
+                        <li class="list-group-item">
+                            <p>@aviso.Titulo - @aviso.DataCriacao.ToString("dd-MM-yyyy")</p>
+                            <p>@aviso.Texto</p>
+                        </li>
+                    }
+                </ul>
             </div>
         </div>
     }
-</AuthorizeView>*@
+</AuthorizeView>
+
+<AuthorizeView Policy="@Policies.IsAluno">
+
+    <PageTitle>Aluno - SistemaAcademico</PageTitle>
+
+    @if (Avisos == null)
+    {
+        <br />
+        <br />
+        <br />
+        <center>
+            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+        </center>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Quadro de avisos - Aluno
+                </div>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    @foreach (var aviso in Avisos)
+                    {
+                        <li class="list-group-item">
+                            <p>@aviso.Titulo - @aviso.DataCriacao.ToString("dd-MM-yyyy")</p>
+                            <p>@aviso.Texto</p>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+</AuthorizeView>
 
 @code {
     [Parameter]
@@ -107,7 +127,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var ultimosAvisos = await _mediator.Send(new ObterUltimosAvisosQuery());
+        var usuarioLogado = await _currentUserService.GetUserNameAsync();
+
+        var ultimosAvisos = await _mediator.Send(new ObterUltimosAvisosQuery { EmailUsuario = usuarioLogado });
 
         if (ultimosAvisos.Errors.Any())
         {
