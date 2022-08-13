@@ -15,6 +15,7 @@ using System.Globalization;
 using SistemaAcademicoApplication.Enderecos.Commands;
 using SistemaAcademicoApplication.Interfaces;
 using SistemaAcademicoApplication.LogImportacoes.Commands;
+using SistemaAcademicoApplication.Usuarios.Queries;
 
 namespace SistemaAcademicoApplication.Alunos.Commands
 {
@@ -78,16 +79,28 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                         {
                             var cpfAluno = csv.GetField("CPF");
 
+                            var userEmail = csv.GetField("EMAIL_USUARIO");
+
+                            var appUser = await _mediator.Send(new ConsultarEmailUsuarioQuery { Email = userEmail });
+
+                            if(appUser.Errors.Any())
+                            {
+                                throw new Exception($"Aluno com email '{appUser}' não foi encontrado.");
+                            }
+
+                            if(await VerificarEmailAlunoExits(userEmail))
+                            {
+                                throw new Exception($"Email informado para aluno de cpf '{cpfAluno}' já asssociado a outra conta, não foi possivel importar");
+                            }
+
                             var novoAluno = new Aluno
                             {
                                 Cpf = cpfAluno,
                                 Nome = csv.GetField("NOME"),
                                 Matricula = Guid.NewGuid().ToString(),
                                 DataNascimento = DateTime.TryParse(csv.GetField("DATA_NASCIMENTO"), out dateResult) ? dateResult : throw new Exception($"Formato incorreto para data de nascimento do aluno de cpf '{cpfAluno}', não foi possível importar."),
-                                Email = await VerificarEmailAlunoExits(csv.GetField("EMAIL_USUARIO")) ? throw new Exception($"Email informado para aluno de cpf '{cpfAluno}' já asssociado a outra conta, não foi possivel importar") : csv.GetField("EMAIL"),
-                                DataHoraCadastro = DateTime.Now,
-                                Status = Parametros.StatusAtivo,
-                                UsuarioCriacao = await _currentUserService.GetUserNameAsync(),
+                                Turno = csv.GetField("TURNO"),
+                                ApplicationUserId = appUser.Result.Id,
                                 Endereco = new Endereco
                                 {
                                     CEP = csv.GetField("CEP").Replace("-", ""),

@@ -58,6 +58,18 @@
                         <label for="floatingDataNasc">Data de nascimento</label>
                     </div>
                 </div>
+                <div class="col-md-6 col-lg-6 form-space">
+                    <div class="form-floating mb-3">
+                        <InputSelect id="floatingTurno" class="form-control" @bind-Value="@AlunoCreate.Turno" placeholder="Turno">
+                            <option value="" selected disabled>Selecione o turno...</option>
+                            @foreach(var turno in ListaParametros.ListaTipoTurno)
+                            {
+                                <option value="@turno.Key">@turno.Value</option>
+                            }
+                        </InputSelect>
+                        <label for="floatingTurno">Turno</label>
+                    </div>
+                </div>
             </div>
         </div>
         <hr class="hr1" />

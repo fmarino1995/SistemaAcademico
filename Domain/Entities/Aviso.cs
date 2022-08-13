@@ -14,7 +14,8 @@ namespace Domain.Entities
         public DateTime DataCriacao { get; set; }
         [Required]
         public string UsuarioCriacao { get; set; }
-        public int ApplicationUserId { get; set; }
+        public string ApplicationUserId { get; set; }
+        [ForeignKey("ApplicationUserId")]
         public virtual ApplicationUser ApplicationUser { get; set; }
 
         [NotMapped]

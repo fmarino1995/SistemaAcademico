@@ -42,6 +42,7 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
             viewModel.LogImportacao.DataCriacao = DateTime.Now;
             viewModel.LogImportacao.CaminhoArquivo = request.FilePath;
             viewModel.LogImportacao.NomeArquivo = request.File.Name;
+            viewModel.EmailAlunos = new List<string>();
 
             Disciplina disciplina = (await GetDisciplinaAsync(request.DisciplinaId)).Result;
 
