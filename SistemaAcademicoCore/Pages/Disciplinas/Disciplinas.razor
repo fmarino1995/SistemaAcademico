@@ -1,11 +1,13 @@
 ﻿@page "/disciplines"
 @using SistemaAcademicoApplication.DisciplinaAlunos.Queries
+@using SistemaAcademicoApplication.Disciplinas.Commands
 @using SistemaAcademicoApplication.Disciplinas.Queries
 @using SistemaAcademicoApplication.Professores.Queries
 @layout MainLayout
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 @inject ICurrentUserService _currentUserService
+@inject IToastService _toastService
 
 <PageTitle>Disciplinas - SistemaAcademico</PageTitle>
 
@@ -47,7 +49,9 @@
                                 <tr>
                                     <td>@item.Aluno.Nome</td>
                                     <td>@item.Aluno.Email</td>
-                                    <td></td>
+                                    <td>
+                                        <a href="javascript:void(0)" @onclick="() => ExcluirAlunoDisciplina(item.DisciplinasAlunosId)" title="Retirar aluno da disciplina"><span class="oi oi-trash"></span></a>
+                                    </td>
                                 </tr>
                             }
                         }
@@ -292,6 +296,13 @@
         }
     }
 
+    private async Task ExcluirAlunoDisciplina(int disciplinaAlunoId)
+    {
+        await _mediator.Send(new ExcluirAlunoDisciplinaCommand { DisciplinaAlunoId = disciplinaAlunoId });
+        _toastService.ShowInfo("Aluno excluido com sucesso!");
+        Refresh();
+    }
+
     private async void ShowModal(int disciplinaId, string turno)
     {
         Modal.Open();
@@ -305,6 +316,11 @@
 
         DisciplinasAlunos = disciplinasAlunos.Result;
         StateHasChanged();
+    }
+
+    void Refresh()
+    {
+        _navigationManager.NavigateTo("disciplines");
     }
 
     private string ImprimirPeriodo(int periodo)

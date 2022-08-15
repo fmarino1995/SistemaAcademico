@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
@@ -23,5 +24,9 @@ namespace Domain.Entities
         public double NotaFinal { get; set; }
         public int QuantidadeFalta { get; set; }
         public int QuantidadePresenca { get; set; }
+        public bool Excluido { get; set; }
+
+        [NotMapped]
+        public bool IsSelected { get; set; }
     }
 }
