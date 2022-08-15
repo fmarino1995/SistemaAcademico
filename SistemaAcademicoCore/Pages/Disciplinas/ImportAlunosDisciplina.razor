@@ -24,6 +24,12 @@
             <br/>
             <a href="/Modelos/MODELO_IMPORTACAO_ALUNOS_DISCIPLINA.csv" download="MODELO_IMPORTACAO_ALUNOS_DISCIPLINA.csv">Baixe o modelo de importação aqui</a>
             <br /><br />
+            @if (spinner)
+            {
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            }
         </div>
         <div class="card-footer">
             <div class="row">
@@ -84,6 +90,7 @@
     int qtdNaoImportados;
     string MensagemValidacao = string.Empty;
     string log;
+    bool spinner;
 
     private void OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -101,6 +108,8 @@
 
     private async void OnSubmit()
     {
+        spinner = true;
+        StateHasChanged();
         string filePath = $"C:\\arquivosImportacaoAlunosDisciplina\\{selectedFile.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
 
         var importacaoResponse = await _mediator.Send(new ImportarAlunosDisciplinaCommand
@@ -112,15 +121,18 @@
 
         if (importacaoResponse.Errors.Any())
         {
+            spinner = false;
             MensagemValidacao = importacaoResponse.Errors.First();
             this.StateHasChanged();
         }
         else
         {
             log = importacaoResponse.Result.LogImportacao.Mensagem;
+            qtdImportados = importacaoResponse.Result.QtdImportados;
+            qtdNaoImportados = importacaoResponse.Result.QtdNaoImportados;
             ResultadoImportacao = true;
+            spinner = false;
             this.StateHasChanged();
         }
-
     }
 }

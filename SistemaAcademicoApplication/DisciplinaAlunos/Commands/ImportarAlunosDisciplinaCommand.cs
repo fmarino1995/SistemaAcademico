@@ -12,6 +12,7 @@ using CsvHelper;
 using SistemaAcademicoApplication.LogImportacoes.Commands;
 using SistemaAcademicoApplication.Alunos.Queries;
 using SistemaAcademicoApplication.Disciplinas.Queries;
+using SistemaAcademicoApplication.Semestres.Queries;
 
 namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
 {
@@ -43,6 +44,7 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
             viewModel.LogImportacao.CaminhoArquivo = request.FilePath;
             viewModel.LogImportacao.NomeArquivo = request.File.Name;
             viewModel.EmailAlunos = new List<string>();
+            SemestreVigente SemestreAtual;
 
             Disciplina disciplina = (await GetDisciplinaAsync(request.DisciplinaId)).Result;
 
@@ -53,6 +55,9 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
 
             try
             {
+                var response = await _mediator.Send(new ConsultarSemestreAtualQuery());
+                SemestreAtual = response.Result;
+
                 Stream stream = request.File.OpenReadStream();
                 FileStream fs = File.Create(request.FilePath);
                 await stream.CopyToAsync(fs);
@@ -84,23 +89,21 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
                                 throw new Exception($"Aluno de email '{email}' não encontrado");
                             }
 
-                            var semestre = _context.DisciplinasAlunos
-                                .Any(s => s.Ano == DateTime.Now.Year && s.Semestre == 1) ? 2 : 1;
-
                             var disciplinaAluno = new DisciplinaAluno
                             {
                                 AlunoId = aluno.Result.AlunoId,
                                 DisciplinaId = request.DisciplinaId,
                                 TotalAulasValidas = 0,
-                                Ano = DateTime.Now.Year,
+                                Ano = SemestreAtual.Ano,
                                 QuantidadeFalta = 0,
                                 QuantidadePresenca = 0,
-                                Semestre = semestre
+                                Semestre = SemestreAtual.Semestre
                             };
 
                             viewModel.EmailAlunos.Add(email);
                             _context.DisciplinasAlunos.Add(disciplinaAluno);
                             await _context.SaveChangesAsync();
+                            viewModel.QtdImportados++;
                         }
                         catch (CsvHelper.MissingFieldException)
                         {
@@ -108,6 +111,7 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
                         }
                         catch (Exception ex)
                         {
+                            viewModel.QtdNaoImportados++;
                             viewModel.LogImportacao.Errors.Add(ex.Message);
                             continue;
                         }

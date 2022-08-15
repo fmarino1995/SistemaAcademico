@@ -9,6 +9,7 @@ using MediatR;
 using SistemaAcademicoApplication.Common.Responses;
 using SistemaAcademicoData.Context;
 using Microsoft.EntityFrameworkCore;
+using SistemaAcademicoApplication.Semestres.Queries;
 
 namespace SistemaAcademicoApplication.DisciplinaAlunos.Queries
 {
@@ -22,21 +23,25 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Queries
     public class ObterAlunosDisciplinaProfessorQueryHandler : IRequestHandler<ObterAlunosDisciplinaProfessorQuery, Response<List<DisciplinaAluno>>>
     {
         private readonly SistemaAcademicoContext _context;
+        private readonly IMediator _mediator;
 
-        public ObterAlunosDisciplinaProfessorQueryHandler(SistemaAcademicoContext context)
+        public ObterAlunosDisciplinaProfessorQueryHandler(SistemaAcademicoContext context, IMediator mediator)
         {
             _context = context;
+            _mediator = mediator;
         }
 
         public async Task<Response<List<DisciplinaAluno>>> Handle(ObterAlunosDisciplinaProfessorQuery request, CancellationToken cancellationToken)
         {
-            var semestre = DateTime.Now.Month <= 6 ? 1 : 2; // criar tabela para semestre vigente .
-
-
+            var ultimoSemestre = await _mediator.Send(new ConsultarSemestreAtualQuery());
+            
             var disciplinasAlunos = await _context.DisciplinasAlunos
                 .Include(d => d.Disciplina)
                 .Include(d => d.Aluno)
-                .Where(d => d.DisciplinaId == request.DisciplinaId && d.Ano == DateTime.Now.Year && d.Disciplina.Turno == request.Turno)
+                .Where(d => d.DisciplinaId == request.DisciplinaId 
+                && d.Ano == ultimoSemestre.Result.Ano 
+                && d.Semestre == ultimoSemestre.Result.Semestre
+                && d.Disciplina.Turno == request.Turno)
                 .ToListAsync();
 
             if (disciplinasAlunos == null)
