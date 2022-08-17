@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaAcademicoData.Context;
 
@@ -11,9 +12,10 @@ using SistemaAcademicoData.Context;
 namespace SistemaAcademicoData.Migrations
 {
     [DbContext(typeof(SistemaAcademicoContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220816222131_NewColumnDisciplinasAlunos")]
+    partial class NewColumnDisciplinasAlunos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -400,44 +402,6 @@ namespace SistemaAcademicoData.Migrations
                     b.ToTable("LogImportacoes");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PresencaAluno", b =>
-                {
-                    b.Property<int>("PresencaAlunoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PresencaAlunoId"), 1L, 1);
-
-                    b.Property<int>("AlunoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Ano")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DataPresenca")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DisciplinaId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Falta")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Presenca")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Semestre")
-                        .HasColumnType("int");
-
-                    b.HasKey("PresencaAlunoId");
-
-                    b.HasIndex("AlunoId");
-
-                    b.HasIndex("DisciplinaId");
-
-                    b.ToTable("PresencaAlunos");
-                });
-
             modelBuilder.Entity("Domain.Entities.Professor", b =>
                 {
                     b.Property<int>("ProfessorId")
@@ -706,25 +670,6 @@ namespace SistemaAcademicoData.Migrations
                 });
 
             modelBuilder.Entity("Domain.Entities.HistoricoDisciplinaAluno", b =>
-                {
-                    b.HasOne("Domain.Entities.Aluno", "Aluno")
-                        .WithMany()
-                        .HasForeignKey("AlunoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Disciplina", "Disciplina")
-                        .WithMany()
-                        .HasForeignKey("DisciplinaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Aluno");
-
-                    b.Navigation("Disciplina");
-                });
-
-            modelBuilder.Entity("Domain.Entities.PresencaAluno", b =>
                 {
                     b.HasOne("Domain.Entities.Aluno", "Aluno")
                         .WithMany()

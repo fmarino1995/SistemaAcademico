@@ -25,6 +25,7 @@ namespace Domain.Entities
         public int QuantidadeFalta { get; set; }
         public int QuantidadePresenca { get; set; }
         public bool Excluido { get; set; }
+        public DateTime DataUltimaPresenca { get; set; }
 
         [NotMapped]
         public bool IsSelected { get; set; }

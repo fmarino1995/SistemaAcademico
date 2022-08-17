@@ -41,7 +41,8 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Queries
                 .Where(d => d.DisciplinaId == request.DisciplinaId 
                 && d.Ano == ultimoSemestre.Result.Ano 
                 && d.Semestre == ultimoSemestre.Result.Semestre
-                && d.Disciplina.Turno == request.Turno)
+                && d.Disciplina.Turno == request.Turno
+                && !d.Excluido)
                 .ToListAsync();
 
             if (disciplinasAlunos == null)

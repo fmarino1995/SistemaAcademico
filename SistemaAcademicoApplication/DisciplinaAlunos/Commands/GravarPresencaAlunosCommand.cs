@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SistemaAcademicoApplication.Common.Responses;
+﻿using SistemaAcademicoApplication.Common.Responses;
 using MediatR;
 using SistemaAcademicoData.Context;
 using Domain.Entities;
@@ -33,13 +28,14 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
                 return errorResponse;
             }
 
-            foreach (var item in request.Alunos)
+            foreach (var item in request.Alunos.Where(x => x.Excluido == false && x.DataUltimaPresenca.Date != DateTime.Now.Date))
             {
                 item.TotalAulasValidas++;
 
                 if (item.IsSelected)
                 {
                     item.QuantidadePresenca++;
+                    item.DataUltimaPresenca = DateTime.Now;
                 }
                 else
                 {
