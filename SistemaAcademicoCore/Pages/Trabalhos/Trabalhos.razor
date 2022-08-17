@@ -1,0 +1,168 @@
+﻿@page "/students/projects"
+@using SistemaAcademicoApplication.Alunos.Queries
+@using SistemaAcademicoApplication.Common.Responses
+@using SistemaAcademicoApplication.Semestres.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+@inject IToastService _toastService
+@inject ICurrentUserService _currentUserService
+
+<div class="card">
+    <div class="card-header">
+        <div class="titulo-card">
+            Trabalhos
+        </div>
+    </div>
+    <form @onsubmit="OnSubmit">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" @onchange="AlteraDisciplina" id="floatingDisciplina">
+                            <option selected value="">Selecione a disciplina</option>
+
+                        </select>
+                        <label for="floatingDisciplina">Disciplina</label>
+                    </div>
+                </div>
+                @if (selectDisciplina)
+                {
+                    <div class="col-md-6">
+                        <p class="text-dark"><strong>@FileMessage</strong></p>
+                        <InputFile OnChange="OnInputFileChange" />
+                        <p class="text-danger">@MensagemValidacao</p>
+                        <br /><br />
+                        @if (spinner)
+                        {
+                            <div class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/" class="btn btn-outline-dark">Voltar</a>
+                    @if (selectedFile == null)
+                    {
+                        <button type="submit" disabled class="btn btn-outline-primary ml-1">Enviar</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-outline-primary">Enviar</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+
+    @if (TrabalhosEnviados != null)
+    {
+        <br />
+
+        <br />
+        <hr class="hr1" />
+
+        <div class="card-header">
+            <div class="titulo-card">
+                Arquivos Importados
+            </div>
+        </div>
+        <div class="card-body">
+            <DataTable Searchable="true">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Disciplina</th>
+                        <th>Semestre</th>
+                        <th>Data Envio</th>
+                        <th>Arquivo</th>
+                        <th>Nota</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in TrabalhosEnviados)
+                    {
+                        <tr>
+                            <td>@item.Disciplina.Nome</td>
+                            <td>@item.SemestreVigente.Ano/@item.SemestreVigente.Semestre</td>
+                            <td>@item.DataEnvio</td>
+                            <td>@item.NomeArquivo</td>
+                            <td>@item.Nota</td>
+                        </tr>
+                    }
+                </tbody>
+            </DataTable>
+        </div>
+    }
+</div>
+
+@code {
+    string FileMessage = "Nenhum arquivo selecionado";
+    string MensagemValidacao = string.Empty;
+    IBrowserFile selectedFile;
+    List<Trabalho> TrabalhosEnviados;
+    SemestreVigente SemestreVigente;
+    Aluno AlunoLogado;
+    List<DisciplinaAluno> DisciplinasAlunoList;
+    bool spinner;
+    bool selectDisciplina;
+
+    private void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        FileMessage = $"{e.File.Name} selecionado";
+        selectedFile = e.File;
+        this.StateHasChanged();
+    }
+
+    private void AlteraDisciplina(ChangeEventArgs ev)
+    {
+        var disciplina = ev.Value.ToString();
+
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuarioLogado = await _currentUserService.GetUserNameAsync();
+        var alunoLogado = await _mediator.Send(new ObterAlunoEmailQuery { Email = usuarioLogado });
+        AlunoLogado = alunoLogado.Result;
+        var semestreResponse = await GetSemestreVigenteAsync();
+        DisciplinasAlunoList = await GetDisciplinasAlunoAsync(AlunoLogado.AlunoId);
+
+        if (semestreResponse.Errors.Any())
+        {
+            _toastService.ShowError("Ocorreu um erro ao carregar as informações");
+            Voltar();
+        }
+
+        SemestreVigente = semestreResponse.Result;
+
+
+    }
+
+    private async void OnSubmit()
+    {
+        spinner = true;
+        StateHasChanged();
+
+        string filePath = $"C:\\trabalhosEnviados\\{SemestreVigente.Ano}_{SemestreVigente.Semestre}\\";
+    }
+
+    void Voltar()
+    {
+        _navigationManager.NavigateTo("/", forceLoad: true);
+    }
+
+    private async Task<Response<SemestreVigente>> GetSemestreVigenteAsync()
+    {
+        return await Task.FromResult(await _mediator.Send(new ObterSemestreVigenteQuery()));
+    }
+
+    private async Task<List<DisciplinaAluno>> GetDisciplinasAlunoAsync(int alunoId)
+    {
+        return await Task.FromResult((await _mediator.Send(new ObterPautaWebAlunoQuery { AlunoId = alunoId })).Result);
+    }
+}

@@ -21,6 +21,7 @@ namespace SistemaAcademicoData.Context
         public DbSet<HistoricoDisciplinaAluno> HistoricoDisciplinaAlunos { get; set; }
         public DbSet<SemestreVigente> SemestresVigentes { get; set; }
         public DbSet<PresencaAluno> PresencaAlunos { get; set; }
+        public DbSet<Trabalho> Trabalhos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

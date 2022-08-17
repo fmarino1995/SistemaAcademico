@@ -289,9 +289,9 @@ else
         StateHasChanged();
 
         var response = await _mediator.Send(new GravarPresencaAlunosCommand
-            {
-                Alunos = Alunos
-            });
+        {
+            Alunos = Alunos
+        });
 
         if (response.Errors.Any())
         {

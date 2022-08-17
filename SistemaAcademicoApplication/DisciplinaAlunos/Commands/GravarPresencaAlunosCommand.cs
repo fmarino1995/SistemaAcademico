@@ -28,7 +28,7 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
                 return errorResponse;
             }
 
-            foreach (var item in request.Alunos.Where(x => x.Excluido == false && x.DataUltimaPresenca.Date != DateTime.Now.Date))
+            foreach (var item in request.Alunos.Where(x => x.Excluido == false))
             {
                 item.TotalAulasValidas++;
 
