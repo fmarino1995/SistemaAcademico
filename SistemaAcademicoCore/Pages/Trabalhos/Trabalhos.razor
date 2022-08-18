@@ -1,11 +1,16 @@
 ﻿@page "/students/projects"
 @using SistemaAcademicoApplication.Alunos.Queries
 @using SistemaAcademicoApplication.Common.Responses
+@using SistemaAcademicoApplication.DisciplinaAlunos.Queries
+@using SistemaAcademicoApplication.Disciplinas.Queries
 @using SistemaAcademicoApplication.Semestres.Queries
+@using SistemaAcademicoApplication.Trabalhos.Commands
+@using SistemaAcademicoApplication.Trabalhos.Queries
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 @inject IToastService _toastService
 @inject ICurrentUserService _currentUserService
+@inject IChecksumService _checkSumService
 
 <div class="card">
     <div class="card-header">
@@ -20,7 +25,10 @@
                     <div class="form-floating mb-3">
                         <select class="form-select" @onchange="AlteraDisciplina" id="floatingDisciplina">
                             <option selected value="">Selecione a disciplina</option>
-
+                            @foreach (var item in DisciplinasAlunoList.Where(x => x.Excluido == false))
+                            {
+                                <option value="@item.DisciplinaId">@item.Disciplina.Nome</option>
+                            }
                         </select>
                         <label for="floatingDisciplina">Disciplina</label>
                     </div>
@@ -107,6 +115,7 @@
     SemestreVigente SemestreVigente;
     Aluno AlunoLogado;
     List<DisciplinaAluno> DisciplinasAlunoList;
+    Disciplina Disciplina;
     bool spinner;
     bool selectDisciplina;
 
@@ -117,11 +126,22 @@
         this.StateHasChanged();
     }
 
-    private void AlteraDisciplina(ChangeEventArgs ev)
+    private async Task AlteraDisciplina(ChangeEventArgs ev)
     {
         var disciplina = ev.Value.ToString();
 
-
+        if (string.IsNullOrEmpty(disciplina))
+        {
+            var response = await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = Convert.ToInt32(disciplina) });
+            Disciplina = response.Result;
+            selectDisciplina = true;
+            StateHasChanged();
+        }
+        else
+        {
+            selectDisciplina = false;
+            StateHasChanged();
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -137,23 +157,64 @@
             _toastService.ShowError("Ocorreu um erro ao carregar as informações");
             Voltar();
         }
-
         SemestreVigente = semestreResponse.Result;
-
-
     }
 
-    private async void OnSubmit()
+    private async Task OnSubmit()
     {
         spinner = true;
         StateHasChanged();
 
-        string filePath = $"C:\\trabalhosEnviados\\{SemestreVigente.Ano}_{SemestreVigente.Semestre}\\";
+        string path = $"C:\\trabalhosEnviados\\{SemestreVigente.Ano}_{SemestreVigente.Semestre}\\{Disciplina.Nome}\\{AlunoLogado.Nome}";
+        var dir = new DirectoryInfo(path);
+        if (!dir.Exists) { dir.Create(); }
+        var filepath = $"{dir}\\{selectedFile.Name}";
+
+        var trabalho = new Trabalho
+        {
+            AlunoId = AlunoLogado.AlunoId,
+            DisciplinaId = Disciplina.DisciplinaId,
+            CaminhoArquivo = filepath,
+            Hash = _checkSumService.GetMD5Checksum(selectedFile.Name),
+            DataEnvio = DateTime.Now,
+            NomeArquivo = selectedFile.Name,
+            SemestreVigenteId = SemestreVigente.SemestreVigenteId,
+            UsuarioAlteracao = await _currentUserService.GetUserNameAsync()
+        };
+
+        var response = await _mediator.Send(new ImportarTrabalhoAlunoCommand
+        {
+            File = selectedFile,
+            FilePath = filepath,
+            Trabalho = trabalho
+        });
+
+        if(response.Errors.Any())
+        {
+            spinner = false;
+            MensagemValidacao = "Ocorreu um erro ao importar o trabalho : " + response.Errors.First();
+            _toastService.ShowError("Erro ao importar o trabalho");
+            StateHasChanged();
+        }
+        else
+        {
+
+            _toastService.ShowSuccess("Trabalho importado com sucesso!");
+            var responseTrabalhos = await GetTrabalhosImportadosAsync(AlunoLogado.AlunoId, SemestreVigente.SemestreVigenteId);
+            TrabalhosEnviados = responseTrabalhos.Result;
+            StateHasChanged();
+        }
     }
 
     void Voltar()
     {
         _navigationManager.NavigateTo("/", forceLoad: true);
+    }
+
+    private async Task<Response<List<Trabalho>>> GetTrabalhosImportadosAsync(int alunoId, int semestreVigenteId)
+    {
+        return await Task.FromResult(await _mediator.Send(new ObterTrabalhosImportadosQuery 
+            { AlunoId = alunoId, SemestreVigenteId = semestreVigenteId }));
     }
 
     private async Task<Response<SemestreVigente>> GetSemestreVigenteAsync()

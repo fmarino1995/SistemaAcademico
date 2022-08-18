@@ -2,10 +2,9 @@
 
 namespace Domain.ViewModels
 {
-    public class DisciplinaAlunoProfessorViewModel
+    public class PresencaAlunosDisciplinaViewModel
     {
         public List<DisciplinaAluno> DisciplinasAlunoList { get; set; }
-        public string Turno { get; set; }
-        public int DisciplinaId { get; set; }
+        public List<PresencaAluno> PresencaAlunos { get; set; }
     }
 }

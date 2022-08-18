@@ -12,6 +12,7 @@ namespace SistemaAcademicoInfrastructure
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IToastService, ToastService>();
+            services.AddSingleton<IChecksumService, ChecksumService>();
 
             return services;
         }

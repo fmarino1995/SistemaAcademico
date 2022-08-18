@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaAcademicoData.Context;
 
@@ -11,9 +12,10 @@ using SistemaAcademicoData.Context;
 namespace SistemaAcademicoData.Migrations
 {
     [DbContext(typeof(SistemaAcademicoContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220817220747_AlterTableTrabalhos")]
+    partial class AlterTableTrabalhos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -542,7 +544,7 @@ namespace SistemaAcademicoData.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("Nota")
+                    b.Property<double>("Nota")
                         .HasColumnType("float");
 
                     b.Property<int>("SemestreVigenteId")

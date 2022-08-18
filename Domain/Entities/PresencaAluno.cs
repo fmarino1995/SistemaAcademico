@@ -6,8 +6,8 @@ namespace Domain.Entities
     {
         [Key]
         public int PresencaAlunoId { get; set; }
-        public int Ano { get; set; }
-        public int Semestre { get; set; }
+        public int SemestreVigenteId { get; set; }
+        public virtual SemestreVigente SemestreVigente { get; set; }
         public int DisciplinaId { get; set; }
         public virtual Disciplina Disciplina { get; set; }
         public int AlunoId { get; set; }

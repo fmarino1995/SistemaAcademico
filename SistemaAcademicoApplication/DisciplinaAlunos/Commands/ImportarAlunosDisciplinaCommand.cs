@@ -94,10 +94,9 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
                                 AlunoId = aluno.Result.AlunoId,
                                 DisciplinaId = request.DisciplinaId,
                                 TotalAulasValidas = 0,
-                                Ano = SemestreAtual.Ano,
                                 QuantidadeFalta = 0,
                                 QuantidadePresenca = 0,
-                                Semestre = SemestreAtual.Semestre
+                                SemestreVigenteId = SemestreAtual.SemestreVigenteId
                             };
 
                             viewModel.EmailAlunos.Add(email);

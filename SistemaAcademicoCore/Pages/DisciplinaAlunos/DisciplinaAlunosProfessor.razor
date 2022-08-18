@@ -1,9 +1,12 @@
 ﻿@page "/webagenda/professors"
 @using Domain.ViewModels
+@using SistemaAcademicoApplication.Common.Responses
 @using SistemaAcademicoApplication.DisciplinaAlunos.Commands
 @using SistemaAcademicoApplication.DisciplinaAlunos.Queries
 @using SistemaAcademicoApplication.Disciplinas.Queries
+@using SistemaAcademicoApplication.PresencaAlunos.Queries
 @using SistemaAcademicoApplication.Professores.Queries
+@using SistemaAcademicoApplication.Semestres.Queries
 @inject IMediator _mediator
 @inject ICurrentUserService _currentUserService
 @inject IToastService _toastService
@@ -22,6 +25,7 @@
                     <th>Aluno</th>
                     <th>Email</th>
                     <th>Presença</th>
+                    <th>Falta</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,7 +34,8 @@
                     <tr>
                         <td>@aluno.Aluno.Nome</td>
                         <td>@aluno.Aluno.Email</td>
-                        <td><input type="checkbox" @bind="aluno.IsSelected" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsPresenca" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsFalta" /></td>
                     </tr>
                 }
             </tbody>
@@ -52,7 +57,7 @@
     </div>
 </Modal>
 
-<Modal @ref="ModalEdit" Title="Editar presença - Alunos faltantes">
+<Modal @ref="ModalEdit" Title="Editar presença">
     <div class="modal-body">
         <table class="table table-striped table-bordered">
             <thead class="thead-light">
@@ -60,15 +65,17 @@
                     <th>Aluno</th>
                     <th>Email</th>
                     <th>Presença</th>
+                    <th>Falta</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var aluno in PautaWebProfessorEdit)
+                @foreach (var aluno in ViewModel.DisciplinasAlunoList)
                 {
                     <tr>
                         <td>@aluno.Aluno.Nome</td>
                         <td>@aluno.Aluno.Email</td>
-                        <td><input type="checkbox" @bind="aluno.IsSelected" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsPresenca" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsFalta" /></td>
                     </tr>
                 }
             </tbody>
@@ -84,7 +91,7 @@
                     </div>
                 }
                 <a class="btn btn-outline-dark" @onclick="() => Modal.Close()">Voltar</a>
-                <input type="submit" @onclick="() => GravarPresencaAlunos(PautaWebProfessorEdit)" class="btn btn-outline-primary" value="Salvar" />
+                <input type="submit" @onclick="() => GravarPresencaAlunos(ViewModel.DisciplinasAlunoList)" class="btn btn-outline-primary" value="Salvar" />
             </div>
         </div>
     </div>
@@ -172,7 +179,7 @@ else
                             <tr>
                                 <td>@item.Aluno.Nome</td>
                                 <td>@item.Aluno.Email</td>
-                                <td>@item.Ano/@item.Semestre</td>
+                                <td>@item.SemestreVigente.Ano/@item.SemestreVigente.Semestre</td>
                                 <td>@item.TotalAulasValidas</td>
                                 <td>@item.NotaAvaliacao1</td>
                                 <td>@item.NotaAvaliacao2</td>
@@ -181,7 +188,7 @@ else
                                 <td>@item.QuantidadePresenca</td>
                                 <td>@item.QuantidadeFalta</td>
                                 <td>
-                                    <a href="javascript:void(0)" title="Registrar presença" ><span class="oi oi-check" aria-hidden="true"></span></a>
+                                    <a href="javascript:void(0)" title="Registrar presença"><span class="oi oi-check" aria-hidden="true"></span></a>
                                 </td>
                             </tr>
                         }
@@ -195,11 +202,17 @@ else
 
 
 @code {
-    DisciplinaAlunoProfessorViewModel ViewModel;
+    PresencaAlunosDisciplinaViewModel ViewModel = new PresencaAlunosDisciplinaViewModel
+    {
+        DisciplinasAlunoList = new List<DisciplinaAluno>(),
+        PresencaAlunos = new List<PresencaAluno>()
+    };
+    Professor ProfessorLogado;
+    SemestreVigente SemestreVigente;
     List<Disciplina> DisciplinasProfessorList;
     List<DisciplinaAluno> PautaWebProfessor = new List<DisciplinaAluno>();
-    List<DisciplinaAluno> PautaWebProfessorEdit = new List<DisciplinaAluno>();
-    Professor ProfessorLogado;
+    List<PresencaAluno> PresencaAlunos = new List<PresencaAluno>();
+
     string turno;
     bool exibirTable;
     bool spinner;
@@ -209,11 +222,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        ViewModel = new DisciplinaAlunoProfessorViewModel();
         var usuarioLogado = await GetUsuarioLogadoAsync();
         var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery { Email = usuarioLogado });
-
         ProfessorLogado = professorLogado.Result;
+        var semestreResponse = await _mediator.Send(new ObterSemestreVigenteQuery());
+        SemestreVigente = semestreResponse.Result;
 
         if (professorLogado.Errors.Any())
         {
@@ -230,7 +243,7 @@ else
 
     private void RegistrarPresenca()
     {
-        var ultimaPresenca = PautaWebProfessor.Where(x => x.DataUltimaPresenca.Date == DateTime.Now.Date).ToList().FirstOrDefault();
+        var ultimaPresenca = PautaWebProfessor.Where(x => x.DataUltimaPresenca.Date == DateTime.Now.Date).FirstOrDefault();
 
         if (ultimaPresenca != null)
         {
@@ -243,18 +256,33 @@ else
         }
     }
 
-    private void EditarPresenca()
+    private async void EditarPresenca()
     {
-        var pauta = PautaWebProfessor.Where(x => x.DataUltimaPresenca.Date != DateTime.Now.Date).ToList();
-        if(pauta.Count == 0)
+        spinner = true;
+        StateHasChanged();
+        var response = await GetPresencaAlunosAsync(SemestreVigente.SemestreVigenteId);
+
+        if (response.Errors.Any())
         {
-            _toastService.ShowInfo("Já foram registrados presença para todos os alunos");
+            spinner = false;
+            _toastService.ShowError("Ocorreu um erro ao carregar os registros");
             StateHasChanged();
-            Refresh();
         }
         else
         {
-            PautaWebProfessorEdit = pauta;
+            spinner = false;
+            ViewModel.PresencaAlunos = response.Result;
+            ViewModel.DisciplinasAlunoList = PautaWebProfessor;
+
+            foreach(var item in ViewModel.DisciplinasAlunoList)
+            {
+                item.IsPresenca = ViewModel.PresencaAlunos
+                .Where(x => x.AlunoId == item.AlunoId).FirstOrDefault().Presenca;
+
+                item.IsFalta = ViewModel.PresencaAlunos
+                .Where(x => x.AlunoId == item.AlunoId).FirstOrDefault().Falta;
+            }
+
             ModalEdit.Open();
         }
     }
@@ -271,16 +299,25 @@ else
             var disciplinaId = Convert.ToInt32(ev.Value.ToString());
 
             var response = await _mediator.Send(new ObterPautaWebProfessorQuery
-                {
-                    DisciplinaId = disciplinaId,
-                    ProfessorId = ProfessorLogado.ProfessorId,
-                    Turno = turno
-                });
+            {
+                DisciplinaId = disciplinaId,
+                ProfessorId = ProfessorLogado.ProfessorId,
+                Turno = turno,
+                SemestreVigenteId = SemestreVigente.SemestreVigenteId
+            });
 
             PautaWebProfessor = response.Result;
             exibirTable = true;
             StateHasChanged();
         }
+    }
+
+    private async Task EditarPresencaAlunos(List<DisciplinaAluno> Alunos)
+    {
+        spinner = true;
+        StateHasChanged();
+
+
     }
 
     private async Task GravarPresencaAlunos(List<DisciplinaAluno> Alunos)
@@ -329,6 +366,11 @@ else
     private async Task<List<Disciplina>> GetDisciplinasProfessorAsync(int professorId)
     {
         return await Task.FromResult((await _mediator.Send(new ObterDisciplinasProfessorIdQuery { ProfessorId = professorId })).Result);
+    }
+
+    private async Task<Response<List<PresencaAluno>>> GetPresencaAlunosAsync(int semestreVigenteId)
+    {
+        return await Task.FromResult(await _mediator.Send(new ObterPresencaAlunosQuery { SemestreVigenteId = semestreVigenteId }));
     }
 
     void VoltarToast(string message)

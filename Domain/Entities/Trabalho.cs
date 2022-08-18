@@ -18,12 +18,14 @@ namespace Domain.Entities
         public int SemestreVigenteId { get; set; }
         public virtual SemestreVigente SemestreVigente { get; set; }
         public DateTime DataEnvio { get; set; }
-        public double Nota { get; set; }
+        public double? Nota { get; set; }
         [Required]
         public string NomeArquivo { get; set; }
         [Required]
         public string CaminhoArquivo { get; set; }
         [Required]
         public string UsuarioAlteracao { get; set; }
+        [Required]
+        public string Hash { get; set; }
     }
 }

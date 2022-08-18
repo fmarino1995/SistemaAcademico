@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SistemaAcademicoApplication.Common.Responses;
+﻿using SistemaAcademicoApplication.Common.Responses;
 using MediatR;
 using Domain.Entities;
 using SistemaAcademicoData.Context;
@@ -16,6 +11,7 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Queries
         public int DisciplinaId { get; set; }
         public int ProfessorId { get; set; }
         public string Turno { get; set; }
+        public int SemestreVigenteId { get; set; }
     }
 
     public class ObterPautaWebProfessorQueryHandler : IRequestHandler<ObterPautaWebProfessorQuery, Response<List<DisciplinaAluno>>>
@@ -32,9 +28,10 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Queries
             var pautaWeb = await _context.DisciplinasAlunos
                 .Include(d => d.Disciplina)
                 .Include(d => d.Aluno)
+                .Include(d => d.SemestreVigente)
                 .Where(d => d.Disciplina.ProfessorId == request.ProfessorId
                 && d.DisciplinaId == request.DisciplinaId
-                && d.Ano == DateTime.Now.Year && d.Disciplina.Turno == request.Turno)
+                && d.SemestreVigenteId == request.SemestreVigenteId && d.Disciplina.Turno == request.Turno)
                 .ToListAsync();
 
             return new Response<List<DisciplinaAluno>>(pautaWeb);

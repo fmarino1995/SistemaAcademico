@@ -30,18 +30,19 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
 
             foreach (var item in request.Alunos.Where(x => x.Excluido == false))
             {
+                var presenca = new PresencaAluno
+                {
+                    AlunoId = item.AlunoId,
+                    DisciplinaId = item.DisciplinaId,
+                    DataPresenca = DateTime.Now,
+                    SemestreVigenteId = item.SemestreVigenteId,
+                    Presenca = item.IsPresenca,
+                    Falta = item.IsFalta
+                };
+
                 item.TotalAulasValidas++;
-
-                if (item.IsSelected)
-                {
-                    item.QuantidadePresenca++;
-                    item.DataUltimaPresenca = DateTime.Now;
-                }
-                else
-                {
-                    item.QuantidadeFalta++;
-                }
-
+                item.DataUltimaPresenca = DateTime.Now;
+                _context.PresencaAlunos.Add(presenca);
                 _context.DisciplinasAlunos.Update(item);
             }
 
