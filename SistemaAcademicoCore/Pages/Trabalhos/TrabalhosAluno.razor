@@ -1,4 +1,4 @@
-﻿@page "/projects"
+﻿@page "/students/projects"
 @using SistemaAcademicoApplication.Alunos.Queries
 @using SistemaAcademicoApplication.Common.Responses
 @using SistemaAcademicoApplication.DisciplinaAlunos.Queries
@@ -12,104 +12,103 @@
 @inject ICurrentUserService _currentUserService
 @inject IChecksumService _checkSumService
 
-@attribute [Authorize]
+@attribute [Authorize(Policy = Policies.IsAluno)]
 
-<AuthorizeView Policy="@Policies.IsAluno">
-    <div class="card">
-        <div class="card-header">
-            <div class="titulo-card">
-                Trabalhos
+<div class="card">
+    <div class="card-header">
+        <div class="titulo-card">
+            Trabalhos
+        </div>
+    </div>
+    <form @onsubmit="OnSubmit">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" @onchange="AlteraDisciplina" id="floatingDisciplina">
+                            <option selected value="">Selecione a disciplina</option>
+                            @foreach (var item in DisciplinasAlunoList.Where(x => x.Excluido == false))
+                            {
+                                <option value="@item.DisciplinaId">@item.Disciplina.Nome</option>
+                            }
+                        </select>
+                        <label for="floatingDisciplina">Disciplina</label>
+                    </div>
+                </div>
+                @if (selectDisciplina)
+                {
+                    <div class="col-md-6">
+                        <p class="text-dark"><strong>@FileMessage</strong></p>
+                        <InputFile OnChange="OnInputFileChange" />
+                        <p class="text-danger">@MensagemValidacao</p>
+                        <br /><br />
+                        @if (spinner)
+                        {
+                            <div class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         </div>
-        <form @onsubmit="OnSubmit">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-floating mb-3">
-                            <select class="form-select" @onchange="AlteraDisciplina" id="floatingDisciplina">
-                                <option selected value="">Selecione a disciplina</option>
-                                @foreach (var item in DisciplinasAlunoList.Where(x => x.Excluido == false))
-                                {
-                                    <option value="@item.DisciplinaId">@item.Disciplina.Nome</option>
-                                }
-                            </select>
-                            <label for="floatingDisciplina">Disciplina</label>
-                        </div>
-                    </div>
-                    @if (selectDisciplina)
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/" class="btn btn-outline-dark">Voltar</a>
+                    @if (selectedFile == null)
                     {
-                        <div class="col-md-6">
-                            <p class="text-dark"><strong>@FileMessage</strong></p>
-                            <InputFile OnChange="OnInputFileChange" />
-                            <p class="text-danger">@MensagemValidacao</p>
-                            <br /><br />
-                            @if (spinner)
-                            {
-                                <div class="spinner-border" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                            }
-                        </div>
+                        <button type="submit" disabled class="btn btn-outline-primary ml-1">Enviar</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-outline-primary">Enviar</button>
                     }
                 </div>
             </div>
-            <div class="card-footer">
-                <div class="row">
-                    <div class="col-md-12">
-                        <a href="/" class="btn btn-outline-dark">Voltar</a>
-                        @if (selectedFile == null)
-                        {
-                            <button type="submit" disabled class="btn btn-outline-primary ml-1">Enviar</button>
-                        }
-                        else
-                        {
-                            <button type="submit" class="btn btn-outline-primary">Enviar</button>
-                        }
-                    </div>
-                </div>
+        </div>
+    </form>
+
+    @if (TrabalhosEnviados != null)
+    {
+        <br />
+
+        <br />
+        <hr class="hr1" />
+
+        <div class="card-header">
+            <div class="titulo-card">
+                Arquivos Importados
             </div>
-        </form>
-
-        @if (TrabalhosEnviados != null)
-        {
-            <br />
-
-            <br />
-            <hr class="hr1" />
-
-            <div class="card-header">
-                <div class="titulo-card">
-                    Arquivos Importados
-                </div>
-            </div>
-            <div class="card-body">
-                <DataTable Searchable="true">
-                    <thead class="thead-light">
+        </div>
+        <div class="card-body">
+            <DataTable Searchable="true">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Disciplina</th>
+                        <th>Semestre</th>
+                        <th>Data Envio</th>
+                        <th>Arquivo</th>
+                        <th>Nota</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in TrabalhosEnviados)
+                    {
                         <tr>
-                            <th>Disciplina</th>
-                            <th>Semestre</th>
-                            <th>Data Envio</th>
-                            <th>Arquivo</th>
-                            <th>Nota</th>
+                            <td>@item.Disciplina.Nome</td>
+                            <td>@item.SemestreVigente.Ano/@item.SemestreVigente.Semestre</td>
+                            <td>@item.DataEnvio</td>
+                            <td>@item.NomeArquivo</td>
+                            <td>@item.Nota</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in TrabalhosEnviados)
-                        {
-                            <tr>
-                                <td>@item.Disciplina.Nome</td>
-                                <td>@item.SemestreVigente.Ano/@item.SemestreVigente.Semestre</td>
-                                <td>@item.DataEnvio</td>
-                                <td>@item.NomeArquivo</td>
-                                <td>@item.Nota</td>
-                            </tr>
-                        }
-                    </tbody>
-                </DataTable>
-            </div>
-        }
-    </div>
-</AuthorizeView>
+                    }
+                </tbody>
+            </DataTable>
+        </div>
+    }
+</div>
+
 
 
 
@@ -177,25 +176,25 @@
         var filepath = $"{dir}\\{selectedFile.Name}";
 
         var trabalho = new Trabalho
-        {
-            AlunoId = AlunoLogado.AlunoId,
-            DisciplinaId = Disciplina.DisciplinaId,
-            CaminhoArquivo = filepath,
-            Hash = _checkSumService.GetMD5Checksum(selectedFile.Name),
-            DataEnvio = DateTime.Now,
-            NomeArquivo = selectedFile.Name,
-            SemestreVigenteId = SemestreVigente.SemestreVigenteId,
-            UsuarioAlteracao = await _currentUserService.GetUserNameAsync()
-        };
+            {
+                AlunoId = AlunoLogado.AlunoId,
+                DisciplinaId = Disciplina.DisciplinaId,
+                CaminhoArquivo = filepath,
+                Hash = _checkSumService.GetMD5Checksum(selectedFile.Name),
+                DataEnvio = DateTime.Now,
+                NomeArquivo = selectedFile.Name,
+                SemestreVigenteId = SemestreVigente.SemestreVigenteId,
+                UsuarioAlteracao = await _currentUserService.GetUserNameAsync()
+            };
 
         var response = await _mediator.Send(new ImportarTrabalhoAlunoCommand
-        {
-            File = selectedFile,
-            FilePath = filepath,
-            Trabalho = trabalho
-        });
+            {
+                File = selectedFile,
+                FilePath = filepath,
+                Trabalho = trabalho
+            });
 
-        if(response.Errors.Any())
+        if (response.Errors.Any())
         {
             spinner = false;
             MensagemValidacao = "Ocorreu um erro ao importar o trabalho : " + response.Errors.First();
@@ -219,7 +218,7 @@
 
     private async Task<Response<List<Trabalho>>> GetTrabalhosImportadosAsync(int alunoId, int semestreVigenteId)
     {
-        return await Task.FromResult(await _mediator.Send(new ObterTrabalhosImportadosQuery 
+        return await Task.FromResult(await _mediator.Send(new ObterTrabalhosImportadosQuery
             { AlunoId = alunoId, SemestreVigenteId = semestreVigenteId }));
     }
 
