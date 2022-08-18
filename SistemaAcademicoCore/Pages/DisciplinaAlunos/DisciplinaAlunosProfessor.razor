@@ -4,6 +4,7 @@
 @using SistemaAcademicoApplication.DisciplinaAlunos.Commands
 @using SistemaAcademicoApplication.DisciplinaAlunos.Queries
 @using SistemaAcademicoApplication.Disciplinas.Queries
+@using SistemaAcademicoApplication.PresencaAlunos.Commands
 @using SistemaAcademicoApplication.PresencaAlunos.Queries
 @using SistemaAcademicoApplication.Professores.Queries
 @using SistemaAcademicoApplication.Semestres.Queries
@@ -91,7 +92,7 @@
                     </div>
                 }
                 <a class="btn btn-outline-dark" @onclick="() => Modal.Close()">Voltar</a>
-                <input type="submit" @onclick="() => GravarPresencaAlunos(ViewModel.DisciplinasAlunoList)" class="btn btn-outline-primary" value="Salvar" />
+                <input type="submit" @onclick="() => EditarPresencaAlunos(ViewModel)" class="btn btn-outline-primary" value="Salvar" />
             </div>
         </div>
     </div>
@@ -270,7 +271,6 @@ else
         }
         else
         {
-            spinner = false;
             ViewModel.PresencaAlunos = response.Result;
             ViewModel.DisciplinasAlunoList = PautaWebProfessor;
 
@@ -282,6 +282,9 @@ else
                 item.IsFalta = ViewModel.PresencaAlunos
                 .Where(x => x.AlunoId == item.AlunoId).FirstOrDefault().Falta;
             }
+
+            spinner = false;
+            StateHasChanged();
 
             ModalEdit.Open();
         }
@@ -312,12 +315,27 @@ else
         }
     }
 
-    private async Task EditarPresencaAlunos(List<DisciplinaAluno> Alunos)
+    private async Task EditarPresencaAlunos(PresencaAlunosDisciplinaViewModel viewModel)
     {
         spinner = true;
         StateHasChanged();
 
+        var response = await _mediator.Send(new EditarPresencaAlunosCommand { ViewModel = viewModel });
 
+        if(response.Errors.Any())
+        {
+            spinner = false;
+            ModalEdit.Close();
+            _toastService.ShowError("Ocorreu um erro ao editar o registro de presença");
+            StateHasChanged();
+        }
+        else
+        {
+            spinner = false;
+            ModalEdit.Close();
+            _toastService.ShowSuccess("Registro de presença editado com sucesso!");
+            StateHasChanged();
+        }
     }
 
     private async Task GravarPresencaAlunos(List<DisciplinaAluno> Alunos)
