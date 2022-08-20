@@ -3,6 +3,7 @@
 @using SistemaAcademicoApplication.Disciplinas.Commands
 @using SistemaAcademicoApplication.Disciplinas.Queries
 @using SistemaAcademicoApplication.Professores.Queries
+@using SistemaAcademicoApplication.Semestres.Queries
 @layout MainLayout
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
@@ -244,6 +245,7 @@
     List<Disciplina> DisciplinaOriginal;
     List<DisciplinaAluno> DisciplinasAlunos;
     Professor ProfessorLogado;
+    SemestreVigente SemestreVigente;
     string filter;
     string modalTitle = "Alunos";
 
@@ -260,8 +262,8 @@
 
         DisciplinaOriginal = (await _mediator.Send(new ObterDisciplinasQuery())).Result;
         DisciplinasList = DisciplinaOriginal;
-
-
+        var semestreVigente = await _mediator.Send(new ObterSemestreVigenteQuery());
+        SemestreVigente = semestreVigente.Result;
     }
 
     protected void GotoCreate()
@@ -315,7 +317,8 @@
         {
             DisciplinaId = disciplinaId,
             ProfessorId = ProfessorLogado.ProfessorId,
-            Turno = turno
+            Turno = turno,
+            SemestreVigenteId = SemestreVigente.SemestreVigenteId
         });
 
         DisciplinasAlunos = disciplinasAlunos.Result;

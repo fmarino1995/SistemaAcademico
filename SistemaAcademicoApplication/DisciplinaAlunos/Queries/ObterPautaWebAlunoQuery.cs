@@ -30,6 +30,7 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Queries
             var pautaWeb = await _context.DisciplinasAlunos
                 .Include(p => p.Disciplina)
                 .Include(p => p.Aluno)
+                .Include(p => p.SemestreVigente)
                 .Where(p => p.AlunoId == request.AlunoId)
                 .ToListAsync();
 

@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SistemaAcademicoApplication.Common.Responses;
+﻿using SistemaAcademicoApplication.Common.Responses;
 using MediatR;
 using SistemaAcademicoData.Context;
-using Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Domain.ViewModels;
 
 namespace SistemaAcademicoApplication.PresencaAlunos.Commands
@@ -32,29 +25,33 @@ namespace SistemaAcademicoApplication.PresencaAlunos.Commands
             {
                 foreach (var item in request.ViewModel.DisciplinasAlunoList)
                 {
+                    if (item.IsPresenca && item.IsFalta)
+                        throw new Exception("Aluno não pode ter presença e falta no mesmo dia");
+
                     var presencaOld = request.ViewModel.PresencaAlunos
                         .Where(x => x.AlunoId == item.AlunoId).FirstOrDefault();
 
-                    if (item.IsFalta)
+                    if (item.IsFalta && presencaOld.Presenca)
                     {
                         item.QuantidadePresenca--;
                         item.QuantidadeFalta++;
                         item.DataUltimaPresenca = new DateTime(0001, 01, 01);
                         presencaOld.Falta = item.IsFalta;
                         presencaOld.Presenca = false;
+                        _context.DisciplinasAlunos.Update(item);
+                        _context.PresencaAlunos.Update(presencaOld);
                     }
 
-                    if (item.IsPresenca)
+                    if (item.IsPresenca && presencaOld.Falta)
                     {
                         item.QuantidadeFalta--;
                         item.QuantidadePresenca++;
                         item.DataUltimaPresenca = DateTime.Now;
                         presencaOld.Presenca = item.IsPresenca;
                         presencaOld.Falta = false;
+                        _context.DisciplinasAlunos.Update(item);
+                        _context.PresencaAlunos.Update(presencaOld);
                     }
-
-                    _context.DisciplinasAlunos.Update(item);
-                    _context.PresencaAlunos.Update(presencaOld);
                 }
 
                 await _context.SaveChangesAsync();

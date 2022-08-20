@@ -37,11 +37,11 @@ else
                             {
                                 if(item.Vigente)
                                 {
-                                    <option selected value="@item.Ano/@item.Semestre">@item.Ano/@item.Semestre</option>
+                                    <option selected value="@item.SemestreVigenteId">@item.Ano/@item.Semestre</option>
                                 }
                                 else
                                 {
-                                    <option value="@item.Ano.ToString()/@item.Semestre.ToString()">@item.Ano/@item.Semestre</option>
+                                    <option value="@item.SemestreVigenteId">@item.Ano/@item.Semestre</option>
                                 }
                             }
                         </select>
@@ -88,6 +88,7 @@ else
     Aluno AlunoLogado;
     List<DisciplinaAluno> DisciplinasAlunoList;
     List<SemestreVigente> Semestres;
+    SemestreVigente SemestreVigente;
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,14 +98,15 @@ else
 
         Semestres = await GetSemestresAsync();
         DisciplinasAlunoList = await GetDisciplinasAlunoAsync(AlunoLogado.AlunoId);
+        var semestreVigente = await _mediator.Send(new ObterSemestreVigenteQuery());
+        SemestreVigente = semestreVigente.Result;
     }
 
     private void AlteraSemestre(ChangeEventArgs ev)
     {
-        var source = ev.Value.ToString();
-        var split = source.Split("/");
+        var semestreId = ev.Value.ToString();
 
-        DisciplinasAlunoList = DisciplinasAlunoList.Where(x => x.Ano == Convert.ToInt32(split[0]) && x.Semestre == Convert.ToInt32(split[1])).ToList();
+        DisciplinasAlunoList = DisciplinasAlunoList.Where(x => x.SemestreVigenteId == Convert.ToInt32(semestreId)).ToList();
         StateHasChanged();
     }
 

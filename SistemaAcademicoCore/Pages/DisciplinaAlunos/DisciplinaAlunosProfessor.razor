@@ -326,7 +326,7 @@ else
         {
             spinner = false;
             ModalEdit.Close();
-            _toastService.ShowError("Ocorreu um erro ao editar o registro de presença");
+            _toastService.ShowError(response.Errors.First());
             StateHasChanged();
         }
         else

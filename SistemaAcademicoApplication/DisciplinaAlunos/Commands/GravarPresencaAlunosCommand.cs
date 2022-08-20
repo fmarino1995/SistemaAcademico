@@ -42,6 +42,8 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
 
                 item.TotalAulasValidas++;
                 item.DataUltimaPresenca = DateTime.Now;
+                if (item.IsPresenca) item.QuantidadePresenca++;
+                if (item.IsFalta) item.QuantidadeFalta++;
                 _context.PresencaAlunos.Add(presenca);
                 _context.DisciplinasAlunos.Update(item);
             }
