@@ -103,12 +103,17 @@
 
 @media(min-width:576px) {
     .position-topleft {
-        top: 2rem;
+        top: 3rem;
         left: 2rem;
     }
 
+    .position-topright {
+        top:3rem;
+        right: 2rem;
+    }
+
     .position-topcenter {
-        top: 2rem;
+        top: 3rem;
         left: 50%;
         margin-left: -15rem;
     }

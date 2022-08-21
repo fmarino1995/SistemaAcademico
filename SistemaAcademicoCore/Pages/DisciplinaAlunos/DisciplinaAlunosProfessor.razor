@@ -1,0 +1,446 @@
+﻿@page "/webagenda/professors"
+@using Domain.ViewModels
+@using SistemaAcademicoApplication.Common.Responses
+@using SistemaAcademicoApplication.DisciplinaAlunos
+@using SistemaAcademicoApplication.DisciplinaAlunos.Commands
+@using SistemaAcademicoApplication.DisciplinaAlunos.Queries
+@using SistemaAcademicoApplication.Disciplinas.Queries
+@using SistemaAcademicoApplication.PresencaAlunos.Commands
+@using SistemaAcademicoApplication.PresencaAlunos.Queries
+@using SistemaAcademicoApplication.Professores.Queries
+@using SistemaAcademicoApplication.Semestres.Queries
+@inject IMediator _mediator
+@inject ICurrentUserService _currentUserService
+@inject IToastService _toastService
+@inject NavigationManager _navigationManager
+@inject IJSRuntime _jsRuntime
+
+@attribute [Authorize(Policy = Policies.IsProfessor)]
+
+<PageTitle>Pauta Web - Professor</PageTitle>
+
+<Modal @ref="Modal" Title="Registrar presença">
+    <div class="modal-body">
+        <table class="table table-striped table-bordered table-sm">
+            <thead class="thead-light">
+                <tr>
+                    <th>Aluno</th>
+                    <th>Email</th>
+                    <th>Presença</th>
+                    <th>Falta</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var aluno in PautaWebProfessor)
+                {
+                    <tr>
+                        <td>@aluno.Aluno.Nome</td>
+                        <td>@aluno.Aluno.Email</td>
+                        <td><input type="checkbox" @bind="aluno.IsPresenca" @onclick="() => aluno.IsFalta = aluno.IsPresenca ? true : false" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsFalta" @onclick="() => aluno.IsPresenca = aluno.IsFalta ? true : false" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <div class="row">
+            <div class="col-md-12">
+                @if (spinner)
+                {
+                    <div class="spinner-border" role="status" style="margin-right:5px;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                }
+                <a class="btn btn-outline-dark" @onclick="() => Modal.Close()">Voltar</a>
+                <input type="submit" @onclick="() => GravarPresencaAlunos(PautaWebProfessor)" class="btn btn-outline-primary" value="Salvar" />
+            </div>
+        </div>
+    </div>
+</Modal>
+
+<Modal @ref="ModalEdit" Title="Editar presença">
+    <div class="modal-body">
+        <table class="table table-striped table-bordered table-sm">
+            <thead class="thead-light">
+                <tr>
+                    <th>Aluno</th>
+                    <th>Email</th>
+                    <th>Presença</th>
+                    <th>Falta</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var aluno in ViewModel.DisciplinasAlunoList)
+                {
+                    <tr>
+                        <td>@aluno.Aluno.Nome</td>
+                        <td>@aluno.Aluno.Email</td>
+                        <td><input type="checkbox" @bind="aluno.IsPresenca" @onclick="() => aluno.IsFalta = aluno.IsPresenca ? true : false" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsFalta" @onclick="() => aluno.IsPresenca = aluno.IsFalta ? true : false" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <div class="row">
+            <div class="col-md-12">
+                @if (spinner)
+                {
+                    <div class="spinner-border" role="status" style="margin-right:5px;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                }
+                <a class="btn btn-outline-dark" @onclick="() => ModalEdit.Close()">Voltar</a>
+                <input type="submit" @onclick="() => EditarPresencaAlunos(ViewModel)" class="btn btn-outline-primary" value="Salvar" />
+            </div>
+        </div>
+    </div>
+</Modal>
+
+@if (DisciplinasProfessorList == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Pauta Web - Professor
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 col-lg-6 form-space">
+                    <div class="form-floating mb-3">
+                        <select id="floatingDisciplinaTurno" class="form-select" @onchange="AlteraTurno">
+                            <option value="">Selecione o turno</option>
+                            @foreach (var item in ListaParametros.ListaTipoTurno)
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </select>
+                        <label for="floatingDisciplinaTurno">Turno</label>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(turno))
+                {
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
+                            <select id="floatingDisciplina" class="form-select" @onchange="AlteraDisciplina">
+                                <option value="">Selecione a disciplina</option>
+                                @foreach (var item in DisciplinasProfessorList.Where(x => x.Turno == turno || string.IsNullOrEmpty(turno)))
+                                {
+                                    <option value="@item.DisciplinaId">@item.Nome</option>
+                                }
+                            </select>
+                            <label for="floatingDisciplina">Disciplina</label>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (exibirTable)
+            {
+                <DataTable Searchable="true" Responsive="false">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Semestre</th>
+                            <th>Aulas Válidas</th>
+                            <th>Nota Avaliação 1</th>
+                            <th>Nota Avaliação 2</th>
+                            <th>Prova Final</th>
+                            <th>Nota Final</th>
+                            <th>Qtd. Presença</th>
+                            <th>Qtd. Falta</th>
+                            <th>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownAcoes" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Ações
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownAcoes">
+                                        <li><a class="dropdown-item" href="javascript:void(0)" @onclick="RegistrarPresenca"><span class="oi oi-check" aria-hidden="true"></span> Registrar Presença</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)" @onclick="EditarPresenca"><span class="oi oi-pencil" aria-hidden="true"></span> Editar Presença</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)" @onclick="() => editNota = !editNota"><span class="oi oi-task" aria-hidden="true"></span> @(editNota ? "Cancelar Edição" : "Editar Notas")</a></li>
+                                    </ul>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in PautaWebProfessor)
+                        {
+                            <tr>
+                                <td>@item.Aluno.Nome</td>
+                                <td>@item.Aluno.Email</td>
+                                <td>@item.SemestreVigente.Ano/@item.SemestreVigente.Semestre</td>
+                                <td>@item.TotalAulasValidas</td>
+                                @if(editNota)
+                                {
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaAvaliacao1"/></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaAvaliacao2"/></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.ProvaFinal"/></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaFinal"/></td>
+                                }
+                                else
+                                {
+                                    <td>@item.NotaAvaliacao1</td>
+                                    <td>@item.NotaAvaliacao2</td>
+                                    <td>@item.ProvaFinal</td>
+                                    <td>@item.NotaFinal</td>
+                                }
+                                <td>@item.QuantidadePresenca</td>
+                                <td>@item.QuantidadeFalta</td>
+                                <td>
+                                    @if(editNota)
+                                    {
+                                        <button class="btn btn-outline-primary btn-sm" @onclick="() => GravarNotaAlunos(PautaWebProfessor)">Salvar</button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </DataTable>
+            }
+
+        </div>
+    </div>
+}
+
+
+@code {
+    PresencaAlunosDisciplinaViewModel ViewModel = new PresencaAlunosDisciplinaViewModel
+        {
+            DisciplinasAlunoList = new List<DisciplinaAluno>(),
+            PresencaAlunos = new List<PresencaAluno>()
+        };
+    Professor ProfessorLogado;
+    SemestreVigente SemestreVigente;
+    List<Disciplina> DisciplinasProfessorList;
+    List<DisciplinaAluno> PautaWebProfessor = new List<DisciplinaAluno>();
+    List<PresencaAluno> PresencaAlunos = new List<PresencaAluno>();
+
+    string turno;
+    bool exibirTable;
+    bool spinner;
+    bool editNota;
+    bool disableCheckPresenca;
+    bool disableCheckFalta;
+    string classNotas = "notas";
+
+    private Modal Modal { get; set; }
+    private Modal ModalEdit { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuarioLogado = await GetUsuarioLogadoAsync();
+        var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery { Email = usuarioLogado });
+        ProfessorLogado = professorLogado.Result;
+        var semestreResponse = await _mediator.Send(new ObterSemestreVigenteQuery());
+        SemestreVigente = semestreResponse.Result;
+
+        if (professorLogado.Errors.Any())
+        {
+            VoltarToast("Erro ao consultar o registro de professor.");
+        }
+
+        DisciplinasProfessorList = await GetDisciplinasProfessorAsync(ProfessorLogado.ProfessorId);
+
+        if (DisciplinasProfessorList.Count == 0)
+        {
+            VoltarToast("Nenhuma disciplina encontrada para seu usuário.");
+        }
+    }
+
+    private async Task GravarNotaAlunos(List<DisciplinaAluno> alunos)
+    {
+        var response = await _mediator.Send(new AdicionarNotaAlunosCommand { Alunos = alunos });
+
+        if (response.Errors.Any())
+        {
+            _toastService.ShowError("Ocorreu um erro ao adicionar as notas.");
+
+        }
+        else
+        {
+            _toastService.ShowSuccess("Notas adicionadas com sucesso!");
+        }
+
+        editNota = false;
+        StateHasChanged();
+    }
+
+    private void RegistrarPresenca()
+    {
+        var ultimaPresenca = PautaWebProfessor.Where(x => x.DataUltimaPresenca.Date == DateTime.Now.Date).FirstOrDefault();
+
+        if (ultimaPresenca != null)
+        {
+            _toastService.ShowError("Presença já registrada hoje. É possível apenas editar");
+            StateHasChanged();
+        }
+        else
+        {
+            Modal.Open();
+        }
+    }
+
+    private async Task EditarPresenca()
+    {
+        try
+        {
+            spinner = true;
+            StateHasChanged();
+            var response = await GetPresencaAlunosAsync(SemestreVigente.SemestreVigenteId);
+
+            if (response.Errors.Any())
+            {
+                spinner = false;
+                _toastService.ShowError("Ocorreu um erro ao carregar os registros");
+                StateHasChanged();
+            }
+            else
+            {
+                ViewModel.PresencaAlunos = response.Result;
+                ViewModel.DisciplinasAlunoList = PautaWebProfessor;
+
+                foreach (var item in ViewModel.DisciplinasAlunoList)
+                {
+                    item.IsPresenca = ViewModel.PresencaAlunos
+                    .Where(x => x.AlunoId == item.AlunoId).FirstOrDefault().Presenca;
+
+                    item.IsFalta = ViewModel.PresencaAlunos
+                    .Where(x => x.AlunoId == item.AlunoId).FirstOrDefault().Falta;
+                }
+
+                spinner = false;
+                StateHasChanged();
+
+                ModalEdit.Open();
+            }
+        }
+        catch (Exception)
+        {
+            spinner = false;
+            _toastService.ShowError("Presença ainda não registrada hoje.");
+            StateHasChanged();
+        }
+    }
+
+    private async Task AlteraDisciplina(ChangeEventArgs ev)
+    {
+        if (string.IsNullOrEmpty(ev.Value.ToString()))
+        {
+            exibirTable = false;
+            StateHasChanged();
+        }
+        else
+        {
+            var disciplinaId = Convert.ToInt32(ev.Value.ToString());
+
+            var response = await _mediator.Send(new ObterPautaWebProfessorQuery
+                {
+                    DisciplinaId = disciplinaId,
+                    ProfessorId = ProfessorLogado.ProfessorId,
+                    Turno = turno,
+                    SemestreVigenteId = SemestreVigente.SemestreVigenteId
+                });
+
+            PautaWebProfessor = response.Result;
+            exibirTable = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task EditarPresencaAlunos(PresencaAlunosDisciplinaViewModel viewModel)
+    {
+        spinner = true;
+        StateHasChanged();
+
+        var response = await _mediator.Send(new EditarPresencaAlunosCommand { ViewModel = viewModel });
+
+        if (response.Errors.Any())
+        {
+            spinner = false;
+            ModalEdit.Close();
+            _toastService.ShowError(response.Errors.First());
+            StateHasChanged();
+        }
+        else
+        {
+            spinner = false;
+            ModalEdit.Close();
+            _toastService.ShowSuccess("Registro de presença editado com sucesso!");
+            StateHasChanged();
+        }
+    }
+
+    private async Task GravarPresencaAlunos(List<DisciplinaAluno> Alunos)
+    {
+        spinner = true;
+        StateHasChanged();
+
+        var response = await _mediator.Send(new GravarPresencaAlunosCommand
+            {
+                Alunos = Alunos
+            });
+
+        if (response.Errors.Any())
+        {
+            spinner = false;
+            _toastService.ShowError("Ocorreu um erro ao gravar a presença.");
+            Modal.Close();
+            Refresh();
+        }
+        else
+        {
+            spinner = false;
+            _toastService.ShowSuccess("Presença gravado com sucesso!");
+            StateHasChanged();
+            Modal.Close();
+        }
+    }
+
+    private async Task<string> GetUsuarioLogadoAsync()
+    {
+        var currentUser = await _currentUserService.GetUserNameAsync();
+        return await Task.FromResult(currentUser);
+    }
+
+    private void AlteraTurno(ChangeEventArgs e)
+    {
+        turno = e.Value.ToString();
+        StateHasChanged();
+    }
+
+    void Refresh()
+    {
+        _navigationManager.NavigateTo("/webagenda/professors");
+    }
+
+    private async Task<List<Disciplina>> GetDisciplinasProfessorAsync(int professorId)
+    {
+        return await Task.FromResult((await _mediator.Send(new ObterDisciplinasProfessorIdQuery { ProfessorId = professorId })).Result);
+    }
+
+    private async Task<Response<List<PresencaAluno>>> GetPresencaAlunosAsync(int semestreVigenteId)
+    {
+        return await Task.FromResult(await _mediator.Send(new ObterPresencaAlunosQuery { SemestreVigenteId = semestreVigenteId }));
+    }
+
+    void VoltarToast(string message)
+    {
+        _navigationManager.NavigateTo($"/{message}");
+    }
+
+    private async Task MaskInput() => await _jsRuntime.InvokeVoidAsync("mask", new object[] { $"{classNotas}" });
+}

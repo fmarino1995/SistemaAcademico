@@ -18,6 +18,11 @@
     top: -2px;
 }
 
+.expandIcon {
+    margin-left : 10px;
+    font-size: 13px;
+}
+
 .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;

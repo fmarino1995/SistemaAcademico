@@ -1,77 +1,200 @@
 ﻿@page "/"
-@page "/{Message}/{AlertType}"
+@page "/{Message}"
 @using SistemaAcademicoApplication.Avisos.Queries
 @using System.Security.Claims
 @layout MainLayout
 @inject IMediator _mediator
+@inject IToastService _toastService
+@inject ICurrentUserService _currentUserService
+@attribute [Authorize]
 
-@attribute [Authorize(Policy = Policies.IsAdmin)]
-
-<PageTitle>Início - SistemaAcademico</PageTitle>
-
-@*<Alert Exibir="@Exibir" Message="@Message" AlertType="@AlertType"></Alert>*@
-<Alert Color="AlertColor.Success" Dismissable="true"> <Icon Name="IconName.CheckCircleFill" class="me-2"></Icon> Mensagem enviada com sucesso</Alert>
-
-<h1>DashBoard</h1>
-
-
-@if (Avisos == null)
-{
-    <br />
-    <br />
-    <br />
-    <center>
-        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
-    </center>
-}
-else
-{
-    <div class="card">
-        <div class="card-header">
-            <div class="titulo-card">
-                Quadro de avisos
-            </div>
-        </div>
-        <div class="card-body">
+<Modal Title="Novo Aviso">
+    <EditForm Model="@Aviso" OnValidSubmit="AddAvisoAsync">
+        <div class="modal-body">
             <div class="form-group">
+                <div class="form-floating mb-3">
+                    <InputText id="floatingNome" class="form-control" placeholder="Título" @bind-Value="@Aviso.Titulo" />
+                    <label for="floatingNome">Título</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-floating mb-3">
+                    <InputTextArea rows="5" id="floatingtexto" class="form-control rounded-0" placeholder="Texto" @bind-Value="@Aviso.Texto" />
+                    <label for="floatingtexto">Texto</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <InputCheckbox @bind-Value="@Aviso.IsSelectedUsuario" DisplayName="Apenas um usuário"/>
+                    <InputCheckbox @bind-Value="@Aviso.IsSelectedGrupo" DisplayName="Grupo de usuários"/>
+                    <InputCheckbox @bind-Value="@Aviso.IsSelectedGrupoDisciplina" DisplayName="Todos de uma disciplina"/>
+                </div>
             </div>
         </div>
-    </div>
-}
+        <div class="modal-footer">
+            <a class="btn btn-outline-dark" @onclick="() => Modal.Close()">Voltar</a>
+            <input type="submit" class="btn btn-outline-primary" value="Salvar" />
+        </div>
+    </EditForm>
+</Modal>
 
+<AuthorizeView Policy="@Policies.IsAdmin">
 
+    <PageTitle>Administração - SistemaAcademico</PageTitle>
 
+    @if (Avisos == null)
+    {
+        <br />
+        <br />
+        <br />
+        <center>
+            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+        </center>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Quadro de avisos - Admin | <a href="javascript:void(0)" @onclick="ShowModal" title="Novo aviso"><span class="oi oi-plus"></span></a>
+                </div>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    @foreach (var aviso in Avisos)
+                    {
+                        <li class="list-group-item">
+                            <p>@aviso.Titulo - @aviso.DataCriacao.ToString("dd-MM-yyyy")</p>
+                            <p>@aviso.Texto</p>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+</AuthorizeView>
 
+<AuthorizeView Policy="@Policies.IsProfessor">
+
+    <PageTitle>Professor - SistemaAcademico</PageTitle>
+
+    @if (Avisos == null)
+    {
+        <br />
+        <br />
+        <br />
+        <center>
+            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+        </center>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Quadro de avisos - Professor
+                </div>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    @foreach (var aviso in Avisos)
+                    {
+                        <li class="list-group-item">
+                            <p>@aviso.Titulo - @aviso.DataCriacao.ToString("dd-MM-yyyy")</p>
+                            <p>@aviso.Texto</p>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+</AuthorizeView>
+
+<AuthorizeView Policy="@Policies.IsAluno">
+
+    <PageTitle>Aluno - SistemaAcademico</PageTitle>
+
+    @if (Avisos == null)
+    {
+        <br />
+        <br />
+        <br />
+        <center>
+            <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" class="align-content-center" />
+        </center>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="titulo-card">
+                    Quadro de avisos - Aluno
+                </div>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    @foreach (var aviso in Avisos)
+                    {
+                        <li class="list-group-item">
+                            <p>@aviso.Titulo - @aviso.DataCriacao.ToString("dd-MM-yyyy")</p>
+                            <p>@aviso.Texto</p>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+</AuthorizeView>
 
 @code {
     [Parameter]
     public string Message { get; set; }
-    [Parameter]
-    public string AlertType { get; set; }
+
+    private Modal Modal { get; set; }
 
     private List<Aviso> Avisos;
-    private bool Exibir = false;
     bool IsUserAuthenticated;
     ClaimsPrincipal user;
+    Aviso Aviso = new Aviso();
 
     protected override async Task OnInitializedAsync()
     {
-        var ultimosAvisos = await _mediator.Send(new ObterUltimosAvisosQuery());
+        var usuarioLogado = await _currentUserService.GetUserNameAsync();
+
+        var ultimosAvisos = await _mediator.Send(new ObterUltimosAvisosQuery { EmailUsuario = usuarioLogado });
 
         if (ultimosAvisos.Errors.Any())
         {
-            Message = "Erro ao carregar os últimos avisos. Tente novamente";
-            AlertType = "danger";
-        }
-        else
-        {
-            Avisos = ultimosAvisos.Result;
+            _toastService.ShowInfo("Erro ao carregar os últimos avisos");
         }
 
-        if (Message != null)
+        Avisos = ultimosAvisos.Result;
+
+    }
+
+    private async Task AddAvisoAsync()
+    {
+        if(Aviso.IsSelectedUsuario)
         {
-            Exibir = true;
-            this.StateHasChanged();
+
+        }
+
+
+    }
+
+    private void ShowModal()
+    {
+
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (Message != null)
+            {
+                _toastService.ShowError(Message);
+            }
         }
     }
 }

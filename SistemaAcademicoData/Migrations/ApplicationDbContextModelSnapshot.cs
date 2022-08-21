@@ -64,6 +64,10 @@ namespace SistemaAcademicoData.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Turno")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UsuarioCriacao")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -172,6 +176,9 @@ namespace SistemaAcademicoData.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AvisoId"), 1L, 1);
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("DataCriacao")
                         .HasColumnType("datetime2");
 
@@ -189,29 +196,45 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasKey("AvisoId");
 
+                    b.HasIndex("ApplicationUserId");
+
                     b.ToTable("Avisos");
                 });
 
             modelBuilder.Entity("Domain.Entities.Disciplina", b =>
                 {
-                    b.Property<int>("DisplicinaId")
+                    b.Property<int>("DisciplinaId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DisplicinaId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DisciplinaId"), 1L, 1);
+
+                    b.Property<string>("Matricula")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("PeriodoDisciplina")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PreRequisito")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("ProfessorId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Sigla")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Turno")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("DisplicinaId");
+                    b.HasKey("DisciplinaId");
 
                     b.HasIndex("ProfessorId");
 
@@ -229,7 +252,37 @@ namespace SistemaAcademicoData.Migrations
                     b.Property<int>("AlunoId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("DataUltimaPresenca")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("DisciplinaId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Excluido")
+                        .HasColumnType("bit");
+
+                    b.Property<double?>("NotaAvaliacao1")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("NotaAvaliacao2")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("NotaFinal")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("ProvaFinal")
+                        .HasColumnType("float");
+
+                    b.Property<int>("QuantidadeFalta")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantidadePresenca")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SemestreVigenteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalAulasValidas")
                         .HasColumnType("int");
 
                     b.HasKey("DisciplinasAlunosId");
@@ -237,6 +290,8 @@ namespace SistemaAcademicoData.Migrations
                     b.HasIndex("AlunoId");
 
                     b.HasIndex("DisciplinaId");
+
+                    b.HasIndex("SemestreVigenteId");
 
                     b.ToTable("DisciplinasAlunos");
                 });
@@ -282,6 +337,32 @@ namespace SistemaAcademicoData.Migrations
                     b.ToTable("Enderecos");
                 });
 
+            modelBuilder.Entity("Domain.Entities.HistoricoDisciplinaAluno", b =>
+                {
+                    b.Property<int>("HistoricoDisciplinaAlunoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HistoricoDisciplinaAlunoId"), 1L, 1);
+
+                    b.Property<int>("AlunoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DisciplinaId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Finalizado")
+                        .HasColumnType("bit");
+
+                    b.HasKey("HistoricoDisciplinaAlunoId");
+
+                    b.HasIndex("AlunoId");
+
+                    b.HasIndex("DisciplinaId");
+
+                    b.ToTable("HistoricoDisciplinaAlunos");
+                });
+
             modelBuilder.Entity("Domain.Entities.LogImportacao", b =>
                 {
                     b.Property<int>("LogImportacaoId")
@@ -316,6 +397,43 @@ namespace SistemaAcademicoData.Migrations
                     b.HasKey("LogImportacaoId");
 
                     b.ToTable("LogImportacoes");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PresencaAluno", b =>
+                {
+                    b.Property<int>("PresencaAlunoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PresencaAlunoId"), 1L, 1);
+
+                    b.Property<int>("AlunoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DataPresenca")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DisciplinaId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Falta")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Presenca")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SemestreVigenteId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PresencaAlunoId");
+
+                    b.HasIndex("AlunoId");
+
+                    b.HasIndex("DisciplinaId");
+
+                    b.HasIndex("SemestreVigenteId");
+
+                    b.ToTable("PresencaAlunos");
                 });
 
             modelBuilder.Entity("Domain.Entities.Professor", b =>
@@ -369,6 +487,78 @@ namespace SistemaAcademicoData.Migrations
                     b.HasIndex("EnderecoId");
 
                     b.ToTable("Professores");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SemestreVigente", b =>
+                {
+                    b.Property<int>("SemestreVigenteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SemestreVigenteId"), 1L, 1);
+
+                    b.Property<int>("Ano")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Semestre")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Vigente")
+                        .HasColumnType("bit");
+
+                    b.HasKey("SemestreVigenteId");
+
+                    b.ToTable("SemestresVigentes");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Trabalho", b =>
+                {
+                    b.Property<int>("TrabalhoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TrabalhoId"), 1L, 1);
+
+                    b.Property<int>("AlunoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CaminhoArquivo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DataEnvio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DisciplinaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NomeArquivo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Nota")
+                        .HasColumnType("float");
+
+                    b.Property<int>("SemestreVigenteId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsuarioAlteracao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TrabalhoId");
+
+                    b.HasIndex("AlunoId");
+
+                    b.HasIndex("DisciplinaId");
+
+                    b.HasIndex("SemestreVigenteId");
+
+                    b.ToTable("Trabalhos");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -523,6 +713,16 @@ namespace SistemaAcademicoData.Migrations
                     b.Navigation("Endereco");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Aviso", b =>
+                {
+                    b.HasOne("Domain.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ApplicationUser");
+                });
+
             modelBuilder.Entity("Domain.Entities.Disciplina", b =>
                 {
                     b.HasOne("Domain.Entities.Professor", "Professor")
@@ -548,9 +748,63 @@ namespace SistemaAcademicoData.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.SemestreVigente", "SemestreVigente")
+                        .WithMany()
+                        .HasForeignKey("SemestreVigenteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Aluno");
 
                     b.Navigation("Disciplina");
+
+                    b.Navigation("SemestreVigente");
+                });
+
+            modelBuilder.Entity("Domain.Entities.HistoricoDisciplinaAluno", b =>
+                {
+                    b.HasOne("Domain.Entities.Aluno", "Aluno")
+                        .WithMany()
+                        .HasForeignKey("AlunoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Disciplina", "Disciplina")
+                        .WithMany()
+                        .HasForeignKey("DisciplinaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Aluno");
+
+                    b.Navigation("Disciplina");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PresencaAluno", b =>
+                {
+                    b.HasOne("Domain.Entities.Aluno", "Aluno")
+                        .WithMany()
+                        .HasForeignKey("AlunoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Disciplina", "Disciplina")
+                        .WithMany()
+                        .HasForeignKey("DisciplinaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.SemestreVigente", "SemestreVigente")
+                        .WithMany()
+                        .HasForeignKey("SemestreVigenteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Aluno");
+
+                    b.Navigation("Disciplina");
+
+                    b.Navigation("SemestreVigente");
                 });
 
             modelBuilder.Entity("Domain.Entities.Professor", b =>
@@ -570,6 +824,33 @@ namespace SistemaAcademicoData.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("Endereco");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Trabalho", b =>
+                {
+                    b.HasOne("Domain.Entities.Aluno", "Aluno")
+                        .WithMany()
+                        .HasForeignKey("AlunoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Disciplina", "Disciplina")
+                        .WithMany()
+                        .HasForeignKey("DisciplinaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.SemestreVigente", "SemestreVigente")
+                        .WithMany()
+                        .HasForeignKey("SemestreVigenteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Aluno");
+
+                    b.Navigation("Disciplina");
+
+                    b.Navigation("SemestreVigente");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

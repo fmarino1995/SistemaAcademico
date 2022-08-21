@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using SistemaAcademicoApplication.Roles.Queries;
+using SistemaAcademicoApplication.UserRoles.Commands;
 
 namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
 {
@@ -101,7 +102,6 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "Selecione um perfil para o usuário")]
             [Display(Name = "Perfil")]
             public string PerfilId { get; set; }
-            
         }
 
 
@@ -111,8 +111,6 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             Perfis = (await _mediator.Send(new ObterRolesQuery())).Result;
-
-            ViewData["SelectPerfis"] = Perfis;
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -138,6 +136,18 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
+
+                    var userRole = new IdentityUserRole<string>
+                    {
+                        RoleId = user.RoleId,
+                        UserId = userId
+                    };
+
+                    await _mediator.Send(new AssociarPerfilUsuarioCommand
+                    {
+                        UserRole = userRole
+                    });
+
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -145,9 +155,6 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                         pageHandler: null,
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
-
-                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
@@ -165,12 +172,16 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                     {
                         error.Description = new BrazilianIdentityErrorDescriber().DuplicateUserName(Input.Email).Description;
                     }
+                    else if (error.Code == "PasswordRequiresLower")
+                    {
+                        error.Description = new BrazilianIdentityErrorDescriber().PasswordRequiresLower().Description;
+                    }
 
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
-            // If we got this far, something failed, redisplay form
+            Perfis = (await _mediator.Send(new ObterRolesQuery())).Result;
             return Page();
         }
 

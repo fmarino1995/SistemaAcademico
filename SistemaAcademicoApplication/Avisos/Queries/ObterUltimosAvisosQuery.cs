@@ -9,6 +9,7 @@ namespace SistemaAcademicoApplication.Avisos.Queries
 {
     public class ObterUltimosAvisosQuery : IRequest<Response<List<Aviso>>>
     {
+        public string EmailUsuario { get; set; }
     }
 
     public class ObterUltimosAvisosQueryHandler : IRequestHandler<ObterUltimosAvisosQuery, Response<List<Aviso>>>
@@ -23,7 +24,9 @@ namespace SistemaAcademicoApplication.Avisos.Queries
         public async Task<Response<List<Aviso>>> Handle(ObterUltimosAvisosQuery request, CancellationToken cancellationToken)
         {
             var avisos = await _context.Avisos
+                .Include(a => a.ApplicationUser)
                 .OrderByDescending(a => a.DataCriacao)
+                .Where(a => a.ApplicationUser.Email == request.EmailUsuario)
                 .Take(10)
                 .ToListAsync();
 

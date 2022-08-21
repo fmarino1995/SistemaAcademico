@@ -1,0 +1,138 @@
+﻿@page "/disciplines/students/import/{DisciplinaId:int}"
+@using SistemaAcademicoApplication.DisciplinaAlunos.Commands
+@using SistemaAcademicoApplication.Disciplinas.Queries
+@using SistemaAcademicoApplication.Professores.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+@inject ICurrentUserService _currentUserService
+
+@attribute [Authorize(Policy = Policies.IsProfessor)]
+
+<div class="card">
+    <div class="card-header">
+        <div class="titulo-card">
+            Importação de alunos para disciplina
+        </div>
+    </div>
+    <form @onsubmit="OnSubmit">
+        <div class="card-body">
+            <p class="text-dark"><strong>@FileMessage</strong></p>
+            <InputFile OnChange="OnInputFileChange" />
+            <br/>
+            <p class="text-danger">@MensagemValidacao</p>
+            <br/>
+            <br/>
+            <a href="/Modelos/MODELO_IMPORTACAO_ALUNOS_DISCIPLINA.csv" download="MODELO_IMPORTACAO_ALUNOS_DISCIPLINA.csv">Baixe o modelo de importação aqui</a>
+            <br /><br />
+            @if (spinner)
+            {
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            }
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/disciplines" class="btn btn-outline-dark">Voltar</a>
+                    @if (selectedFile == null)
+                    {
+                        <button type="submit" disabled class="btn btn-outline-primary ml-1">Enviar</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-outline-primary">Enviar</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if(ResultadoImportacao)
+{
+    <hr class="hr1"/>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Resultado da Importação
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Quantidade Importados</label>
+                    <div class="content-informa">@qtdImportados</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Quantidade não Importados</label>
+                    <div class="content-informa">@qtdNaoImportados</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Log da importação</label>
+                    <textarea readonly rows="10" class="form-control">@log</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int DisciplinaId { get; set; }
+
+    IBrowserFile selectedFile;
+    string FileMessage = "Nenhum arquivo selecionado";
+    Disciplina Disciplina;
+    bool ResultadoImportacao;
+    int qtdImportados;
+    int qtdNaoImportados;
+    string MensagemValidacao = string.Empty;
+    string log;
+    bool spinner;
+
+    private void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        FileMessage = $"{e.File.Name} selecionado";
+        selectedFile = e.File;
+        this.StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuario = await _currentUserService.GetUserNameAsync();
+        var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery { Email = usuario });
+        Disciplina = (await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = DisciplinaId })).Result;
+    }
+
+    private async void OnSubmit()
+    {
+        spinner = true;
+        StateHasChanged();
+        string filePath = $"C:\\arquivosImportacaoAlunosDisciplina\\{selectedFile.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
+
+        var importacaoResponse = await _mediator.Send(new ImportarAlunosDisciplinaCommand
+        {
+            DisciplinaId = DisciplinaId,
+            File = selectedFile,
+            FilePath = filePath
+        });
+
+        if (importacaoResponse.Errors.Any())
+        {
+            spinner = false;
+            MensagemValidacao = importacaoResponse.Errors.First();
+            this.StateHasChanged();
+        }
+        else
+        {
+            log = importacaoResponse.Result.LogImportacao.Mensagem;
+            qtdImportados = importacaoResponse.Result.QtdImportados;
+            qtdNaoImportados = importacaoResponse.Result.QtdNaoImportados;
+            ResultadoImportacao = true;
+            spinner = false;
+            this.StateHasChanged();
+        }
+    }
+}

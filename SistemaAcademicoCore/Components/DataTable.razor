@@ -1,17 +1,18 @@
 ﻿@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
 
 <div>
-    <table id="@id" class="table table-bordered table-striped table-sm" @attributes=UserAttributes>
+    <table id="@id" class="table table-bordered table-striped table-sm @(Responsive ? "table-responsive" : "")" @attributes=UserAttributes>
         @ChildContent
     </table>
 </div>
-
-
 
 @code
 {
     [Parameter]
     public bool Searchable { get; set; }
+
+    [Parameter]
+    public bool Responsive { get; set; }
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
@@ -22,9 +23,9 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> UserAttributes { get; set; }
 
-
     protected override void OnParametersSet()
     {
+
         StateHasChanged();
     }
 

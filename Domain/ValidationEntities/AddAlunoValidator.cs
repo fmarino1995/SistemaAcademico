@@ -12,11 +12,6 @@ namespace Domain.ValidationEntities
                 .NotNull()
                 .WithMessage("Digite o cpf do aluno");
 
-            RuleFor(x => x.Matricula)
-                .NotEmpty()
-                .NotNull()
-                .WithMessage("Digite a matrícula do aluno");
-
             RuleFor(x => x.Nome)
                 .NotEmpty()
                 .NotNull()

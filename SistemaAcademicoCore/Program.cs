@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using SistemaAcademicoApplication;
 using SistemaAcademicoCore.Areas.Identity;
+using SistemaAcademicoCore.Shared;
 using SistemaAcademicoData.Context;
 using SistemaAcademicoInfrastructure;
 using SistemaAcademicoInfrastructure.Services;
@@ -33,15 +34,16 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<SistemaAcademicoContext>()
+    .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders();
 
-//Configurações de acesso Policy-Based
+//Configurações de acesso Policy-Based // TODO : frederico.duarte - policy-based authorization não funcionando.
 
 builder.Services.AddAuthorization(config =>
 {
-    config.AddPolicy("IsAdmin", policy => policy.RequireRole("Administrativo"));
-    config.AddPolicy("IsProfessor", policy => policy.RequireRole("Professor"));
-    config.AddPolicy("IsAluno", policy => policy.RequireRole("Aluno"));
+    config.AddPolicy(Policies.IsAdmin, Policies.IsAdminPolicy());
+    config.AddPolicy(Policies.IsAluno, Policies.IsAlunoPolicy());
+    config.AddPolicy(Policies.IsProfessor, Policies.IsProfessorPolicy());
 });
 
 builder.Services.Configure<IdentityOptions>(options => 

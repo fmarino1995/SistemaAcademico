@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
@@ -13,5 +14,15 @@ namespace Domain.Entities
         public DateTime DataCriacao { get; set; }
         [Required]
         public string UsuarioCriacao { get; set; }
+        public string ApplicationUserId { get; set; }
+        [ForeignKey("ApplicationUserId")]
+        public virtual ApplicationUser ApplicationUser { get; set; }
+
+        [NotMapped]
+        public bool IsSelectedUsuario { get; set; }
+        [NotMapped]
+        public bool IsSelectedGrupo { get; set; }
+        [NotMapped]
+        public bool IsSelectedGrupoDisciplina { get; set; }
     }
 }

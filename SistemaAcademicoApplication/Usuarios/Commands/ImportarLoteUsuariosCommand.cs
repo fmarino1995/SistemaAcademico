@@ -10,6 +10,8 @@ using System.Text;
 using SistemaAcademicoApplication.Interfaces;
 using SistemaAcademicoApplication.LogImportacoes.Commands;
 using Domain.ViewModels;
+using SistemaAcademicoApplication.UserRoles.Commands;
+using Microsoft.AspNetCore.Identity;
 
 namespace SistemaAcademicoApplication.Usuarios.Commands
 {
@@ -50,7 +52,7 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
 
             try
             {
-                Stream stream = request.File.OpenReadStream();
+                Stream stream = request.File.OpenReadStream(maxAllowedSize: 15728640); //15MB
                 FileStream fs = File.Create(request.FilePath);
                 await stream.CopyToAsync(fs);
                 stream.Close();
@@ -82,7 +84,8 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
                             DataCriacao = DateTime.Now,
                             DataAlteracao = DateTime.Now,
                             Status = ConstantesLogin.StatusUsuarioAtivo,
-                            UserName = email
+                            UserName = email,
+                            RoleId = ConstantesSistema.RoleAluno
                         };
 
                         var result = await _userService.CreateUserAsync(user);
@@ -90,7 +93,18 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
                         if (!result.Succeeded)
                             viewModel.LogImportacao.Errors.Add($"Usuário ' {user.Email} ' não foi cadastrado devido a um erro.");
                         else
+                        {
                             viewModel.Users.Add(user);
+                            await _mediator.Send(new AssociarPerfilUsuarioCommand
+                            {
+                                UserRole = new IdentityUserRole<string>
+                                {
+                                    UserId = user.Id,
+                                    RoleId = ConstantesSistema.RoleAluno
+                                }
+                            });
+                        }
+                            
                     }
                 }
 

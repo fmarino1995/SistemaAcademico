@@ -24,7 +24,7 @@
             <div class="row">
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
-                        <InputText id="floatingEmail" class="form-control" @bind-Value="@User.Email" placeholder="Email" />
+                        <InputText readonly id="floatingEmail" class="form-control" @bind-Value="@User.Email" placeholder="Email" />
                         <label for="floatingEmail">Email</label>
                     </div>
                 </div>
@@ -46,9 +46,14 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 form-space">
-                    <div class="form-floating mb-3">
-                        <InputText id="floatingPerfil" class="form-control" @bind-Value="@User.RoleName" placeholder="Perfil" />
-                        <label for="floatingPerfil">Perfil</label>
+                    <div class="form-floating">
+                        <InputSelect id="SelectPerfil" class="form-select" @bind-Value="User.RoleId">
+                            @foreach (var item in Roles)
+                            {
+                                <option value="@item.Id">@item.Name</option>
+                            }
+                        </InputSelect>
+                        <label for="SelectPerfil">Status</label>
                     </div>
                 </div>
             </div>
@@ -85,8 +90,6 @@
         User = user.Result;
 
         Roles = (await _mediator.Send(new ObterRolesQuery())).Result;
-
-        User.RoleName = Roles.FirstOrDefault(r => r.Id.ToLower() == User.RoleId.ToLower()).Name;
     }
 
     private async void UpdateUser()

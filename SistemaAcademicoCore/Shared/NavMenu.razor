@@ -11,15 +11,17 @@
     <nav class="flex-column">
         <AuthorizeView Policy="@Policies.IsAdmin">
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="#" @onclick="() => expandSubMenuAdm = !expandSubMenuAdm">
+                <NavLink class="nav-link" href="#">
                     <span class="oi oi-briefcase" aria-hidden="true"></span> Administração
+                    <span class="oi oi-chevron-bottom expandIcon text-danger" @onclick="() => expandSubMenuAdm = !expandSubMenuAdm"></span>
                 </NavLink>
                 @if (expandSubMenuAdm)
                 {
                     <ul class="nav flex-column">
                         <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="students" @onclick="() => expandSubMenuStudent = !expandSubMenuStudent">
+                            <NavLink class="nav-link" href="students">
                                 <span class="oi oi-people" aria-hidden="true"></span> Alunos
+                                <span class="oi oi-chevron-bottom expandIcon text-danger" @onclick="() => expandSubMenuStudent = !expandSubMenuStudent"></span>
                             </NavLink>
                             @if (expandSubMenuStudent)
                             {
@@ -32,9 +34,31 @@
                                 </ul>
                             }
                         </li>
+                        <li>
+                            <div class="nav-item px-3">
+                                <NavLink id="menu-principal" class="nav-link" href="disciplines">
+                                    <span class="oi oi-book" aria-hidden="true"></span> Disciplinas
+                                </NavLink>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="nav-item px-2">
+                                <NavLink id="menu-principal" class="nav-link" href="professors">
+                                    <span class="oi oi-person" aria-hidden="true"></span> Professores
+                                </NavLink>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="nav-item px-3">
+                                <NavLink id="menu-principal" class="nav-link" href="semester">
+                                    <span class="oi oi-calendar" aria-hidden="true"></span> Semestres
+                                </NavLink>
+                            </div>
+                        </li>
                         <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="users" @onclick="() => expandSubMenuUser = !expandSubMenuUser">
+                            <NavLink class="nav-link" href="users">
                                 <span class="oi oi-people" aria-hidden="true"></span> Usuários
+                                <span class="oi oi-chevron-bottom expandIcon text-danger" @onclick="() => expandSubMenuUser = !expandSubMenuUser"></span>
                             </NavLink>
                             @if (expandSubMenuUser)
                             {
@@ -42,21 +66,58 @@
                                     <li class="nav-item px-3">
                                         <NavLink class="nav-link" href="users/import">
                                             <span class="oi oi-file" aria-hidden="true"></span> Importação
+
                                         </NavLink>
                                     </li>
                                 </ul>
                             }
                         </li>
-                        <li>
-                            <div class="nav-item px-3">
-                                <NavLink id="menu-principal" class="nav-link" href="roles">
-                                    <span class="oi oi-person" aria-hidden="true"></span> Perfis
-                                </NavLink>
-                            </div>
-                        </li>
                     </ul>
                 }
             </div>
+        </AuthorizeView>
+        <AuthorizeView Policy="@Policies.IsProfessor">
+            <ul>
+                <li>
+                    <div class="nav-item px-2">
+                        <NavLink id="menu-principal" class="nav-link" href="disciplines">
+                            <span class="oi oi-person" aria-hidden="true"></span> Disciplinas
+                        </NavLink>
+                    </div>
+                </li>
+                <li>
+                    <div class="nav-item px-2">
+                        <NavLink id="menu-principal" class="nav-link" href="webagenda/professors">
+                            <span class="oi oi-calendar" aria-hidden="true"></span> Pauta Web
+                        </NavLink>
+                    </div>
+                </li>
+                <li>
+                    <div class="nav-item px-2">
+                        <NavLink id="menu-principal" class="nav-link" href="professors/projects">
+                            <span class="oi oi-clipboard" aria-hidden="true"></span> Trabalhos
+                        </NavLink>
+                    </div>
+                </li>
+            </ul>
+        </AuthorizeView>
+        <AuthorizeView Policy="@Policies.IsAluno">
+            <ul>
+                <li>
+                    <div class="nav-item px-2">
+                        <NavLink id="menu-principal" class="nav-link" href="webagenda/students">
+                            <span class="oi oi-calendar" aria-hidden="true"></span> Pauta Web
+                        </NavLink>
+                    </div>
+                </li>
+                <li>
+                    <div class="nav-item px-2">
+                        <NavLink id="menu-principal" class="nav-link" href="students/projects">
+                            <span class="oi oi-clipboard" aria-hidden="true"></span> Trabalhos
+                        </NavLink>
+                    </div>
+                </li>
+            </ul>
         </AuthorizeView>
     </nav>
 </div>

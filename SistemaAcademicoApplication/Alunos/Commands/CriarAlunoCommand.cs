@@ -5,6 +5,7 @@ using SistemaAcademicoApplication.Common.Responses;
 using SistemaAcademicoApplication.Enderecos.Commands;
 using SistemaAcademicoApplication.Interfaces;
 using SistemaAcademicoApplication.Usuarios.Queries;
+using Domain.Constantes;
 
 namespace SistemaAcademicoApplication.Alunos.Commands
 {
@@ -51,6 +52,7 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                     Aluno.EnderecoId = enderecoCreate.Result.EnderecoId;
                     Aluno.DataHoraCadastro = DateTime.Now;
                     Aluno.UsuarioCriacao = await _currentUserService.GetUserNameAsync();
+                    Aluno.Status = Parametros.StatusAtivo;
                     
                     _context.Alunos.Add(Aluno);
                     await _context.SaveChangesAsync();

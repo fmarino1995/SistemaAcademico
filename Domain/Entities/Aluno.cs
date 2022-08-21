@@ -28,5 +28,7 @@ namespace Domain.Entities
         public ApplicationUser ApplicationUser { get; set; }
         [Required]
         public string Status { get; set; }
+        [Required]
+        public string Turno { get; set; }
     }
 }

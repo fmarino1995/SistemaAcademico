@@ -1,0 +1,127 @@
+﻿@page "/webagenda/students"
+@using SistemaAcademicoApplication.Alunos.Queries
+@using SistemaAcademicoApplication.DisciplinaAlunos.Queries
+@using SistemaAcademicoApplication.Semestres.Queries
+@inject IMediator _mediator
+@inject ICurrentUserService _currentUserService
+@inject IToastService _toastService
+@inject NavigationManager _navigationManager
+
+@attribute [Authorize(Policy = Policies.IsAluno)]
+
+<PageTitle>Pauta Web - Aluno</PageTitle>
+
+@if (DisciplinasAlunoList == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/jAYUbVXgESSti/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Pauta Web - Aluno
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2 col-lg-2">
+                    <div class="form-floating mb-3">
+                        <select id="selectSemestre" class="form-select" @onchange="AlteraSemestre">
+                            @foreach(var item in Semestres)
+                            {
+                                if(item.Vigente)
+                                {
+                                    <option selected value="@item.SemestreVigenteId">@item.Ano/@item.Semestre</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.SemestreVigenteId">@item.Ano/@item.Semestre</option>
+                                }
+                            }
+                        </select>
+                        <label for="selectSemestre">Semestre</label>
+                    </div>
+                </div>
+            </div>
+            <DataTable Searchable="true">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Disciplina</th>
+                        <th>Total aulas válidas</th>
+                        <th>Qtd. Falta</th>
+                        <th>Qtd. Presença</th>
+                        <th>Avaliação 1</th>
+                        <th>Avaliação 2</th>
+                        <th>Prova final</th>
+                        <th>Nota final</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var item in DisciplinasAlunoList.Where(x => x.Excluido == false))
+                    {
+                        <tr>
+                            <td>@item.Disciplina.Nome</td>
+                            <td>@item.TotalAulasValidas</td>
+                            <td>@item.QuantidadeFalta</td>
+                            <td>@item.QuantidadePresenca</td>
+                            <td>@item.NotaAvaliacao1</td>
+                            <td>@item.NotaAvaliacao2</td>
+                            <td>@item.ProvaFinal</td>
+                            <td>@item.NotaFinal</td>
+                        </tr>
+                    }
+                </tbody>
+            </DataTable>
+        </div>
+    </div>
+}
+
+@code {
+    Aluno AlunoLogado;
+    List<DisciplinaAluno> DisciplinasAlunoList;
+    List<DisciplinaAluno> DisciplinasAlunoListOriginal;
+    List<SemestreVigente> Semestres;
+    SemestreVigente SemestreVigente;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuarioLogado = await _currentUserService.GetUserNameAsync();
+        var alunoLogado = await _mediator.Send(new ObterAlunoEmailQuery { Email = usuarioLogado });
+        AlunoLogado = alunoLogado.Result;
+
+        Semestres = await GetSemestresAlunoAsync(AlunoLogado.AlunoId);
+        DisciplinasAlunoListOriginal = await GetDisciplinasAlunoAsync(AlunoLogado.AlunoId);
+        DisciplinasAlunoList = DisciplinasAlunoListOriginal;
+        var semestreVigente = await _mediator.Send(new ObterSemestreVigenteQuery());
+        SemestreVigente = semestreVigente.Result;
+    }
+
+    private void AlteraSemestre(ChangeEventArgs ev)
+    {
+        var semestreId = ev.Value.ToString();
+
+        DisciplinasAlunoList = DisciplinasAlunoListOriginal.Where(x => x.SemestreVigenteId == Convert.ToInt32(semestreId)).ToList();
+        StateHasChanged();
+    }
+
+    private async Task<List<DisciplinaAluno>> GetDisciplinasAlunoAsync(int alunoId)
+    {
+        return await Task.FromResult((await _mediator.Send(new ObterPautaWebAlunoQuery { AlunoId = alunoId })).Result);
+    }
+
+    private async Task<List<SemestreVigente>> GetSemestresAsync()
+    {
+        return await Task.FromResult((await _mediator.Send(new ObterSemestresQuery())).Result);
+    }
+
+    private async Task<List<SemestreVigente>> GetSemestresAlunoAsync(int alunoId)
+    {
+        return await Task.FromResult((await _mediator.Send(new ObterSemestresPautaWebAlunoQuery { AlunoId = alunoId })).Result);
+    }
+}

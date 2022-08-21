@@ -1,0 +1,126 @@
+﻿@page "/semester"
+@using SistemaAcademicoApplication.Semestres.Commands
+@using SistemaAcademicoApplication.Semestres.Queries
+@inject IMediator _mediator
+@inject NavigationManager _navigationManager
+@inject IToastService _toastService
+
+@if (Semestres == null)
+{
+    <br />
+    <br />
+    <br />
+    <center>
+        <img src="https://media.giphy.com/media/jAYUbVXgESSti/giphy.gif" class="align-content-center" />
+    </center>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="titulo-card">
+                Semestre Vigente
+            </div>
+        </div>
+        <div class="card-body">
+            <DataTable Searchable="true">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Ano</th>
+                        <th>Semestre</th>
+                        <th>Vigente</th>
+                        <th>
+                            <a href="javascript:void(0)" @onclick="NovoSemestre" title="Novo registro"><span class="oi oi-plus"></span></a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Semestres)
+                    {
+                        <tr>
+                            <td>@item.Ano</td>
+                            <td>@item.Semestre</td>
+                            <td><input type="checkbox" disabled="disabled" @bind="item.Vigente"/></td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </DataTable>
+        </div>
+        <div class="card-footer">
+            <a href="/" class="btn btn-outline-dark">Voltar</a>
+        </div>
+    </div>
+}
+
+
+@code {
+    List<SemestreVigente> Semestres;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var semestres = await _mediator.Send(new ObterSemestresQuery());
+
+        Semestres = semestres.Result;
+    }
+
+    private async Task NovoSemestre()
+    {
+        var anoAtual = DateTime.Now.Year;
+        var novoSemestre = new SemestreVigente();
+        var ultimoSemestre = await _mediator.Send(new ConsultarSemestreAtualQuery());
+
+        if (ultimoSemestre.Errors.Any() || ultimoSemestre.Result == null)
+        {
+            novoSemestre.Ano = DateTime.Now.Year;
+            novoSemestre.Semestre = 1;
+            novoSemestre.Vigente = true;
+
+            await _mediator.Send(new CriarSemestreCommand { SemestreVigente = novoSemestre });
+            _toastService.ShowSuccess("Semestre criado com sucesso!");
+            StateHasChanged();
+            Refresh();
+        }
+        else
+        {
+            novoSemestre.Ano = ultimoSemestre.Result.Ano < anoAtual ? anoAtual : ultimoSemestre.Result.Ano;
+            novoSemestre.Semestre = ultimoSemestre.Result.Semestre == 2 ? 1 : 2;
+
+            if (ultimoSemestre.Result.Ano == novoSemestre.Ano && ultimoSemestre.Result.Semestre == novoSemestre.Semestre)
+            {
+                _toastService.ShowError("Semestre atual já criado");
+                StateHasChanged();
+            }
+            else if(ultimoSemestre.Result.Ano == anoAtual && DateTime.Now.Month < 7)
+            {
+                _toastService.ShowError("Semestre atual já criado");
+                StateHasChanged();
+            }
+            else if(ultimoSemestre.Result.Ano == anoAtual && ultimoSemestre.Result.Semestre == 2)
+            {
+                _toastService.ShowError("Semestre atual já criado");
+                StateHasChanged();
+            }
+            else
+            {
+                ultimoSemestre.Result.Vigente = false;
+                novoSemestre.Vigente = true;
+
+                var response = await _mediator.Send(new AlterarSemestreVigenteCommand
+                {
+                    SemestreAntigo = ultimoSemestre.Result,
+                    SemestreNovo = novoSemestre
+                });
+
+                _toastService.ShowSuccess("Semestre criado com sucesso!");
+                StateHasChanged();
+                Refresh();
+            }
+        }
+    }
+
+    void Refresh()
+    {
+        _navigationManager.NavigateTo("semester", forceLoad: true);
+    }
+  }

@@ -31,7 +31,7 @@ namespace SistemaAcademicoApplication.Disciplinas.Queries
             {
                 var disciplina = await _context.Disciplinas
                     .Include(d => d.Professor)
-                    .FirstOrDefaultAsync(d => d.DisplicinaId == request.DisciplinaId);
+                    .FirstOrDefaultAsync(d => d.DisciplinaId == request.DisciplinaId);
 
                 if (disciplina == null)
                     throw new Exception("Disciplina não encontrada");

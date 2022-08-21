@@ -34,8 +34,8 @@
         </div>
         <div class="col-md-6 col-lg-6">
             <label asp-for="Input.PerfilId"></label>
-            <select asp-for="Input.PerfilId" class="form-control">
-                <option selected disabled>Selecione...</option>
+            <select asp-for="Input.PerfilId" class="form-select">
+                <option selected disabled>-- Selecione --</option>
                 @foreach(var item in Model.Perfis)
                 {
                     <option value="@item.Id">@item.Name</option>
