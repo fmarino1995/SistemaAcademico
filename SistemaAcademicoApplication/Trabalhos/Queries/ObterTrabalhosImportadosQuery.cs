@@ -10,6 +10,7 @@ namespace SistemaAcademicoApplication.Trabalhos.Queries
     {
         public int SemestreVigenteId { get; set; }
         public int AlunoId { get; set; }
+        public int DisciplinaId { get; set; }
     }
 
     public class ObterTrabalhosImportadosQueryHandler : IRequestHandler<ObterTrabalhosImportadosQuery, Response<List<Trabalho>>>
@@ -24,7 +25,11 @@ namespace SistemaAcademicoApplication.Trabalhos.Queries
         public async Task<Response<List<Trabalho>>> Handle(ObterTrabalhosImportadosQuery request, CancellationToken cancellationToken)
         {
             var trabalhos = await _context.Trabalhos
-                .Where(t => t.AlunoId == request.AlunoId && t.SemestreVigenteId == request.SemestreVigenteId)
+                .Include(t => t.Aluno)
+                .Include(t => t.Disciplina)
+                .Where(t => t.AlunoId == request.AlunoId
+                && t.SemestreVigenteId == request.SemestreVigenteId
+                && t.DisciplinaId == request.DisciplinaId)
                 .ToListAsync();
 
             if (trabalhos == null)

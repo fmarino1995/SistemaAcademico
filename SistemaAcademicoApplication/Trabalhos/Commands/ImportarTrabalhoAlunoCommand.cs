@@ -8,8 +8,6 @@ namespace SistemaAcademicoApplication.Trabalhos.Commands
 {
     public class ImportarTrabalhoAlunoCommand : IRequest<Response<Trabalho>>
     {
-        public string FilePath { get; set; }
-        public IBrowserFile File { get; set; }
         public Trabalho Trabalho { get; set; }
     }
 
@@ -26,12 +24,6 @@ namespace SistemaAcademicoApplication.Trabalhos.Commands
         {
             try
             {
-                Stream stream = request.File.OpenReadStream();
-                FileStream fs = File.Create(request.FilePath);
-                await stream.CopyToAsync(fs);
-                stream.Close();
-                fs.Close();
-
                 Trabalho Trabalho = request.Trabalho;
                 _context.Trabalhos.Add(Trabalho);
                 await _context.SaveChangesAsync();

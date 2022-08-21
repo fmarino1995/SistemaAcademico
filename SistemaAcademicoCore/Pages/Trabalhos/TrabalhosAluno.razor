@@ -11,6 +11,8 @@
 @inject IToastService _toastService
 @inject ICurrentUserService _currentUserService
 @inject IChecksumService _checkSumService
+@inject IWebHostEnvironment _webHost
+@inject IJSRuntime _jsRuntime
 
 @attribute [Authorize(Policy = Policies.IsAluno)]
 
@@ -25,16 +27,31 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-floating mb-3">
-                        <select class="form-select" @onchange="AlteraDisciplina" id="floatingDisciplina">
-                            <option selected value="">Selecione a disciplina</option>
-                            @foreach (var item in DisciplinasAlunoList.Where(x => x.Excluido == false))
+                        <select class="form-select" @onchange="AlteraSemestre" id="floatingSemestre">
+                            <option selected value="">Selecione o semestre</option>
+                            @foreach (var item in Semestres)
                             {
-                                <option value="@item.DisciplinaId">@item.Disciplina.Nome</option>
+                                <option value="@item.SemestreVigenteId">@item.Ano/@item.Semestre</option>
                             }
                         </select>
-                        <label for="floatingDisciplina">Disciplina</label>
+                        <label for="floatingSemestre">Semestre</label>
                     </div>
                 </div>
+                @if (selectSemestre)
+                {
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <select class="form-select" @onchange="AlteraDisciplina" id="floatingDisciplina">
+                                <option selected value="">Selecione a disciplina</option>
+                                @foreach (var item in DisciplinasAlunoList.Where(x => x.Excluido == false))
+                                {
+                                    <option value="@item.DisciplinaId">@item.Disciplina.Nome</option>
+                                }
+                            </select>
+                            <label for="floatingDisciplina">Disciplina</label>
+                        </div>
+                    </div>
+                }
                 @if (selectDisciplina)
                 {
                     <div class="col-md-6">
@@ -42,13 +59,15 @@
                         <InputFile OnChange="OnInputFileChange" />
                         <p class="text-danger">@MensagemValidacao</p>
                         <br /><br />
-                        @if (spinner)
-                        {
+                    </div>
+                    @if (spinner)
+                    {
+                        <div class="col-md-12">
                             <div class="spinner-border" role="status">
                                 <span class="sr-only">Loading...</span>
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 }
             </div>
         </div>
@@ -71,14 +90,12 @@
 
     @if (TrabalhosEnviados != null)
     {
-        <br />
 
-        <br />
         <hr class="hr1" />
 
         <div class="card-header">
             <div class="titulo-card">
-                Arquivos Importados
+                Trabalhos Importados
             </div>
         </div>
         <div class="card-body">
@@ -90,6 +107,7 @@
                         <th>Data Envio</th>
                         <th>Arquivo</th>
                         <th>Nota</th>
+                        <th>Ação</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,7 +118,17 @@
                             <td>@item.SemestreVigente.Ano/@item.SemestreVigente.Semestre</td>
                             <td>@item.DataEnvio</td>
                             <td>@item.NomeArquivo</td>
-                            <td>@item.Nota</td>
+                            @if (item.Nota != null)
+                            {
+                                <td>@item.Nota</td>
+                            }
+                            else
+                            {
+                                <td>Aguardando correção</td>
+                            }
+                            <td style="width: 8px;">
+                                <a class="btn btn-outline-dark btn-sm" href="javascript:void(0)" @onclick="() => DownloadFileFromStream(item.CaminhoArquivo, item.NomeArquivo)" download="@item.NomeArquivo">Download</a>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -111,18 +139,38 @@
 
 
 
-
 @code {
     string FileMessage = "Nenhum arquivo selecionado";
     string MensagemValidacao = string.Empty;
     IBrowserFile selectedFile;
     List<Trabalho> TrabalhosEnviados;
     SemestreVigente SemestreVigente;
+    List<SemestreVigente> Semestres = new List<SemestreVigente>();
     Aluno AlunoLogado;
-    List<DisciplinaAluno> DisciplinasAlunoList;
+    List<DisciplinaAluno> DisciplinasAlunoList = new List<DisciplinaAluno>();
+    List<DisciplinaAluno> DisciplinasAlunoListOriginal = new List<DisciplinaAluno>();
     Disciplina Disciplina;
     bool spinner;
     bool selectDisciplina;
+    bool selectSemestre;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuarioLogado = await _currentUserService.GetUserNameAsync();
+        var alunoLogado = await _mediator.Send(new ObterAlunoEmailQuery { Email = usuarioLogado });
+        AlunoLogado = alunoLogado.Result;
+        var semestreResponse = await GetSemestreVigenteAsync();
+        DisciplinasAlunoListOriginal = await GetDisciplinasAlunoAsync(AlunoLogado.AlunoId);
+        DisciplinasAlunoList = DisciplinasAlunoListOriginal;
+        Semestres = await GetSemestresAlunoAsync(AlunoLogado.AlunoId);
+
+        if (semestreResponse.Errors.Any())
+        {
+            _toastService.ShowError("Ocorreu um erro ao carregar as informações");
+            Voltar();
+        }
+        SemestreVigente = semestreResponse.Result;
+    }
 
     private void OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -131,38 +179,43 @@
         this.StateHasChanged();
     }
 
+    private void AlteraSemestre(ChangeEventArgs ev)
+    {
+        var arg = ev.Value.ToString();
+
+        if (string.IsNullOrEmpty(arg))
+        {
+            selectSemestre = false;
+        }
+        else
+        {
+            var id = Convert.ToInt32(arg);
+            DisciplinasAlunoList = DisciplinasAlunoListOriginal.Where(d => d.SemestreVigenteId == id).ToList();
+            selectSemestre = true;
+        }
+
+        StateHasChanged();
+    }
+
     private async Task AlteraDisciplina(ChangeEventArgs ev)
     {
         var disciplina = ev.Value.ToString();
 
-        if (string.IsNullOrEmpty(disciplina))
+        if (!string.IsNullOrEmpty(disciplina))
         {
             var response = await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = Convert.ToInt32(disciplina) });
             Disciplina = response.Result;
             selectDisciplina = true;
+            var responseTrabalhos = await GetTrabalhosImportadosAsync(AlunoLogado.AlunoId, SemestreVigente.SemestreVigenteId, Convert.ToInt32(disciplina));
+            TrabalhosEnviados = responseTrabalhos.Result.Count > 0 ? responseTrabalhos.Result : null;
             StateHasChanged();
         }
         else
         {
+            TrabalhosEnviados = null;
             selectDisciplina = false;
             StateHasChanged();
         }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var usuarioLogado = await _currentUserService.GetUserNameAsync();
-        var alunoLogado = await _mediator.Send(new ObterAlunoEmailQuery { Email = usuarioLogado });
-        AlunoLogado = alunoLogado.Result;
-        var semestreResponse = await GetSemestreVigenteAsync();
-        DisciplinasAlunoList = await GetDisciplinasAlunoAsync(AlunoLogado.AlunoId);
-
-        if (semestreResponse.Errors.Any())
-        {
-            _toastService.ShowError("Ocorreu um erro ao carregar as informações");
-            Voltar();
-        }
-        SemestreVigente = semestreResponse.Result;
     }
 
     private async Task OnSubmit()
@@ -175,12 +228,18 @@
         if (!dir.Exists) { dir.Create(); }
         var filepath = $"{dir}\\{selectedFile.Name}";
 
+        Stream stream = selectedFile.OpenReadStream(maxAllowedSize: 15728640); //15 MB
+        FileStream fs = File.Create(filepath);
+        await stream.CopyToAsync(fs);
+        stream.Close();
+        fs.Close();
+
         var trabalho = new Trabalho
             {
                 AlunoId = AlunoLogado.AlunoId,
                 DisciplinaId = Disciplina.DisciplinaId,
                 CaminhoArquivo = filepath,
-                Hash = _checkSumService.GetMD5Checksum(selectedFile.Name),
+                Hash = _checkSumService.GetMD5Checksum(filepath),
                 DataEnvio = DateTime.Now,
                 NomeArquivo = selectedFile.Name,
                 SemestreVigenteId = SemestreVigente.SemestreVigenteId,
@@ -189,14 +248,12 @@
 
         var response = await _mediator.Send(new ImportarTrabalhoAlunoCommand
             {
-                File = selectedFile,
-                FilePath = filepath,
                 Trabalho = trabalho
             });
 
         if (response.Errors.Any())
         {
-            spinner = false;
+
             MensagemValidacao = "Ocorreu um erro ao importar o trabalho : " + response.Errors.First();
             _toastService.ShowError("Erro ao importar o trabalho");
             StateHasChanged();
@@ -205,10 +262,27 @@
         {
 
             _toastService.ShowSuccess("Trabalho importado com sucesso!");
-            var responseTrabalhos = await GetTrabalhosImportadosAsync(AlunoLogado.AlunoId, SemestreVigente.SemestreVigenteId);
+            var responseTrabalhos = await GetTrabalhosImportadosAsync(AlunoLogado.AlunoId, SemestreVigente.SemestreVigenteId, Disciplina.DisciplinaId);
             TrabalhosEnviados = responseTrabalhos.Result;
             StateHasChanged();
         }
+
+        spinner = false;
+    }
+
+    private async Task DownloadFileFromStream(string filePath, string name)
+    {
+        var fileStream = GetFileStream(filePath);
+        var fileName = name;
+
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+
+        await _jsRuntime.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
+
+    private Stream GetFileStream(string filePath)
+    {
+        return File.OpenRead(filePath);
     }
 
     void Voltar()
@@ -216,10 +290,10 @@
         _navigationManager.NavigateTo("/", forceLoad: true);
     }
 
-    private async Task<Response<List<Trabalho>>> GetTrabalhosImportadosAsync(int alunoId, int semestreVigenteId)
+    private async Task<Response<List<Trabalho>>> GetTrabalhosImportadosAsync(int alunoId, int semestreVigenteId, int disciplinaId)
     {
         return await Task.FromResult(await _mediator.Send(new ObterTrabalhosImportadosQuery
-            { AlunoId = alunoId, SemestreVigenteId = semestreVigenteId }));
+            { AlunoId = alunoId, SemestreVigenteId = semestreVigenteId, DisciplinaId = disciplinaId }));
     }
 
     private async Task<Response<SemestreVigente>> GetSemestreVigenteAsync()
@@ -230,5 +304,10 @@
     private async Task<List<DisciplinaAluno>> GetDisciplinasAlunoAsync(int alunoId)
     {
         return await Task.FromResult((await _mediator.Send(new ObterPautaWebAlunoQuery { AlunoId = alunoId })).Result);
+    }
+
+    private async Task<List<SemestreVigente>> GetSemestresAlunoAsync(int alunoId)
+    {
+        return await Task.FromResult((await _mediator.Send(new ObterSemestresPautaWebAlunoQuery { AlunoId = alunoId })).Result);
     }
 }

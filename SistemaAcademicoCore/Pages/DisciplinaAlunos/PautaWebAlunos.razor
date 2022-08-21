@@ -30,7 +30,7 @@ else
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6 col-lg-6 form-space">
+                <div class="col-md-2 col-lg-2">
                     <div class="form-floating mb-3">
                         <select id="selectSemestre" class="form-select" @onchange="AlteraSemestre">
                             @foreach(var item in Semestres)
@@ -85,6 +85,7 @@ else
 @code {
     Aluno AlunoLogado;
     List<DisciplinaAluno> DisciplinasAlunoList;
+    List<DisciplinaAluno> DisciplinasAlunoListOriginal;
     List<SemestreVigente> Semestres;
     SemestreVigente SemestreVigente;
 
@@ -94,8 +95,9 @@ else
         var alunoLogado = await _mediator.Send(new ObterAlunoEmailQuery { Email = usuarioLogado });
         AlunoLogado = alunoLogado.Result;
 
-        Semestres = await GetSemestresAsync();
-        DisciplinasAlunoList = await GetDisciplinasAlunoAsync(AlunoLogado.AlunoId);
+        Semestres = await GetSemestresAlunoAsync(AlunoLogado.AlunoId);
+        DisciplinasAlunoListOriginal = await GetDisciplinasAlunoAsync(AlunoLogado.AlunoId);
+        DisciplinasAlunoList = DisciplinasAlunoListOriginal;
         var semestreVigente = await _mediator.Send(new ObterSemestreVigenteQuery());
         SemestreVigente = semestreVigente.Result;
     }
@@ -104,7 +106,7 @@ else
     {
         var semestreId = ev.Value.ToString();
 
-        DisciplinasAlunoList = DisciplinasAlunoList.Where(x => x.SemestreVigenteId == Convert.ToInt32(semestreId)).ToList();
+        DisciplinasAlunoList = DisciplinasAlunoListOriginal.Where(x => x.SemestreVigenteId == Convert.ToInt32(semestreId)).ToList();
         StateHasChanged();
     }
 
@@ -116,5 +118,10 @@ else
     private async Task<List<SemestreVigente>> GetSemestresAsync()
     {
         return await Task.FromResult((await _mediator.Send(new ObterSemestresQuery())).Result);
+    }
+
+    private async Task<List<SemestreVigente>> GetSemestresAlunoAsync(int alunoId)
+    {
+        return await Task.FromResult((await _mediator.Send(new ObterSemestresPautaWebAlunoQuery { AlunoId = alunoId })).Result);
     }
 }

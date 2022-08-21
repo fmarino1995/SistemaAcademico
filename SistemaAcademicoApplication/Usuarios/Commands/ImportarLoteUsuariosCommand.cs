@@ -52,7 +52,7 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
 
             try
             {
-                Stream stream = request.File.OpenReadStream();
+                Stream stream = request.File.OpenReadStream(maxAllowedSize: 15728640); //15MB
                 FileStream fs = File.Create(request.FilePath);
                 await stream.CopyToAsync(fs);
                 stream.Close();

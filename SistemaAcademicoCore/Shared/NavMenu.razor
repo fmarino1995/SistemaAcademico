@@ -101,6 +101,24 @@
                 </li>
             </ul>
         </AuthorizeView>
+        <AuthorizeView Policy="@Policies.IsAluno">
+            <ul>
+                <li>
+                    <div class="nav-item px-2">
+                        <NavLink id="menu-principal" class="nav-link" href="webagenda/students">
+                            <span class="oi oi-calendar" aria-hidden="true"></span> Pauta Web
+                        </NavLink>
+                    </div>
+                </li>
+                <li>
+                    <div class="nav-item px-2">
+                        <NavLink id="menu-principal" class="nav-link" href="students/projects">
+                            <span class="oi oi-clipboard" aria-hidden="true"></span> Trabalhos
+                        </NavLink>
+                    </div>
+                </li>
+            </ul>
+        </AuthorizeView>
     </nav>
 </div>
 
