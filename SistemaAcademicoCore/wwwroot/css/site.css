@@ -187,3 +187,10 @@ hr.new {
 .page-content {
     overflow-x: hidden;
 }
+
+/*-------------------------- End page-content-----------------------------*/
+
+.nota-input {
+    width: 90px;
+    text-align: center;
+}
