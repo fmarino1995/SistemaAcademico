@@ -2,25 +2,28 @@
 @inject NavigationManager _navigationManager
 @using SistemaAcademicoApplication.Config
 
-
 <PageTitle>SistemaAcademico - @DateTime.Now.Year</PageTitle>
 
 <div class="page">
-    <div class="sidebar">
+    <div class="sidebar @(HideMenu ? "collapse" : "")">
         <NavMenu />
         <div class="fixed-bottom text-muted">
             &copy; <strong>@DateTime.Now.Year - Sistema Acadêmico</strong>
         </div>
     </div>
 
-
-
     <main>
         <div class="top-row px-4 auth">
+            <div class="d-flex" style="align-items: flex-end">
+                <a title="@(HideMenu ? "Mostrar menu" : "Esconder menu")" href="javascript:void(0)" @onclick="() => HideMenu = !HideMenu" class="btn btn-outline-dark btn-sm">
+                    <span class="@(HideMenu? "oi oi-arrow-right" : "oi oi-arrow-left")"></span>
+                </a>
+            </div>
             <LoginDisplay />
         </div>
 
         <div id="content-page">
+
             <Toast Position="@ToastPosition.TopRight"
                    Timeout="10"
                    SuccessClass="success-toast-override"
@@ -35,6 +38,8 @@
 @code {
     [CascadingParameter]
     protected Task<AuthenticationState> authenticationState { get; set; }
+
+    bool HideMenu;
 
     protected override async Task OnInitializedAsync()
     {

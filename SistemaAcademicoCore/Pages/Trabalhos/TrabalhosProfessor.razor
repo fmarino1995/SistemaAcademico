@@ -1,4 +1,5 @@
 ﻿@page "/professors/projects"
+@using SistemaAcademicoApplication.Disciplinas.Queries
 @using SistemaAcademicoApplication.Professores.Queries
 @using SistemaAcademicoApplication.Semestres.Queries
 @using SistemaAcademicoApplication.Trabalhos.Queries
@@ -35,7 +36,7 @@
                     <div class="form-floating mb-3">
                         <select id="floatingDisciplina" class="form-select" @onchange="AlteraDisciplina">
                             <option value="">Selecione a disciplina</option>
-                            @foreach (var item in DisciplinasProfessorList.Where(x => x.Turno == turno || string.IsNullOrEmpty(turno)))
+                            @foreach (var item in DisciplinasProfessorList.Where(x => x.ProfessorId == ProfessorLogado.ProfessorId))
                             {
                                 <option value="@item.DisciplinaId">@item.Nome</option>
                             }
@@ -91,6 +92,7 @@
 
 @code {
     List<Disciplina> DisciplinasProfessorList;
+    List<Disciplina> DisciplinasProfessorListOriginal;
     Professor ProfessorLogado;
     SemestreVigente SemestreVigente;
     List<Trabalho> TrabalhosImportadosDiciplina;
@@ -104,6 +106,8 @@
         ProfessorLogado = professorLogado.Result;
         var semestreVigente = await _mediator.Send(new ObterSemestreVigenteQuery());
         SemestreVigente = semestreVigente.Result;
+        DisciplinasProfessorListOriginal = (await _mediator.Send(new ObterDisciplinasQuery())).Result;
+        DisciplinasProfessorList = DisciplinasProfessorListOriginal;
     }
 
     private async Task AlteraDisciplina(ChangeEventArgs ev)
@@ -140,6 +144,16 @@
     private void AlteraTurno(ChangeEventArgs e)
     {
         turno = e.Value.ToString();
+
+        if(string.IsNullOrEmpty(turno))
+        {
+            DisciplinasProfessorList = DisciplinasProfessorListOriginal;
+        }
+        else
+        {
+            DisciplinasProfessorList = DisciplinasProfessorListOriginal.Where(d => d.Turno == turno).ToList();
+        }
+
         StateHasChanged();
     }
 }

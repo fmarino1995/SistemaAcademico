@@ -36,8 +36,8 @@
                     <tr>
                         <td>@aluno.Aluno.Nome</td>
                         <td>@aluno.Aluno.Email</td>
-                        <td><input type="checkbox" @bind="aluno.IsPresenca" /></td>
-                        <td><input type="checkbox" @bind="aluno.IsFalta" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsPresenca" @onclick="() => aluno.IsFalta = aluno.IsPresenca ? true : false" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsFalta" @onclick="() => aluno.IsPresenca = aluno.IsFalta ? true : false" /></td>
                     </tr>
                 }
             </tbody>
@@ -76,8 +76,8 @@
                     <tr>
                         <td>@aluno.Aluno.Nome</td>
                         <td>@aluno.Aluno.Email</td>
-                        <td><input type="checkbox" @bind="aluno.IsPresenca" /></td>
-                        <td><input type="checkbox" @bind="aluno.IsFalta" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsPresenca" @onclick="() => aluno.IsFalta = aluno.IsPresenca ? true : false" /></td>
+                        <td><input type="checkbox" @bind="aluno.IsFalta" @onclick="() => aluno.IsPresenca = aluno.IsFalta ? true : false" /></td>
                     </tr>
                 }
             </tbody>
@@ -94,50 +94,6 @@
                 }
                 <a class="btn btn-outline-dark" @onclick="() => ModalEdit.Close()">Voltar</a>
                 <input type="submit" @onclick="() => EditarPresencaAlunos(ViewModel)" class="btn btn-outline-primary" value="Salvar" />
-            </div>
-        </div>
-    </div>
-</Modal>
-
-<Modal @ref="ModalNotas" Title="Editar notas">
-    <div class="modal-body">
-        <DataTable Searchable="true" Responsive="true">
-            <thead class="thead-light">
-                <tr>
-                    <th>Aluno</th>
-                    <th>Email</th>
-                    <th>Nota avaliação 1</th>
-                    <th>Nota avaliação 2</th>
-                    <th>Prova final</th>
-                    <th>Nota final</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var aluno in PautaWebProfessor)
-                {
-                    <tr>
-                        <td>@aluno.Aluno.Nome</td>
-                        <td>@aluno.Aluno.Email</td>
-                        <td><input @bind="aluno.NotaAvaliacao1" /></td>
-                        <td><input @bind="aluno.NotaAvaliacao2" /></td>
-                        <td><input @bind="aluno.ProvaFinal" /></td>
-                        <td><input @bind="aluno.NotaFinal" /></td>
-                    </tr>
-                }
-            </tbody>
-        </DataTable>
-    </div>
-    <div class="modal-footer">
-        <div class="row">
-            <div class="col-md-12">
-                @if (spinner)
-                {
-                    <div class="spinner-border" role="status" style="margin-right:5px;">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                }
-                <a class="btn btn-outline-dark" @onclick="() => ModalNotas.Close()">Voltar</a>
-                <input type="submit" @onclick="() => GravarNotaAlunos(PautaWebProfessor)" class="btn btn-outline-primary" value="Salvar" />
             </div>
         </div>
     </div>
@@ -230,10 +186,10 @@ else
                                 <td>@item.TotalAulasValidas</td>
                                 @if(editNota)
                                 {
-                                    <td><input class="nota-input" type="number" @bind="item.NotaAvaliacao1"/></td>
-                                    <td><input class="nota-input" type="number" @bind="item.NotaAvaliacao2"/></td>
-                                    <td><input class="nota-input" type="number" @bind="item.ProvaFinal"/></td>
-                                    <td><input class="nota-input" type="number" @bind="item.NotaFinal"/></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaAvaliacao1"/></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaAvaliacao2"/></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.ProvaFinal"/></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaFinal"/></td>
                                 }
                                 else
                                 {
@@ -277,10 +233,12 @@ else
     bool exibirTable;
     bool spinner;
     bool editNota;
+    bool disableCheckPresenca;
+    bool disableCheckFalta;
+    string classNotas = "notas";
 
     private Modal Modal { get; set; }
     private Modal ModalEdit { get; set; }
-    private Modal ModalNotas { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -305,8 +263,6 @@ else
 
     private async Task GravarNotaAlunos(List<DisciplinaAluno> alunos)
     {
-        spinner = true;
-        StateHasChanged();
         var response = await _mediator.Send(new AdicionarNotaAlunosCommand { Alunos = alunos });
 
         if (response.Errors.Any())
@@ -319,8 +275,7 @@ else
             _toastService.ShowSuccess("Notas adicionadas com sucesso!");
         }
 
-        spinner = false;
-        ModalNotas.Close();
+        editNota = false;
         StateHasChanged();
     }
 
@@ -486,4 +441,6 @@ else
     {
         _navigationManager.NavigateTo($"/{message}");
     }
+
+    private async Task MaskInput() => await _jsRuntime.InvokeVoidAsync("mask", new object[] { $"{classNotas}" });
 }
