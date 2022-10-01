@@ -8,6 +8,11 @@ main {
     flex: 1;
 }
 
+.collapse-button {
+    position: absolute;
+    left: 0;
+}
+
 .sidebar {
     background-image: linear-gradient(180deg, rgb(0, 0, 99) 0%,#101b8e 70%);
 }

@@ -8,7 +8,8 @@
 @inject ICurrentUserService _currentUserService
 @attribute [Authorize]
 
-<Modal Title="Novo Aviso">
+
+<Modal @ref="Modal" Title="Novo Aviso">
     <EditForm Model="@Aviso" OnValidSubmit="AddAvisoAsync">
         <div class="modal-body">
             <div class="form-group">
@@ -25,9 +26,9 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <InputCheckbox @bind-Value="@Aviso.IsSelectedUsuario" DisplayName="Apenas um usuário"/>
-                    <InputCheckbox @bind-Value="@Aviso.IsSelectedGrupo" DisplayName="Grupo de usuários"/>
-                    <InputCheckbox @bind-Value="@Aviso.IsSelectedGrupoDisciplina" DisplayName="Todos de uma disciplina"/>
+                    <input type="checkbox" @onclick="() => Aviso.IsSelectedUsuario = !Aviso.IsSelectedUsuario" disabled="@(disableUserCheck)" @onchange="CheckAviso" /> Apenas um usuário |
+                    <input type="checkbox" @onclick="() => Aviso.IsSelectedGrupo = !Aviso.IsSelectedGrupo" disabled="@(disableGroupCheck)" @onchange="CheckAviso" /> Grupo de usuários |
+                    <input type="checkbox" @onclick="() => Aviso.IsSelectedGrupoDisciplina = !Aviso.IsSelectedGrupoDisciplina" disabled="@(disableDisciplinaGroupCheck)" @onchange="CheckAviso" /> Todos de uma disciplina
                 </div>
             </div>
         </div>
@@ -56,8 +57,9 @@
         <div class="card">
             <div class="card-header">
                 <div class="titulo-card">
-                    Quadro de avisos - Admin | <a href="javascript:void(0)" @onclick="ShowModal" title="Novo aviso"><span class="oi oi-plus"></span></a>
+                    Quadro de avisos - Admin
                 </div>
+                <a href="javascript:void(0)" @onclick="() => Modal.Open()" title="Novo aviso"><span class="oi oi-plus"></span> Novo aviso</a>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
@@ -146,6 +148,8 @@
     }
 </AuthorizeView>
 
+
+
 @code {
     [Parameter]
     public string Message { get; set; }
@@ -155,10 +159,17 @@
     private List<Aviso> Avisos;
     bool IsUserAuthenticated;
     ClaimsPrincipal user;
-    Aviso Aviso = new Aviso();
+    Aviso Aviso;
+    bool disableUserCheck;
+    bool disableGroupCheck;
+    bool disableDisciplinaGroupCheck;
+    bool selectUser;
+    bool selectGroup;
+    bool selectDisciplineGroup;
 
     protected override async Task OnInitializedAsync()
     {
+        Aviso = new Aviso();
         var usuarioLogado = await _currentUserService.GetUserNameAsync();
 
         var ultimosAvisos = await _mediator.Send(new ObterUltimosAvisosQuery { EmailUsuario = usuarioLogado });
@@ -172,18 +183,52 @@
 
     }
 
+    private void CheckAviso()
+    {
+        if (Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupo && !Aviso.IsSelectedGrupoDisciplina)
+        {
+            disableGroupCheck = true;
+            disableDisciplinaGroupCheck = true;
+            selectUser = true;
+            selectDisciplineGroup = false;
+            selectGroup = false;
+        }
+        else if (Aviso.IsSelectedGrupoDisciplina && !Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupo)
+        {
+            disableUserCheck = true;
+            disableGroupCheck = true;
+            selectDisciplineGroup = true;
+            selectGroup = false;
+            selectUser = false;
+        }
+        else if (Aviso.IsSelectedGrupo && !Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupoDisciplina)
+        {
+            disableUserCheck = true;
+            disableDisciplinaGroupCheck = true;
+            selectGroup = true;
+            selectDisciplineGroup = false;
+            selectUser = false;
+        }
+        else
+        {
+            disableDisciplinaGroupCheck = false;
+            disableUserCheck = false;
+            disableGroupCheck = false;
+            selectUser = false;
+            selectDisciplineGroup = false;
+            selectGroup = false;
+        }
+
+        StateHasChanged();
+    }
+
     private async Task AddAvisoAsync()
     {
-        if(Aviso.IsSelectedUsuario)
+        if (Aviso.IsSelectedUsuario)
         {
 
         }
 
-
-    }
-
-    private void ShowModal()
-    {
 
     }
 
@@ -194,6 +239,7 @@
             if (Message != null)
             {
                 _toastService.ShowError(Message);
+                StateHasChanged();
             }
         }
     }
