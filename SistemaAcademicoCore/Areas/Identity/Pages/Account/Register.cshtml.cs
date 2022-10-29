@@ -81,20 +81,20 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required(ErrorMessage = "Digite uma senha")]
-            [StringLength(100, ErrorMessage = "O {0} precisa conter no mínimo {2} e no máximo {1} caracteres.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Senha")]
+            //[Required(ErrorMessage = "Digite uma senha")]
+            //[StringLength(100, ErrorMessage = "O {0} precisa conter no mínimo {2} e no máximo {1} caracteres.", MinimumLength = 6)]
+            //[DataType(DataType.Password)]
+            //[Display(Name = "Senha")]
             public string Password { get; set; }
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirme sua senha")]
-            [Compare("Password", ErrorMessage = "As senhas não conferem")]
-            public string ConfirmPassword { get; set; }
+            //[DataType(DataType.Password)]
+            //[Display(Name = "Confirme sua senha")]
+            //[Compare("Password", ErrorMessage = "As senhas não conferem")]
+            //public string ConfirmPassword { get; set; }
 
             [Required(ErrorMessage = "Digite seu nome completo")]
             [Display(Name = "Nome Completo")]
@@ -127,6 +127,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 user.Status = ConstantesLogin.StatusUsuarioAtivo;
                 user.RoleId = Guid.Parse(Input.PerfilId).ToString();
 
+                Input.Password = GerarSenhaTemporaria();
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
@@ -158,7 +159,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, senha = Input.Password,returnUrl = returnUrl });
                     }
                     else
                     {
@@ -206,6 +207,19 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<ApplicationUser>)_userStore;
+        }
+
+        private string GerarSenhaTemporaria()
+        {
+            string chars = "abcdefghjkmnpqrstuvwxyz023456789";
+            string senha = "";
+            Random random = new Random();
+            for (int f = 0; f < 6; f++)
+            {
+                senha = senha + chars.Substring(random.Next(0, chars.Length - 1), 1);
+            }
+
+            return senha;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿@page "/disciplines/edit/{DisciplinaId}"
+@using SistemaAcademicoApplication.Common.Responses
 @using SistemaAcademicoApplication.Disciplinas.Commands
 @using SistemaAcademicoApplication.Disciplinas.Queries
 @using SistemaAcademicoApplication.Professores.Queries
@@ -33,29 +34,67 @@ else
                 <FluentValidationValidator />
                 <ValidationSummary />
                 <div class="row">
-                    <div class="form-floating mb-3">
-                        <InputText id="floatingNome" class="form-control" @bind-Value="@DisciplinaEdit.Nome" placeholder="Nome" />
-                        <label for="floatingNome">Nome</label>
+                    <div class="col-md-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingNome" class="form-control" @bind-Value="@DisciplinaEdit.Nome" placeholder="Nome" />
+                            <label for="floatingNome">Nome</label>
+                        </div>
                     </div>
-                    <div class="form-floating mb-3">
-                        <InputSelect id="floatingTurno" class="form-select" @bind-Value="@DisciplinaEdit.Turno" placeholder="Turno">
-                            @foreach (var turno in ListaParametros.ListaTipoTurno)
-                            {
-                                <option value="@turno.Key">@turno.Value</option>
-                            }
-                        </InputSelect>
-                        <label for="floatingTurno">Turno</label>
+                    <div class="col-md-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputText id="floatingSigla" class="form-control" @bind-Value="@DisciplinaEdit.Sigla" placeholder="Sigla" />
+                            <label for="floatingNome">Sigla</label>
+                        </div>
                     </div>
-                    <div class="form-floating mb-3">
-                        <InputSelect id="floatingProfessor" class="form-select" @bind-Value="@DisciplinaEdit.ProfessorId" placeholder="Professor">
-                        <option value="0">--|Selecione|--</option>
-                            @foreach (var professor in Professores)
+                    <div class="col-md-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputSelect id="floatingTurno" class="form-select" @bind-Value="@DisciplinaEdit.Turno" placeholder="Turno">
+                                @foreach (var turno in ListaParametros.ListaTipoTurno)
+                                {
+                                    <option value="@turno.Key">@turno.Value</option>
+                                }
+                            </InputSelect>
+                            <label for="floatingTurno">Turno</label>
+                        </div>
+                        @if (!string.IsNullOrEmpty(ErrorMessageTurnoRequired))
+                        {
+                            <span class="text-danger">@ErrorMessageTurnoRequired</span>
+                        }
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputSelect id="floatingProfessor" class="form-select" @bind-Value="@DisciplinaEdit.ProfessorId" placeholder="Professor">
+                                <option value="0">--|Selecione|--</option>
+                                @foreach (var professor in Professores)
+                                {
+                                    <option value="@professor.ProfessorId">@professor.Nome</option>
+                                }
+                            </InputSelect>
+                            <label for="floatingProfessor">Professor</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <div class="form-floating mb-3">
+                            <InputSelect id="floatingPreRequisito" class="form-select" @bind-Value="@DisciplinaEdit.PreRequisito" placeholder="Pré-requisito">
+                                <option value="">Selecione a disciplina de pré-requisito</option>
+                                @foreach (var disciplina in DisciplinasPreRequisito.Where(x => x.Turno == DisciplinaEdit.Turno && x.EPreRequisito))
+                                {
+                                    <option value="@disciplina.Matricula">@disciplina.Nome - @disciplina.Sigla</option>
+                                }
+                            </InputSelect>
+                            <label for="floatingPreRequisito">Pré-requisito <strong>(Opcional)</strong></label>
+                            @if (!string.IsNullOrEmpty(ErrorMessagePreRequisito))
                             {
-                                <option value="@professor.ProfessorId">@professor.Nome</option>
+                                <span class="text-danger">@ErrorMessagePreRequisito</span>
                             }
-                        </InputSelect>
-                        <label for="floatingProfessor">Professor</label>
-                     </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-space">
+                        <div class="mb-3">
+                            <label for="pre_requisito">Disciplina é pré-requisito ? </label>
+                            <InputCheckbox id="pre_requisito" @bind-Value="DisciplinaEdit.EPreRequisito" />
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card-footer">
@@ -73,13 +112,16 @@ else
 
     Disciplina DisciplinaEdit;
     List<Professor> Professores = new List<Professor>();
+    List<Disciplina> DisciplinasPreRequisito = new List<Disciplina>();
     string Message = "";
+    string ErrorMessagePreRequisito = "";
+    string ErrorMessageTurnoRequired = "";
 
     protected override async Task OnInitializedAsync()
     {
         DisciplinaEdit = (await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = Convert.ToInt32(DisciplinaId) })).Result;
-
         Professores = (await _mediator.Send(new ObterProfessoresQuery())).Result;
+        DisciplinasPreRequisito = (await _mediator.Send(new ObterDisciplinasQuery())).Result;
     }
 
     private async Task EditDisciplinaAsync()
@@ -104,4 +146,35 @@ else
     {
         _navigationManager.NavigateTo("disciplines", forceLoad: true);
     }
+
+    protected async Task AlteraPreRequisito(ChangeEventArgs e)
+    {
+        if (string.IsNullOrEmpty(DisciplinaEdit.Turno))
+        {
+            ErrorMessageTurnoRequired = "Selecione o turno primeiro";
+        }
+        else
+        {
+            ErrorMessageTurnoRequired = null;
+
+            var preRequisito = e.Value.ToString();
+
+            var response = await VerificarPreRequisitoAsync(preRequisito, DisciplinaEdit.Turno);
+
+            if (response.Errors.Any())
+            {
+                ErrorMessagePreRequisito = string.Empty;
+            }
+            else
+            {
+                ErrorMessagePreRequisito = $"Pré-requisito já utilizado pela disciplina {response.Result.Nome}";
+            }
+        }
+    }
+
+    protected async Task<Response<Disciplina>> VerificarPreRequisitoAsync(string matricula, string turno)
+    {
+        return await _mediator.Send(new ConsultarPreRequisitoExistenteDisciplinaQuery { MatriculaDisciplina = matricula, Turno = turno });
+    }
+
 }

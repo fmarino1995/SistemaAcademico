@@ -2,11 +2,13 @@
 @using SistemaAcademicoApplication.Disciplinas.Queries
 @using SistemaAcademicoApplication.Professores.Queries
 @using SistemaAcademicoApplication.Semestres.Queries
+@using SistemaAcademicoApplication.Trabalhos.Commands
 @using SistemaAcademicoApplication.Trabalhos.Queries
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
 @inject IToastService _toastService
 @inject ICurrentUserService _currentUserService
+@inject IJSRuntime _jsRuntime
 
 @attribute [Authorize(Policy = Policies.IsProfessor)]
 
@@ -70,18 +72,34 @@
                             <td>@item.Aluno.Email</td>
                             <td>@item.SemestreVigente.Ano/@item.SemestreVigente.Semestre</td>
                             <td>@item.DataEnvio.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@item.Nota</td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownOpcoes" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Opções
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownOpcoes">
-                                        <li><a class="dropdown-item" href="javascript:void(0)" ><span class="oi oi-data-transfer-download" aria-hidden="true"></span> Download do arquivo</a></li>
-                                        <li><a class="dropdown-item" href="javascript:void(0)" ><span class="oi oi-pencil" aria-hidden="true"></span> Inserir nota</a></li>
-                                    </ul>
-                                </div>
-                            </td>
+                            @if (item.EditNota)
+                            {
+                                <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.Nota"/></td>
+                            }
+                            else
+                            {
+                                <td>@item.Nota</td>
+                            }
+                            @if(item.EditNota)
+                            {
+                                <td>
+                                    <input class="btn btn-outline-success btn-sm" value="Salvar" @onclick="() => SalvarNotaTrabalho(item)" />
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownOpcoes" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Opções
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownOpcoes">
+                                            <li><a class="dropdown-item" href="javascript:void(0)" @onclick="() => DownloadFileFromStream(item.CaminhoArquivo, item.NomeArquivo)" download="@item.NomeArquivo"><span class="oi oi-data-transfer-download" aria-hidden="true"></span> Download do arquivo</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0)" @onclick="() => item.EditNota = !item.EditNota"><span class="oi oi-pencil" aria-hidden="true"></span> Inserir nota</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>
@@ -98,6 +116,9 @@
     List<Trabalho> TrabalhosImportadosDiciplina;
     string turno;
     bool exibirTable;
+    bool editNota;
+    string classNotas = "notas";
+    bool botaoNota;
 
     protected override async Task OnInitializedAsync()
     {
@@ -141,6 +162,23 @@
         return await Task.FromResult(currentUser);
     }
 
+    private async Task SalvarNotaTrabalho(Trabalho trabalho)
+    {
+        var response = await _mediator.Send(new InserirNotaTrabalhoAlunoCommand { Trabalho = trabalho });
+
+        if(response.Errors.Any())
+        {
+            _toastService.ShowError("Erro ao inserir a nota no trabalho. Tente novamente.");
+        }
+        else
+        {
+            _toastService.ShowSuccess("Nota inserida com sucesso!");
+        }
+
+        editNota = !editNota;
+        StateHasChanged();
+    }
+
     private void AlteraTurno(ChangeEventArgs e)
     {
         turno = e.Value.ToString();
@@ -156,4 +194,21 @@
 
         StateHasChanged();
     }
+
+    private Stream GetFileStream(string filePath)
+    {
+        return File.OpenRead(filePath);
+    }
+
+    private async Task DownloadFileFromStream(string filePath, string name)
+    {
+        var fileStream = GetFileStream(filePath);
+        var fileName = name;
+
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+
+        await _jsRuntime.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
+
+    private async Task MaskInput() => await _jsRuntime.InvokeVoidAsync("mask", new object[] { $"{classNotas}" });
 }
