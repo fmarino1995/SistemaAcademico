@@ -71,6 +71,17 @@ else
                     </div>
                     <div class="col-md-6 col-lg-6 form-space">
                         <div class="form-floating mb-3">
+                            <select id="floatingStatus" class="form-select" @bind="aluno.Status">
+                                @foreach(var item in ListaParametros.ListaTipoStatus)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                            <label for="floatingStatus">Status</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 form-space">
+                        <div class="form-floating mb-3">
                             <InputSelect class="form-select" @bind-Value="@aluno.ApplicationUserId" @onchange="VerificarEmailUsuario">
                                 <option selected value="floatingEmail">|--Selecione--|</option>
                                 @foreach (var user in UsersList.Where(u => u.RoleId == ConstantesSistema.RoleAluno))

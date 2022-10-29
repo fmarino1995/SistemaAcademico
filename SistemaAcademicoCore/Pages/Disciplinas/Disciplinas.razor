@@ -254,9 +254,9 @@
     protected override async Task OnInitializedAsync()
     {
         var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery
-            {
-                Email = await _currentUserService.GetUserNameAsync()
-            });
+        {
+            Email = await _currentUserService.GetUserNameAsync()
+        });
 
         ProfessorLogado = professorLogado.Result;
 
