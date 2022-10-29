@@ -73,6 +73,49 @@
                 </ul>
             </div>
         </div>
+
+        @if(PagedAvisos.Results.Count > 0)
+                    {
+                        <div class="card-body">
+                            <div class="list-group">
+                                @foreach (var aviso in PagedAvisos.Results)
+                                {
+                                    <a href="javascript:void(0)" class="list-group-item list-group-item-action" aria-current="true">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h4 class="mb-1">@aviso.Titulo</h4>
+                                            <small class="text-muted">
+                                                @(
+                                                    ContarDias(aviso.DataHoraCriacao) == 0 ? "Hoje" : ContarDias(aviso.DataHoraCriacao) == 1
+                                                    ? ContarDias(aviso.DataHoraCriacao) + " dia atrás" : ContarDias(aviso.DataHoraCriacao) + " dias atrás"
+                                                 )
+                                            </small>
+                                        </div>
+                                        <p class="mb-1">De: @aviso.UsuarioCriacao</p>
+                                        <small class="text-muted" @onclick="() => SlideToggle(aviso.AvisoId.ToString())"><u>Clique para detalhes</u></small>
+                                        <div class="infos" id="@aviso.AvisoId.ToString()" style="display: none;">
+                                            <hr class="hr1"/>
+                                            <div style="font-size: 15px;">@((MarkupString)aviso.Texto)</div>
+                                            @if(!string.IsNullOrEmpty(aviso.CaminhoArquivo))
+                                            {
+                                                <hr class="hr1" />
+                                                <small class="text-muted" @onclick="() => DownloadFileFromStream(aviso.CaminhoArquivo, aviso.NomeArquivo)" download="@aviso.NomeArquivo">
+                                                    Para baixar o arquivo <u>clique aqui</u>
+                                                </small>
+                                            }
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                            <div class="text-left">
+                                <p>Mostrando @PagedAvisos.FisrtRowOnPage até @PagedAvisos.LastRowOnPage de @PagedAvisos.RowCount registros</p>
+                                <Paginador TotalPaginas="PagedAvisos.PageCount" PaginaAtual="PaginaAtual" OnIrPagina="OnIrPagina" />
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted" style="margin-left: 24px;">Nenhuma notificação disponível</p>
+                    }
     }
 </AuthorizeView>
 
