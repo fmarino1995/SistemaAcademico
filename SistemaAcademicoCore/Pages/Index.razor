@@ -2,11 +2,40 @@
 @page "/{Message}"
 @using SistemaAcademicoApplication.Avisos.Queries
 @using System.Security.Claims
+@using SistemaAcademicoApplication.RespostaAvisos.Queries
 @layout MainLayout
 @inject IMediator _mediator
 @inject IToastService _toastService
 @inject ICurrentUserService _currentUserService
+@inject IJSRuntime _jsRuntime
 @attribute [Authorize]
+
+
+@*<Modal @ref="ModalRespostas" Title="Mensagens">
+    <div class="modal-body">
+        @if (RespostasAviso.Count > 0)
+        {
+            foreach (var resposta in RespostasAviso)
+            {
+                <hr class="hr1" />
+                <p>@resposta.UsuarioCriacao @resposta.DataHoraResposta.ToString("dd/MM/yyyy HH:mm")</p>
+                <div style="font-size: 15px;">@resposta.Mensagem)</div>
+            }
+
+            <div class="form-space">
+                <div class="form-floating mb-3">
+                    <InputTextArea rows="5" id="floatingtexto" class="form-control rounded-0" placeholder="Texto" @bind-Value="@Resposta.Mensagem" />
+                    <label for="floatingtexto">Mensagem</label>
+                </div>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Salvar" @onclick="() => AddRespostaAvisoAsync(RespostasAviso.First().AvisoId, )" />
+        }
+        else
+        {
+            <div style="font-size: 15px;"><p>Nenhuma resposta encontrada.</p></div>
+        }
+    </div>
+</Modal>*@
 
 
 <Modal @ref="Modal" Title="Novo Aviso">
@@ -30,6 +59,25 @@
                     <input type="checkbox" @onclick="() => Aviso.IsSelectedGrupo = !Aviso.IsSelectedGrupo" disabled="@(disableGroupCheck)" @onchange="CheckAviso" /> Grupo de usuários |
                     <input type="checkbox" @onclick="() => Aviso.IsSelectedGrupoDisciplina = !Aviso.IsSelectedGrupoDisciplina" disabled="@(disableDisciplinaGroupCheck)" @onchange="CheckAviso" /> Todos de uma disciplina
                 </div>
+
+            </div>
+            <div class="col-md-12">
+                @if (Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupo && !Aviso.IsSelectedGrupoDisciplina)
+                {
+                    <label>Digite o e-mail de destino</label>
+                    <div class="form-floating mb-3">
+                        <InputText rows="5" id="floatingtexto" class="form-control rounded-0" placeholder="E-mail" @bind-Value="emailDestino" />
+                        <label for="floatingtexto">E-mail</label>
+                    </div>
+                }
+                else if (Aviso.IsSelectedGrupoDisciplina && !Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupo)
+                {
+
+                }
+                else if (Aviso.IsSelectedGrupo && !Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupoDisciplina)
+                {
+
+                }
             </div>
         </div>
         <div class="modal-footer">
@@ -43,7 +91,7 @@
 
     <PageTitle>Administração - SistemaAcademico</PageTitle>
 
-    @if (Avisos == null)
+    @if (TodosAvisos == null)
     {
         <br />
         <br />
@@ -63,7 +111,7 @@
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    @foreach (var aviso in Avisos)
+                    @foreach (var aviso in TodosAvisos)
                     {
                         <li class="list-group-item">
                             <p>@aviso.Titulo - @aviso.DataCriacao.ToString("dd-MM-yyyy")</p>
@@ -74,48 +122,45 @@
             </div>
         </div>
 
-        @if(PagedAvisos.Results.Count > 0)
+        @if (TodosAvisos.Count > 0)
+        {
+            <div class="card-body">
+                <div class="list-group">
+                    @foreach (var aviso in Avisos)
                     {
-                        <div class="card-body">
-                            <div class="list-group">
-                                @foreach (var aviso in PagedAvisos.Results)
-                                {
-                                    <a href="javascript:void(0)" class="list-group-item list-group-item-action" aria-current="true">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h4 class="mb-1">@aviso.Titulo</h4>
-                                            <small class="text-muted">
-                                                @(
-                                                    ContarDias(aviso.DataHoraCriacao) == 0 ? "Hoje" : ContarDias(aviso.DataHoraCriacao) == 1
-                                                    ? ContarDias(aviso.DataHoraCriacao) + " dia atrás" : ContarDias(aviso.DataHoraCriacao) + " dias atrás"
-                                                 )
-                                            </small>
-                                        </div>
-                                        <p class="mb-1">De: @aviso.UsuarioCriacao</p>
-                                        <small class="text-muted" @onclick="() => SlideToggle(aviso.AvisoId.ToString())"><u>Clique para detalhes</u></small>
-                                        <div class="infos" id="@aviso.AvisoId.ToString()" style="display: none;">
-                                            <hr class="hr1"/>
-                                            <div style="font-size: 15px;">@((MarkupString)aviso.Texto)</div>
-                                            @if(!string.IsNullOrEmpty(aviso.CaminhoArquivo))
-                                            {
-                                                <hr class="hr1" />
-                                                <small class="text-muted" @onclick="() => DownloadFileFromStream(aviso.CaminhoArquivo, aviso.NomeArquivo)" download="@aviso.NomeArquivo">
-                                                    Para baixar o arquivo <u>clique aqui</u>
-                                                </small>
-                                            }
-                                        </div>
-                                    </a>
-                                }
+                        <a href="javascript:void(0)" class="list-group-item list-group-item-action" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h4 class="mb-1">@aviso.Titulo</h4>
+                                <small class="text-muted">
+                                    @(
+                                        ContarDias(aviso.DataCriacao) == 0 ? "Hoje" : ContarDias(aviso.DataCriacao) == 1
+                                        ? ContarDias(aviso.DataCriacao) + " dia atrás" : ContarDias(aviso.DataCriacao) + " dias atrás"
+                                        )
+                                </small>
                             </div>
-                            <div class="text-left">
-                                <p>Mostrando @PagedAvisos.FisrtRowOnPage até @PagedAvisos.LastRowOnPage de @PagedAvisos.RowCount registros</p>
-                                <Paginador TotalPaginas="PagedAvisos.PageCount" PaginaAtual="PaginaAtual" OnIrPagina="OnIrPagina" />
+                            <p class="mb-1">De: @aviso.UsuarioCriacao</p>
+                            <small class="text-muted" @onclick="() => SlideToggle(aviso.AvisoId.ToString())"><u>Clique para detalhes</u></small>
+                            <div class="infos" id="@("aviso"+aviso.AvisoId.ToString())" style="display: none;">
+                                <hr class="hr1" />
+                                <div style="font-size: 15px;">@aviso.Texto</div>
+                                <br />
                             </div>
-                        </div>
+                        </a>
                     }
-                    else
-                    {
-                        <p class="text-muted" style="margin-left: 24px;">Nenhuma notificação disponível</p>
-                    }
+                </div>
+                @*<div class="text-left">
+        <Pagination TotalPages="@(totalPages != 0 ? totalPages : 1)"
+        PageIndex="@State.PageIndex"
+        Radius="3"
+        OnSelectedPage="@SelectedPage">
+        </Pagination>
+        </div>*@
+            </div>
+        }
+        else
+        {
+            <p class="text-muted" style="margin-left: 24px;">Nenhuma notificação disponível</p>
+        }
     }
 </AuthorizeView>
 
@@ -196,10 +241,16 @@
 @code {
     [Parameter]
     public string Message { get; set; }
+    //[CascadingParameter]
+    //PageIndexStateProvider State { get; set; }
 
     private Modal Modal { get; set; }
+    private Modal ModalRespostas { get; set; }
 
+    private List<Aviso> TodosAvisos;
+    private RespostaAviso Resposta = new RespostaAviso();
     private List<Aviso> Avisos;
+    private List<RespostaAviso> RespostasAviso;
     bool IsUserAuthenticated;
     ClaimsPrincipal user;
     Aviso Aviso;
@@ -209,6 +260,10 @@
     bool selectUser;
     bool selectGroup;
     bool selectDisciplineGroup;
+    string emailDestino;
+
+    //private int itemsPerPage = 5;
+    //private int totalPages = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -222,9 +277,29 @@
             _toastService.ShowInfo("Erro ao carregar os últimos avisos");
         }
 
-        Avisos = ultimosAvisos.Result;
+        TodosAvisos = ultimosAvisos.Result;
+
+
+        //if(TodosAvisos != null)
+        //{
+        //    totalPages = (int)(Avisos.Count() / itemsPerPage);
+
+
+        //    var skipCount = itemsPerPage * (State.PageIndex - 1);
+        //    Avisos = TodosAvisos.Skip(skipCount).Take(itemsPerPage).ToList();
+        //}
 
     }
+
+    //private void SelectedPage(int selectedPageIndex)
+    //{
+    //    if (TodosAvisos != null)
+    //    {
+    //        State.PageIndex = selectedPageIndex;
+    //        var skipCount = itemsPerPage * (State.PageIndex - 1);
+    //        Avisos = TodosAvisos.Skip(skipCount).Take(itemsPerPage).ToList();
+    //    }
+    //}
 
     private void CheckAviso()
     {
@@ -235,6 +310,8 @@
             selectUser = true;
             selectDisciplineGroup = false;
             selectGroup = false;
+
+
         }
         else if (Aviso.IsSelectedGrupoDisciplina && !Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupo)
         {
@@ -265,15 +342,25 @@
         StateHasChanged();
     }
 
+    protected async Task GetUsuários()
+    {
+
+    }
+
     private async Task AddAvisoAsync()
     {
         if (Aviso.IsSelectedUsuario)
         {
 
         }
-
-
     }
+
+    protected async Task SlideToggle(string selector)
+    {
+        await _jsRuntime.InvokeVoidAsync("slideToggle", $"#{selector}");
+    }
+
+    protected int ContarDias(DateTime dataAviso) => (DateTime.Now - dataAviso).Days;
 
     protected override void OnAfterRender(bool firstRender)
     {

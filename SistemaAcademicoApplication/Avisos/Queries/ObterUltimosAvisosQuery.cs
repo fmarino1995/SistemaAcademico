@@ -27,7 +27,6 @@ namespace SistemaAcademicoApplication.Avisos.Queries
                 .Include(a => a.ApplicationUser)
                 .OrderByDescending(a => a.DataCriacao)
                 .Where(a => a.ApplicationUser.Email == request.EmailUsuario)
-                .Take(10)
                 .ToListAsync();
 
 
