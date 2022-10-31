@@ -1,8 +1,12 @@
 ﻿@page "/"
 @page "/{Message}"
+@using SistemaAcademicoApplication.Avisos.Commands
 @using SistemaAcademicoApplication.Avisos.Queries
 @using System.Security.Claims
+@using SistemaAcademicoApplication.Disciplinas.Queries
+@using SistemaAcademicoApplication.Professores.Queries
 @using SistemaAcademicoApplication.RespostaAvisos.Queries
+@using SistemaAcademicoApplication.Usuarios.Queries
 @layout MainLayout
 @inject IMediator _mediator
 @inject IToastService _toastService
@@ -56,27 +60,28 @@
             <div class="row">
                 <div class="col-md-12">
                     <input type="checkbox" @onclick="() => Aviso.IsSelectedUsuario = !Aviso.IsSelectedUsuario" disabled="@(disableUserCheck)" @onchange="CheckAviso" /> Apenas um usuário |
-                    <input type="checkbox" @onclick="() => Aviso.IsSelectedGrupo = !Aviso.IsSelectedGrupo" disabled="@(disableGroupCheck)" @onchange="CheckAviso" /> Grupo de usuários |
                     <input type="checkbox" @onclick="() => Aviso.IsSelectedGrupoDisciplina = !Aviso.IsSelectedGrupoDisciplina" disabled="@(disableDisciplinaGroupCheck)" @onchange="CheckAviso" /> Todos de uma disciplina
                 </div>
 
             </div>
             <div class="col-md-12">
-                @if (Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupo && !Aviso.IsSelectedGrupoDisciplina)
+                @if (Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupoDisciplina)
                 {
                     <label>Digite o e-mail de destino</label>
                     <div class="form-floating mb-3">
-                        <InputText rows="5" id="floatingtexto" class="form-control rounded-0" placeholder="E-mail" @bind-Value="emailDestino" />
+                        <InputText id="floatingtexto" class="form-control rounded-0" placeholder="E-mail" @bind-Value="@Aviso.EmailDestino" />
                         <label for="floatingtexto">E-mail</label>
                     </div>
+                    <input type="submit" class="btn btn-primary" value="Salvar" />
                 }
-                else if (Aviso.IsSelectedGrupoDisciplina && !Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupo)
+                else if (Aviso.IsSelectedGrupoDisciplina && !Aviso.IsSelectedUsuario)
                 {
-
-                }
-                else if (Aviso.IsSelectedGrupo && !Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupoDisciplina)
-                {
-
+                    <label>Digite o e-mail de destino</label>
+                    <div class="form-floating mb-3">
+                        <InputText id="floatingtexto" class="form-control rounded-0" placeholder="E-mail" @bind-Value="@Aviso.EmailDestino" />
+                        <label for="floatingtexto">E-mail</label>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Salvar" />
                 }
             </div>
         </div>
@@ -107,7 +112,7 @@
                 <div class="titulo-card">
                     Quadro de avisos - Admin
                 </div>
-                <a href="javascript:void(0)" @onclick="() => Modal.Open()" title="Novo aviso"><span class="oi oi-plus"></span> Novo aviso</a>
+                <a href="javascript:void(0)" @onclick="OpenModalAviso" title="Novo aviso"><span class="oi oi-plus"></span> Novo aviso</a>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
@@ -251,6 +256,7 @@
     private RespostaAviso Resposta = new RespostaAviso();
     private List<Aviso> Avisos;
     private List<RespostaAviso> RespostasAviso;
+    private List<Disciplina> DisciplinasProfessorList = new List<Disciplina>();
     bool IsUserAuthenticated;
     ClaimsPrincipal user;
     Aviso Aviso;
@@ -303,7 +309,7 @@
 
     private void CheckAviso()
     {
-        if (Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupo && !Aviso.IsSelectedGrupoDisciplina)
+        if (Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupoDisciplina)
         {
             disableGroupCheck = true;
             disableDisciplinaGroupCheck = true;
@@ -313,20 +319,12 @@
 
 
         }
-        else if (Aviso.IsSelectedGrupoDisciplina && !Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupo)
+        else if (Aviso.IsSelectedGrupoDisciplina && !Aviso.IsSelectedUsuario)
         {
             disableUserCheck = true;
             disableGroupCheck = true;
             selectDisciplineGroup = true;
             selectGroup = false;
-            selectUser = false;
-        }
-        else if (Aviso.IsSelectedGrupo && !Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupoDisciplina)
-        {
-            disableUserCheck = true;
-            disableDisciplinaGroupCheck = true;
-            selectGroup = true;
-            selectDisciplineGroup = false;
             selectUser = false;
         }
         else
@@ -342,14 +340,36 @@
         StateHasChanged();
     }
 
-    protected async Task GetUsuários()
+    private async Task OpenModalAviso()
     {
-
+        var usuarioLogado = await _currentUserService.GetUserNameAsync();
+        var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery { Email = usuarioLogado });
+        DisciplinasProfessorList = (await _mediator.Send(new ObterDisciplinasProfessorIdQuery { ProfessorId = professorLogado.Result.ProfessorId })).Result;
     }
 
     private async Task AddAvisoAsync()
     {
-        if (Aviso.IsSelectedUsuario)
+        if (Aviso.IsSelectedUsuario && !Aviso.IsSelectedGrupoDisciplina)
+        {
+            Aviso.DataCriacao = DateTime.Now;
+            Aviso.UsuarioCriacao = await _currentUserService.GetUserNameAsync();
+
+            var emailUsuarioResponse = await _mediator.Send(new ConsultarEmailUsuarioQuery { Email = Aviso.EmailDestino });
+
+            if(emailUsuarioResponse.Errors.Any())
+            {
+                _toastService.ShowError("Usuário não encontrado com o e-mail informado. Tente novamente.");
+            }
+            else
+            {
+                Aviso.ApplicationUserId = emailUsuarioResponse.Result.Id;
+                await _mediator.Send(new CriarAvisoCommand { Aviso = Aviso });
+                _toastService.ShowSuccess("Aviso criado com sucesso!");
+                Modal.Close();
+                StateHasChanged();
+            }
+        }
+        else if (Aviso.IsSelectedGrupoDisciplina && !Aviso.IsSelectedUsuario)
         {
 
         }
