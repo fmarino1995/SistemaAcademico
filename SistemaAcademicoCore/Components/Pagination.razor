@@ -36,12 +36,10 @@
     {
         pageItems = new List<PageItem>();
 
-        // 1. Create the previous page.
         var hasPreviosPage = PageIndex > 1;
         var previousPageIndex = PageIndex - 1;
-        pageItems.Add(new PageItem(previousPageIndex, hasPreviosPage, "Prev"));
+        pageItems.Add(new PageItem(previousPageIndex, hasPreviosPage, "Anterior"));
 
-        // 2. Create pages and add them to the pageItems list.
         if (Radius >= TotalPages)
             Radius = TotalPages - 1;
 
@@ -50,16 +48,15 @@
             if (i >= PageIndex - Radius && i < PageIndex + Radius)
             {
                 pageItems.Add(new PageItem(i, true, i.ToString())
-                    {
-                        Active = PageIndex == i
-                    });
+                {
+                    Active = PageIndex == i
+                });
             }
         }
 
-        // 3. Create next the page.
         var hasNextPage = PageIndex < TotalPages;
         var nextPageIndex = PageIndex + 1;
-        pageItems.Add(new PageItem(nextPageIndex, hasNextPage, "Next"));
+        pageItems.Add(new PageItem(nextPageIndex, hasNextPage, "Proximo"));
     }
 
     private async Task SelectCurrentPage(PageItem pageItem)
