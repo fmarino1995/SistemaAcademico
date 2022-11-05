@@ -29,10 +29,11 @@
                     <div class="form-floating mb-3">
                         <select class="form-select" @onchange="AlteraSemestre" id="floatingSemestre">
                             <option selected value="">Selecione o semestre</option>
-                            @foreach (var item in Semestres)
+                            @*@foreach (var item in Semestres)
                             {
                                 <option value="@item.SemestreVigenteId">@item.Ano/@item.Semestre</option>
-                            }
+                            }*@
+                            <option value="@SemestreVigente.SemestreVigenteId">@SemestreVigente.Ano/@SemestreVigente.Semestre</option>
                         </select>
                         <label for="floatingSemestre">Semestre</label>
                     </div>
@@ -144,7 +145,7 @@
     string MensagemValidacao = string.Empty;
     IBrowserFile selectedFile;
     List<Trabalho> TrabalhosEnviados;
-    SemestreVigente SemestreVigente;
+    SemestreVigente SemestreVigente = new SemestreVigente();
     List<SemestreVigente> Semestres = new List<SemestreVigente>();
     Aluno AlunoLogado;
     List<DisciplinaAluno> DisciplinasAlunoList = new List<DisciplinaAluno>();
@@ -160,7 +161,7 @@
         var alunoLogado = await _mediator.Send(new ObterAlunoEmailQuery { Email = usuarioLogado });
         AlunoLogado = alunoLogado.Result;
         var semestreResponse = await GetSemestreVigenteAsync();
-        DisciplinasAlunoListOriginal = await GetDisciplinasAlunoAsync(AlunoLogado.AlunoId);
+        DisciplinasAlunoListOriginal = (await GetDisciplinasAlunoAsync(AlunoLogado.AlunoId)).Where(d => d.SemestreVigenteId == semestreResponse.Result.SemestreVigenteId).ToList();
         DisciplinasAlunoList = DisciplinasAlunoListOriginal;
         Semestres = await GetSemestresAlunoAsync(AlunoLogado.AlunoId);
 

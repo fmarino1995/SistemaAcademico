@@ -71,7 +71,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Log da importação</label>
-                    <textarea readonly rows="10" class="form-control">@log</textarea>
+                    <textarea readonly rows="10" class="form-control text-danger">@log</textarea>
                 </div>
             </div>
         </div>
@@ -131,6 +131,15 @@
             qtdImportados = importacaoResponse.Result.QtdImportados;
             qtdNaoImportados = importacaoResponse.Result.QtdNaoImportados;
             ResultadoImportacao = true;
+
+            if(importacaoResponse.Result.LogImportacao.Errors.Count > 0)
+            {
+                foreach (var erro in importacaoResponse.Result.LogImportacao.Errors)
+                {
+                    log += string.Format("\n {0} \n", erro);
+                }
+            }
+
             spinner = false;
             this.StateHasChanged();
         }

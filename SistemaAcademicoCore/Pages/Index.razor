@@ -46,14 +46,14 @@
 
 <Modal @ref="Modal" Title="Novo Aviso">
     <EditForm Model="@Aviso" OnValidSubmit="AddAvisoAsync">
-        <FluentValidationValidator/>
+        <FluentValidationValidator />
         <div class="modal-body">
             <div class="form-group">
                 <div class="form-floating mb-3">
                     <InputText id="floatingNome" class="form-control" placeholder="Título" @bind-Value="@Aviso.Titulo" />
                     <label for="floatingNome">Título</label>
                 </div>
-                <ValidationMessage class="text-danger" For="() => Aviso.Titulo"/>
+                <ValidationMessage class="text-danger" For="() => Aviso.Titulo" />
             </div>
             <div class="form-group">
                 <div class="form-floating mb-3">
@@ -153,7 +153,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="titulo-card">
-                    Quadro de avisos - Admin
+                    Quadro de avisos - Administrador
                 </div>
                 <a href="javascript:void(0)" @onclick="() => OpenModalAviso()" title="Novo aviso"><span class="oi oi-plus"></span> Novo aviso</a>
             </div>
@@ -225,20 +225,7 @@
                 </div>
                 <a href="javascript:void(0)" @onclick="() => OpenModalAviso(isProfessor: true)" title="Novo aviso"><span class="oi oi-plus"></span> Novo aviso</a>
             </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    @foreach (var aviso in TodosAvisos)
-                    {
-                        <li class="list-group-item">
-                            <p>@aviso.Titulo - @aviso.DataCriacao.ToString("dd-MM-yyyy")</p>
-                            <p>@aviso.Texto</p>
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>
-
-        @if (TodosAvisos.Count > 0)
+            @if (TodosAvisos.Count > 0)
         {
             <div class="card-body">
                 <div class="list-group">
@@ -256,27 +243,29 @@
                             </div>
                             <p class="mb-1">De: @aviso.UsuarioCriacao</p>
                             <small class="text-muted" @onclick="() => SlideToggle(aviso.AvisoId.ToString())"><u>Clique para detalhes</u></small>
-                            <div class="infos" id="@("aviso"+aviso.AvisoId.ToString())" style="display: none;">
+                            <div class="infos" id="@(aviso.AvisoId.ToString())" style="display: none;">
                                 <hr class="hr1" />
+                                    <h5>Mensagem:</h5>
                                 <div style="font-size: 15px;">@aviso.Texto</div>
                                 <br />
                             </div>
                         </a>
                     }
                 </div>
-                @*<div class="text-left">
-        <Pagination TotalPages="@(totalPages != 0 ? totalPages : 1)"
-        PageIndex="@State.PageIndex"
-        Radius="3"
-        OnSelectedPage="@SelectedPage">
-        </Pagination>
-        </div>*@
+                <div class="text-left">
+                    <Pagination TotalPages="@(totalPages != 0 ? totalPages : 1)"
+                        PageIndex="@State.PageIndex"
+                        Radius="5"
+                        OnSelectedPage="@SelectedPage">
+                    </Pagination>
+                </div>
             </div>
         }
         else
         {
             <p class="text-muted" style="margin-left: 24px;">Nenhuma notificação disponível</p>
         }
+        </div>
     }
 </AuthorizeView>
 
@@ -298,7 +287,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="titulo-card">
-                    Quadro de avisos - Admin
+                    Quadro de avisos - Aluno
                 </div>
                 <a href="javascript:void(0)" @onclick="() => OpenModalAviso()" title="Novo aviso"><span class="oi oi-plus"></span> Novo aviso</a>
             </div>
@@ -532,13 +521,13 @@
                     foreach (var aluno in alunosDisciplinaResponse.Result)
                     {
                         var aviso = new Aviso
-                        {
-                            Titulo = Aviso.Titulo,
-                            Texto = Aviso.Texto,
-                            DataCriacao = DateTime.Now,
-                            UsuarioCriacao = await _currentUserService.GetUserNameAsync(),
-                            ApplicationUserId = (await _mediator.Send(new ConsultarEmailUsuarioQuery { Email = aluno.Aluno.Email })).Result.Id,
-                        };
+                            {
+                                Titulo = Aviso.Titulo,
+                                Texto = Aviso.Texto,
+                                DataCriacao = DateTime.Now,
+                                UsuarioCriacao = await _currentUserService.GetUserNameAsync(),
+                                ApplicationUserId = (await _mediator.Send(new ConsultarEmailUsuarioQuery { Email = aluno.Aluno.Email })).Result.Id,
+                            };
 
                         await _mediator.Send(new CriarAvisoCommand { Aviso = aviso });
                     }
@@ -547,6 +536,27 @@
                     Modal.Close();
                     StateHasChanged();
                 }
+            }
+        }
+        else
+        {
+            Aviso.DataCriacao = DateTime.Now;
+            Aviso.UsuarioCriacao = await _currentUserService.GetUserNameAsync();
+
+            var emailUsuarioResponse = await _mediator.Send(new ConsultarEmailUsuarioQuery { Email = Aviso.EmailDestino });
+
+            if (emailUsuarioResponse.Errors.Any())
+            {
+                _toastService.ShowError("Usuário não encontrado com o e-mail informado. Tente novamente.");
+                errorMessageEmailNaoEncontrado = "Usuário não encontrado com o e-mail informado.";
+            }
+            else
+            {
+                Aviso.ApplicationUserId = emailUsuarioResponse.Result.Id;
+                await _mediator.Send(new CriarAvisoCommand { Aviso = Aviso });
+                _toastService.ShowSuccess("Aviso criado com sucesso!");
+                Modal.Close();
+                StateHasChanged();
             }
         }
     }
