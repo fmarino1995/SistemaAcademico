@@ -42,6 +42,14 @@
                 }
             </tbody>
         </table>
+        @if(!string.IsNullOrEmpty(errorMessagePresenca))
+        {
+            <div class="row">
+                <div class="col-md-12">
+                    <p class="text-danger" style="font-size: 18px;">@errorMessagePresenca</p>
+                </div>
+            </div>
+        }
     </div>
     <div class="modal-footer">
         <div class="row">
@@ -232,6 +240,7 @@ else
     bool disableCheckPresenca;
     bool disableCheckFalta;
     string classNotas = "notas";
+    string errorMessagePresenca = "";
 
     private Modal Modal { get; set; }
     private Modal ModalEdit { get; set; }
@@ -394,27 +403,38 @@ else
 
     private async Task GravarPresencaAlunos(List<DisciplinaAluno> Alunos)
     {
-        spinner = true;
-        StateHasChanged();
+        var check = Alunos.Where(x => x.IsPresenca == false && x.IsFalta == false && x.Excluido == false).FirstOrDefault();
 
-        var response = await _mediator.Send(new GravarPresencaAlunosCommand
+        if(check != null)
         {
-            Alunos = Alunos
-        });
-
-        if (response.Errors.Any())
-        {
-            spinner = false;
-            _toastService.ShowError("Ocorreu um erro ao gravar a presença.");
-            Modal.Close();
-            Refresh();
+            errorMessagePresenca = "Selecione presença ou falta para todos os alunos";
+            StateHasChanged();
         }
         else
         {
-            spinner = false;
-            _toastService.ShowSuccess("Presença gravado com sucesso!");
+            errorMessagePresenca = "";
+            spinner = true;
             StateHasChanged();
-            Modal.Close();
+
+            var response = await _mediator.Send(new GravarPresencaAlunosCommand
+            {
+                Alunos = Alunos
+            });
+
+            if (response.Errors.Any())
+            {
+                spinner = false;
+                _toastService.ShowError("Ocorreu um erro ao gravar a presença.");
+                Modal.Close();
+                Refresh();
+            }
+            else
+            {
+                spinner = false;
+                _toastService.ShowSuccess("Presença gravado com sucesso!");
+                StateHasChanged();
+                Modal.Close();
+            }
         }
     }
 
