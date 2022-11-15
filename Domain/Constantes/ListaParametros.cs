@@ -22,5 +22,11 @@
             new KeyValuePair<int, string>(Parametros.QuartoPeriodo, DescricaoParametros.DescricaoQuartoPeriodo),
             new KeyValuePair<int, string>(Parametros.QuintoPeriodo, DescricaoParametros.DescricaoQuintoPeriodo)
         };
+
+        public static List<KeyValuePair<string, string>> ListaPerfis = new List<KeyValuePair<string, string>>
+        {
+            new KeyValuePair<string, string>(ConstantesSistema.RoleAluno, ConstantesSistema.DescricaoRoleAluno),
+            new KeyValuePair<string, string>(ConstantesSistema.RoleProfessor, ConstantesSistema.DescricaoRoleProfessor)
+        };
     }
 }

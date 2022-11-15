@@ -19,6 +19,7 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
     {
         public IBrowserFile File { get; set; }
         public string FilePath { get; set; }
+        public string PerfilImportacao { get; set; }
     }
 
     public class ImportarLoteUsuariosCommandHandler : IRequestHandler<ImportarLoteUsuariosCommand, Response<ImportarUsuariosViewModel>>
@@ -85,7 +86,7 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
                             DataAlteracao = DateTime.Now,
                             Status = ConstantesLogin.StatusUsuarioAtivo,
                             UserName = email,
-                            RoleId = ConstantesSistema.RoleAluno
+                            RoleId = request.PerfilImportacao
                         };
 
                         var result = await _userService.CreateUserAsync(user);
@@ -100,11 +101,10 @@ namespace SistemaAcademicoApplication.Usuarios.Commands
                                 UserRole = new IdentityUserRole<string>
                                 {
                                     UserId = user.Id,
-                                    RoleId = ConstantesSistema.RoleAluno
+                                    RoleId = request.PerfilImportacao
                                 }
                             });
                         }
-                            
                     }
                 }
 

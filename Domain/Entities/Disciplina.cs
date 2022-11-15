@@ -18,5 +18,6 @@ namespace Domain.Entities
         public string Matricula { get; set; }
         public string PreRequisito { get; set; }
         public int PeriodoDisciplina { get; set; }
+        public bool EPreRequisito { get; set; }
     }
 }

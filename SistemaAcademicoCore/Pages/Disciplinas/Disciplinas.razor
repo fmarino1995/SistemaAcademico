@@ -17,7 +17,7 @@
 <!--Professor-->
 <AuthorizeView Policy="@Policies.IsProfessor">
 
-    <Modal @ref="Modal" Title="Confirmação">
+    <Modal @ref="Modal" Title="Alunos da disciplina">
         <div class="modal-body">
             @if (DisciplinasAlunos == null)
             {
@@ -254,9 +254,9 @@
     protected override async Task OnInitializedAsync()
     {
         var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery
-            {
-                Email = await _currentUserService.GetUserNameAsync()
-            });
+        {
+            Email = await _currentUserService.GetUserNameAsync()
+        });
 
         ProfessorLogado = professorLogado.Result;
 

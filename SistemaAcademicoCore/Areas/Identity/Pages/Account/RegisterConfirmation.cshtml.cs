@@ -47,7 +47,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
         /// </summary>
         public string EmailConfirmationUrl { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string email, string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync(string email, string senha, string returnUrl = null)
         {
             if (email == null)
             {
@@ -62,7 +62,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             }
 
             Email = email;
-            // Once you add a real email sender, you should remove this code that lets you confirm the account
+            EMailRequest EmailModel;
 
             var userId = await _userManager.GetUserIdAsync(user);
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -73,31 +73,38 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
                 values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                 protocol: Request.Scheme);
 
-            var emailModel = new EMailRequest
+            if (!string.IsNullOrEmpty(senha))
             {
-                ToEmail = email,
-                Subject = "Confirmação de conta - Sistema Acadêmico",
-                Body = "<h2><strong>Seja bem vindo ao Sistema Academico!</strong></h2> <br/>" +
-                $"<p>Nome de Usuário : {user.Email}</p><br/>" +
-                $"<p>Confirme sua conta <a href='{HtmlEncoder.Default.Encode(EmailConfirmationUrl)}'>clicando aqui</a></p><br/>",
-                UserName = user.NomeCompleto,
-                Attachments = null
-            };
+                EmailModel = new EMailRequest
+                {
+                    ToEmail = email,
+                    Subject = "Confirmação de conta - Sistema Acadêmico",
+                    Body = "<h2><strong>Seja bem vindo ao Sistema Academico!</strong></h2> <br/>" +
+                            "Sua conta foi criado com sucesso!<br/>" +
+                            $"<p>Nome de Usuário : {user.Email}</p><br/>" +
+                            $"<p>Senha temporária : {senha}</p><br/>" +
+                            $"<p>Confirme sua conta <a href='{HtmlEncoder.Default.Encode(EmailConfirmationUrl)}'>clicando aqui</a></p><br/>",
+                    UserName = user.NomeCompleto,
+                    Attachments = null
+                };
+            }
+            else
+            {
+                EmailModel = new EMailRequest
+                {
+                    ToEmail = email,
+                    Subject = "Confirmação de conta - Sistema Acadêmico",
+                    Body = "<h2><strong>Seja bem vindo ao Sistema Academico!</strong></h2> <br/>" +
+                            "Sua conta foi criado com sucesso!<br/>" +
+                            $"<p>Nome de Usuário : {user.Email}</p><br/>" +
+                            $"<p>Confirme sua conta <a href='{HtmlEncoder.Default.Encode(EmailConfirmationUrl)}'>clicando aqui</a></p><br/>",
+                    UserName = user.NomeCompleto,
+                    Attachments = null
+                };
 
-            await _emailService.SendEmailAsync(emailModel);
+            }
 
-            //DisplayConfirmAccountLink = true;
-            //if (DisplayConfirmAccountLink)
-            //{
-            //    var userId = await _userManager.GetUserIdAsync(user);
-            //    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            //    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            //    EmailConfirmationUrl = Url.Page(
-            //        "/Account/ConfirmEmail",
-            //        pageHandler: null,
-            //        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-            //        protocol: Request.Scheme);
-            //}
+            await _emailService.SendEmailAsync(EmailModel);
 
             return Page();
         }

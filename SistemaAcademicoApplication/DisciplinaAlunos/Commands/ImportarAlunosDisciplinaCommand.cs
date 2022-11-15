@@ -13,6 +13,8 @@ using SistemaAcademicoApplication.LogImportacoes.Commands;
 using SistemaAcademicoApplication.Alunos.Queries;
 using SistemaAcademicoApplication.Disciplinas.Queries;
 using SistemaAcademicoApplication.Semestres.Queries;
+using SistemaAcademicoApplication.Interfaces;
+using SistemaAcademicoApplication.DisciplinaAlunos.Queries;
 
 namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
 {
@@ -27,11 +29,13 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
     {
         private readonly IMediator _mediator;
         private readonly SistemaAcademicoContext _context;
+        private readonly IEmailService _emailService;
 
-        public ImportarAlunosDisciplinaCommandHandler(IMediator mediator, SistemaAcademicoContext context)
+        public ImportarAlunosDisciplinaCommandHandler(IMediator mediator, SistemaAcademicoContext context, IEmailService emailService)
         {
             _mediator = mediator;
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<Response<ImportacaoAlunosDisciplinaViewModel>> Handle(ImportarAlunosDisciplinaCommand request, CancellationToken cancellationToken)
@@ -89,6 +93,23 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
                                 throw new Exception($"Aluno de email '{email}' não encontrado");
                             }
 
+                            if(aluno.Result.Status == "I")
+                            {
+                                throw new Exception($"Aluno '{aluno.Result.Nome}' não pode ser adicionado a disciplina '{disciplina.Nome}'. Aluno está com status Inativo.");
+                            }
+
+                            if(disciplina.Turno != aluno.Result.Turno)
+                            {
+                                throw new Exception($"Aluno '{aluno.Result.Nome}' não pode ser adicionado a disciplina '{disciplina.Nome}'. O turno do aluno é diferente da disciplina selecionada");
+                            }
+
+                            var alunoDisciplinaResponse = await ConsultarAlunoDisciplinaExits(aluno.Result.AlunoId, disciplina.DisciplinaId, SemestreAtual.SemestreVigenteId);
+
+                            if(!alunoDisciplinaResponse.Errors.Any())
+                            {
+                                throw new Exception($"Aluno '{aluno.Result.Nome}' não pode ser adicionado a disciplina '{disciplina.Nome}'. Aluno já cadastrado anteriormente.");
+                            }
+
                             var disciplinaAluno = new DisciplinaAluno
                             {
                                 AlunoId = aluno.Result.AlunoId,
@@ -103,6 +124,19 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
                             _context.DisciplinasAlunos.Add(disciplinaAluno);
                             await _context.SaveChangesAsync();
                             viewModel.QtdImportados++;
+
+                            var turnoDisciplina = disciplina.Turno == "M" ? "Manha" : "Noite";
+
+                            var emailRequest = new EMailRequest
+                            {
+                                Subject = "Cadastro de disciplina - Sistema Acadêmico",
+                                Body = $"Seu e-mail foi cadastrado na disciplina <b>'{disciplina.Nome}'</b> pelo professor <b>'{disciplina.Professor.Nome}'</b> <br/>" +
+                                $"Turno : '{turnoDisciplina}'<br/>",
+                                ToEmail = email,
+                                UserName = aluno.Result.Nome
+                            };
+
+                            await _emailService.SendEmailAsync(emailRequest);
                         }
                         catch (CsvHelper.MissingFieldException)
                         {
@@ -150,6 +184,16 @@ namespace SistemaAcademicoApplication.DisciplinaAlunos.Commands
         private async Task<Response<Disciplina>> GetDisciplinaAsync(int disciplinaId)
         {
             return await _mediator.Send(new ObterDisciplinaQuery { DisciplinaId = disciplinaId });
+        }
+
+        private async Task<Response<DisciplinaAluno>> ConsultarAlunoDisciplinaExits(int alunoId, int disciplinaId, int semestreId)
+        {
+            return await _mediator.Send(new ConsultarAlunoDisciplinaExitsQuery
+            {
+                AlunoId = alunoId,
+                DisciplinaId = disciplinaId,
+                SemestreVigenteId = semestreId
+            });
         }
     }
 }

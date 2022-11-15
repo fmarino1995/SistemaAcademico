@@ -24,6 +24,15 @@
     </div>
     <form @onsubmit="OnSubmit">
         <div class="card-body">
+            <label for="select_perfil">Escolha o perfil de usuário que será importado</label>
+            <select id="select_perfil" class="form-select" @bind="rolePerfil" style="width:30%;">
+                <option selected disabled>Selecione</option>
+                @foreach (var item in ListaParametros.ListaPerfis)
+                {
+                    <option value="@item.Key">@item.Value</option>
+                }
+            </select>
+            <br/>
             <p class="text-dark"><strong>@FileMessage</strong></p>
             <InputFile OnChange="OnInputFileChange" />
             <p class="text-danger">@MensagemValidacao</p>
@@ -35,14 +44,15 @@
             <div class="row">
                 <div class="col-md-12">
                     <a href="/users" class="btn btn-outline-dark">Voltar</a>
-                    @if (selectedFiles == null)
+                    <button type="submit" disabled="@(selectedFiles == null || rolePerfil == null ? true : false)" class="btn btn-outline-primary ml-1">Enviar</button>
+                    @*@if (selectedFiles == null || rolePerfil == null)
                     {
                         <button type="submit" disabled class="btn btn-outline-primary ml-1">Enviar</button>
                     }
                     else
                     {
                         <button type="submit" class="btn btn-outline-primary">Enviar</button>
-                    }
+                    }*@
                 </div>
             </div>
         </div>
@@ -57,6 +67,7 @@
     string MensagemValidacao = string.Empty;
     IBrowserFile selectedFiles;
     string Message;
+    string rolePerfil;
 
     private void OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -69,22 +80,25 @@
     {
         string filePath = $"C:\\arquivosImportacaoUsuario\\{selectedFiles.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
 
-        var importacaoResponse = await _mediator.Send(new ImportarLoteUsuariosCommand { File = selectedFiles, FilePath = filePath });
+        var importacaoResponse = await _mediator.Send(new ImportarLoteUsuariosCommand 
+            {
+                File = selectedFiles, FilePath = filePath , PerfilImportacao = rolePerfil
+            });
 
         foreach (var user in importacaoResponse.Result.Users)
         {
 
             EMailRequest emailModel = new EMailRequest
-                {
-                    ToEmail = user.Email,
-                    Subject = "Confirmação de conta - Sistema Acadêmico",
-                    Body = "<h2><strong>Seja bem vindo ao Sistema Acadêmico!</strong></h2> <br/>" +
-                                   $"<p>Nome de Usuário : {user.Email}</p><br/>" +
-                                   $"<p>Senha temporária : {user.Senha}</p><br/>" +
-                                   "<strong>Altere sua senha no primeiro acesso.</strong>",
-                    UserName = user.NomeCompleto,
-                    Attachments = null
-                };
+            {
+                ToEmail = user.Email,
+                Subject = "Confirmação de conta - Sistema Acadêmico",
+                Body = "<h2><strong>Seja bem vindo ao Sistema Acadêmico!</strong></h2> <br/>" +
+                               $"<p>Nome de Usuário : {user.Email}</p><br/>" +
+                               $"<p>Senha temporária : {user.Senha}</p><br/>" +
+                               "<strong>Altere sua senha no primeiro acesso.</strong>",
+                UserName = user.NomeCompleto,
+                Attachments = null
+            };
 
             await _emailService.SendEmailAsync(emailModel);
         }

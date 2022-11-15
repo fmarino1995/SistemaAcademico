@@ -31,7 +31,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var aluno in PautaWebProfessor)
+                @foreach (var aluno in PautaWebProfessor.Where(x => x.Excluido == false))
                 {
                     <tr>
                         <td>@aluno.Aluno.Nome</td>
@@ -42,6 +42,14 @@
                 }
             </tbody>
         </table>
+        @if(!string.IsNullOrEmpty(errorMessagePresenca))
+        {
+            <div class="row">
+                <div class="col-md-12">
+                    <p class="text-danger" style="font-size: 18px;">@errorMessagePresenca</p>
+                </div>
+            </div>
+        }
     </div>
     <div class="modal-footer">
         <div class="row">
@@ -71,7 +79,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var aluno in ViewModel.DisciplinasAlunoList)
+                @foreach (var aluno in ViewModel.DisciplinasAlunoList.Where(x => x.Excluido == false))
                 {
                     <tr>
                         <td>@aluno.Aluno.Nome</td>
@@ -177,7 +185,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in PautaWebProfessor)
+                        @foreach (var item in PautaWebProfessor.Where(x => x.Excluido == false))
                         {
                             <tr>
                                 <td>@item.Aluno.Nome</td>
@@ -218,16 +226,12 @@ else
 
 
 @code {
-    PresencaAlunosDisciplinaViewModel ViewModel = new PresencaAlunosDisciplinaViewModel
-        {
-            DisciplinasAlunoList = new List<DisciplinaAluno>(),
-            PresencaAlunos = new List<PresencaAluno>()
-        };
+    PresencaAlunosDisciplinaViewModel ViewModel;
     Professor ProfessorLogado;
     SemestreVigente SemestreVigente;
     List<Disciplina> DisciplinasProfessorList;
     List<DisciplinaAluno> PautaWebProfessor = new List<DisciplinaAluno>();
-    List<PresencaAluno> PresencaAlunos = new List<PresencaAluno>();
+    List<PresencaAluno> PresencaAlunosList = new List<PresencaAluno>();
 
     string turno;
     bool exibirTable;
@@ -236,16 +240,21 @@ else
     bool disableCheckPresenca;
     bool disableCheckFalta;
     string classNotas = "notas";
+    string errorMessagePresenca = "";
 
     private Modal Modal { get; set; }
     private Modal ModalEdit { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        ViewModel = new PresencaAlunosDisciplinaViewModel();
+        ViewModel.DisciplinasAlunoList = new List<DisciplinaAluno>();
+        ViewModel.PresencaAlunos = new List<PresencaAluno>();
+
         var usuarioLogado = await GetUsuarioLogadoAsync();
-        var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery { Email = usuarioLogado });
+        var professorLogado = await GetProfessorLogadoAsync(usuarioLogado);
         ProfessorLogado = professorLogado.Result;
-        var semestreResponse = await _mediator.Send(new ObterSemestreVigenteQuery());
+        var semestreResponse = await GetSemestreVigenteAsync();
         SemestreVigente = semestreResponse.Result;
 
         if (professorLogado.Errors.Any())
@@ -259,6 +268,16 @@ else
         {
             VoltarToast("Nenhuma disciplina encontrada para seu usuário.");
         }
+    }
+
+    private async Task<Response<SemestreVigente>> GetSemestreVigenteAsync()
+    {
+        return await _mediator.Send(new ObterSemestreVigenteQuery());
+    }
+
+    private async Task<Response<Professor>> GetProfessorLogadoAsync(string email)
+    {
+        return await _mediator.Send(new ObterProfessorEmailQuery { Email = email });
     }
 
     private async Task GravarNotaAlunos(List<DisciplinaAluno> alunos)
@@ -299,7 +318,6 @@ else
         try
         {
             spinner = true;
-            StateHasChanged();
             var response = await GetPresencaAlunosAsync(SemestreVigente.SemestreVigenteId);
 
             if (response.Errors.Any())
@@ -313,7 +331,7 @@ else
                 ViewModel.PresencaAlunos = response.Result;
                 ViewModel.DisciplinasAlunoList = PautaWebProfessor;
 
-                foreach (var item in ViewModel.DisciplinasAlunoList)
+                foreach (var item in ViewModel.DisciplinasAlunoList.Where(x => x.Excluido == false))
                 {
                     item.IsPresenca = ViewModel.PresencaAlunos
                     .Where(x => x.AlunoId == item.AlunoId).FirstOrDefault().Presenca;
@@ -323,9 +341,8 @@ else
                 }
 
                 spinner = false;
-                StateHasChanged();
-
                 ModalEdit.Open();
+                StateHasChanged();
             }
         }
         catch (Exception)
@@ -386,27 +403,38 @@ else
 
     private async Task GravarPresencaAlunos(List<DisciplinaAluno> Alunos)
     {
-        spinner = true;
-        StateHasChanged();
+        var check = Alunos.Where(x => x.IsPresenca == false && x.IsFalta == false && x.Excluido == false).FirstOrDefault();
 
-        var response = await _mediator.Send(new GravarPresencaAlunosCommand
+        if(check != null)
+        {
+            errorMessagePresenca = "Selecione presença ou falta para todos os alunos";
+            StateHasChanged();
+        }
+        else
+        {
+            errorMessagePresenca = "";
+            spinner = true;
+            StateHasChanged();
+
+            var response = await _mediator.Send(new GravarPresencaAlunosCommand
             {
                 Alunos = Alunos
             });
 
-        if (response.Errors.Any())
-        {
-            spinner = false;
-            _toastService.ShowError("Ocorreu um erro ao gravar a presença.");
-            Modal.Close();
-            Refresh();
-        }
-        else
-        {
-            spinner = false;
-            _toastService.ShowSuccess("Presença gravado com sucesso!");
-            StateHasChanged();
-            Modal.Close();
+            if (response.Errors.Any())
+            {
+                spinner = false;
+                _toastService.ShowError("Ocorreu um erro ao gravar a presença.");
+                Modal.Close();
+                Refresh();
+            }
+            else
+            {
+                spinner = false;
+                _toastService.ShowSuccess("Presença gravado com sucesso!");
+                StateHasChanged();
+                Modal.Close();
+            }
         }
     }
 

@@ -21,8 +21,8 @@ namespace Domain.Entities
         [NotMapped]
         public bool IsSelectedUsuario { get; set; }
         [NotMapped]
-        public bool IsSelectedGrupo { get; set; }
-        [NotMapped]
         public bool IsSelectedGrupoDisciplina { get; set; }
+        [NotMapped]
+        public string EmailDestino { get; set; }
     }
 }

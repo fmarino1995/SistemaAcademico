@@ -79,7 +79,7 @@
                     <div class="form-floating mb-3">
                         <InputSelect id="floatingPreRequisito" class="form-select" @bind-Value="@DisciplinaCreate.PreRequisito" placeholder="Pré-requisito">
                             <option value="">Selecione a disciplina de pré-requisito</option>
-                            @foreach (var disciplina in DisciplinasPreRequisito.Where(x => x.Turno == DisciplinaCreate.Turno))
+                            @foreach (var disciplina in DisciplinasPreRequisito.Where(x => x.Turno == DisciplinaCreate.Turno && x.EPreRequisito))
                             {
                                 <option value="@disciplina.Matricula">@disciplina.Nome - @disciplina.Sigla</option>
                             }
@@ -89,7 +89,12 @@
                         {
                             <span class="text-danger">@ErrorMessagePreRequisito</span>
                         }
-                        
+                    </div>
+                </div>
+                <div class="col-md-6 form-space">
+                    <div class="mb-3">
+                        <label for="pre_requisito">Disciplina é pré-requisito ? </label>
+                        <InputCheckbox id="pre_requisito" @bind-Value="DisciplinaCreate.EPreRequisito" />
                     </div>
                 </div>
             </div>

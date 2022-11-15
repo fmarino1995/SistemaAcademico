@@ -23,14 +23,14 @@
                 <div class="col-md-6 col-lg-6 form-space">
                     <div class="form-floating mb-3">
                         <select class="form-select" @onchange="VerificarEmailUsuario">
-                            <option selected value="floatingEmail">|--Selecione--|</option>
+                            <option selected value="">|--Selecione--|</option>
                             @foreach (var user in UsersList.Where(u => u.RoleId == ConstantesSistema.RoleAluno))
                             {
                                 <option value="@user.Id">@user.Email</option>
                             }
                         </select>
                         <label for="floatingEmail">Email de usuário</label>
-                        @if(UsersList.Where(x => x.RoleId == ConstantesSistema.RoleAluno).Count() == 0)
+                        @if (UsersList.Where(x => x.RoleId == ConstantesSistema.RoleAluno).Count() == 0)
                         {
                             <span class="text-danger">@("Nenhum usuário cadastrado como aluno")</span>
                         }
@@ -62,7 +62,7 @@
                     <div class="form-floating mb-3">
                         <InputSelect id="floatingTurno" class="form-control" @bind-Value="@AlunoCreate.Turno" placeholder="Turno">
                             <option value="" selected disabled>Selecione o turno...</option>
-                            @foreach(var turno in ListaParametros.ListaTipoTurno)
+                            @foreach (var turno in ListaParametros.ListaTipoTurno)
                             {
                                 <option value="@turno.Key">@turno.Value</option>
                             }
@@ -201,24 +201,27 @@
 
     protected async void VerificarEmailUsuario(ChangeEventArgs e)
     {
-        var id = e.Value.ToString();
-
-        var alunoExists = await _mediator.Send(new VerificarAlunoEmailExistenteCommand { Id = id });
-
-        if (alunoExists.Result)
+        if (!string.IsNullOrEmpty(e.Value.ToString()))
         {
-            EmailExistsErrorMessage = "Email já alocado a outro aluno.";
-            this.StateHasChanged();
-        }
-        else
-        {
-            EmailExistsErrorMessage = string.Empty;
-            AlunoCreate.Nome = "Carregando...";
-            this.StateHasChanged();
-            var usuario = await _mediator.Send(new ObterUsuarioQuery { UserId = id });
-            AlunoCreate.Nome = usuario.Result.NomeCompleto;
-            AlunoCreate.ApplicationUserId = id;
-            this.StateHasChanged();
+            var id = e.Value.ToString();
+
+            var alunoExists = await _mediator.Send(new VerificarAlunoEmailExistenteCommand { Id = id });
+
+            if (alunoExists.Result)
+            {
+                EmailExistsErrorMessage = "Email já alocado a outro aluno.";
+                this.StateHasChanged();
+            }
+            else
+            {
+                EmailExistsErrorMessage = string.Empty;
+                AlunoCreate.Nome = "Carregando...";
+                this.StateHasChanged();
+                var usuario = await _mediator.Send(new ObterUsuarioQuery { UserId = id });
+                AlunoCreate.Nome = usuario.Result.NomeCompleto;
+                AlunoCreate.ApplicationUserId = id;
+                this.StateHasChanged();
+            }
         }
     }
 

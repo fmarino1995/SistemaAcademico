@@ -2,6 +2,7 @@
 using MediatR;
 using SistemaAcademicoData.Context;
 using Domain.ViewModels;
+using Domain.Entities;
 
 namespace SistemaAcademicoApplication.PresencaAlunos.Commands
 {
@@ -30,6 +31,7 @@ namespace SistemaAcademicoApplication.PresencaAlunos.Commands
 
                     var presencaOld = request.ViewModel.PresencaAlunos
                         .Where(x => x.AlunoId == item.AlunoId).FirstOrDefault();
+
 
                     if (item.IsFalta && presencaOld.Presenca)
                     {

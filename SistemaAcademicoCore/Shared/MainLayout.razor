@@ -14,7 +14,7 @@
 
     <main>
         <div class="top-row px-4 auth">
-            <div class="d-flex" style="align-items: flex-end">
+            <div class="d-flex collapse-button">
                 <a title="@(HideMenu ? "Mostrar menu" : "Esconder menu")" href="javascript:void(0)" @onclick="() => HideMenu = !HideMenu" class="btn btn-outline-dark btn-sm">
                     <span class="@(HideMenu? "oi oi-arrow-right" : "oi oi-arrow-left")"></span>
                 </a>
@@ -22,16 +22,18 @@
             <LoginDisplay />
         </div>
 
-        <div id="content-page">
+        <PageIndexStateProvider>
+            <div id="content-page">
 
-            <Toast Position="@ToastPosition.TopRight"
-                   Timeout="10"
-                   SuccessClass="success-toast-override"
-                   SuccessIconClass="fa fa-thumbs-up"
-                   ErrorIconClass="fa fa-bug" />
+                <Toast Position="@ToastPosition.TopRight"
+                       Timeout="10"
+                       SuccessClass="success-toast-override"
+                       SuccessIconClass="fa fa-thumbs-up"
+                       ErrorIconClass="fa fa-bug" />
 
-            @Body
-        </div>
+                @Body
+            </div>
+        </PageIndexStateProvider>
     </main>
 </div>
 

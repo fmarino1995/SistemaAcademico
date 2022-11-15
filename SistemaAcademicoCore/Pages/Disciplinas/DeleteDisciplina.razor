@@ -1,4 +1,4 @@
-﻿@page "/disciplines/delete/{DisciplinaId}"
+﻿@page "/disciplines/remove/{DisciplinaId}"
 @using SistemaAcademicoApplication.Disciplinas.Commands
 @using SistemaAcademicoApplication.Disciplinas.Queries
 @inject IMediator _mediator
@@ -39,7 +39,7 @@ else
                     <div class="col-md-6">
                         <span class="tituloinformacoes">Turno</span>
                         <div class="content-informa">
-                            @disciplina.Turno
+                            @(disciplina.Turno == "M" ? "Manha" : "Noite")
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -48,6 +48,12 @@ else
                             @disciplina.Professor.Nome
                         </div>
                     </div>
+                    @if(!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="col-md-6">
+                            <p class="text-danger">@ErrorMessage</p>
+                        </div>
+                    }
                 </div>
             </div>
             <div class="card-footer">
@@ -64,6 +70,7 @@ else
 
     Disciplina disciplina;
     string Message = "";
+    string ErrorMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,24 +82,36 @@ else
             _toastService.ShowError(Message);
             Voltar();
         }
+
+        disciplina = response.Result;
     }
 
     private async Task DeleteDisciplinaAsync()
     {
-        var deleteResponse = await _mediator.Send(new ExcluirDisciplinaCommand { Disciplina = disciplina });
+        var preRequisitoResponse = await _mediator.Send(new ConsultarDisciplinaEPrerequisitoQuery 
+            { Matricula = disciplina.Matricula, Turno = disciplina.Turno });
 
-        if (deleteResponse.Errors.Any())
+        if(preRequisitoResponse.Errors.Any())
         {
-            Message = "Erro ao excluir a disciplina: " + deleteResponse.Errors.First();
-            _toastService.ShowError(Message);
+            var deleteResponse = await _mediator.Send(new ExcluirDisciplinaCommand { Disciplina = disciplina });
+
+            if (deleteResponse.Errors.Any())
+            {
+                Message = "Erro ao excluir a disciplina: " + deleteResponse.Errors.First();
+                _toastService.ShowError(Message);
+            }
+            else
+            {
+                Message = "Disciplina excluída com sucesso!";
+                _toastService.ShowSuccess(Message);
+            }
+
+            _navigationManager.NavigateTo("disciplines");
         }
         else
         {
-            Message = "Disciplina excluída com sucesso!";
-            _toastService.ShowSuccess(Message);
+            ErrorMessage = $"Não é possível excluir a disciplina {disciplina.Nome} por que é pré-requisito da disciplina {preRequisitoResponse.Result.Nome}";
         }
-
-        _navigationManager.NavigateTo("disciplines");
     }
 
     void Voltar()
