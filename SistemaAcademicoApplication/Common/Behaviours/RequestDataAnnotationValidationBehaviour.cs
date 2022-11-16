@@ -1,11 +1,11 @@
 ﻿using MediatR;
-using SiaApplication.Common.Responses;
+using SistemaAcademicoApplication.Common.Responses;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SiaApplication.Common.Behaviours
+namespace SistemaAcademicoApplication.Common.Behaviours
 {
 
     public class RequestDataAnnotationValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
