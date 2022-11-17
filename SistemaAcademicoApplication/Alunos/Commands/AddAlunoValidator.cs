@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using FluentValidation;
 
-namespace Domain.ValidationEntities
+namespace SistemaAcademicoApplication.Alunos.Commands
 {
     public class AddAlunoValidator : AbstractValidator<Aluno>
     {

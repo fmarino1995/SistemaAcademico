@@ -2,10 +2,6 @@
 using FluentValidation.Results;
 using MediatR;
 using SistemaAcademicoApplication.Common.Responses;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SistemaAcademicoApplication.Common.Behaviours
 {
