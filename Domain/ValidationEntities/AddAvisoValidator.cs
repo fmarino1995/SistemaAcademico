@@ -8,13 +8,13 @@ namespace Domain.ValidationEntities
         public AddAvisoValidator()
         {
             RuleFor(x => x.Titulo)
-                .NotEmpty().NotNull().WithMessage("Digite o título do aviso");
+                .NotEmpty().WithMessage("Digite o título do aviso");
 
             RuleFor(x => x.Texto)
-                .NotEmpty().NotNull().WithMessage("Digite o título do aviso");
+                .NotEmpty().WithMessage("Digite o título do aviso");
 
             RuleFor(x => x.EmailDestino)
-                .NotEmpty().NotNull().WithMessage("Digite o título do aviso");
+                .NotEmpty().WithMessage("Digite o título do aviso");
         }
     }
 }

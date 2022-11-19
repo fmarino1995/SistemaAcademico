@@ -81,7 +81,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasIndex("EnderecoId");
 
-                    b.ToTable("Alunos");
+                    b.ToTable("Alunos", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
@@ -198,7 +198,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Avisos");
+                    b.ToTable("Avisos", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Disciplina", b =>
@@ -241,7 +241,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasIndex("ProfessorId");
 
-                    b.ToTable("Disciplinas");
+                    b.ToTable("Disciplinas", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.DisciplinaAluno", b =>
@@ -296,7 +296,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasIndex("SemestreVigenteId");
 
-                    b.ToTable("DisciplinasAlunos");
+                    b.ToTable("DisciplinasAlunos", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Endereco", b =>
@@ -337,7 +337,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasKey("EnderecoId");
 
-                    b.ToTable("Enderecos");
+                    b.ToTable("Enderecos", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.HistoricoDisciplinaAluno", b =>
@@ -363,7 +363,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasIndex("DisciplinaId");
 
-                    b.ToTable("HistoricoDisciplinaAlunos");
+                    b.ToTable("HistoricoDisciplinaAlunos", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.LogImportacao", b =>
@@ -399,7 +399,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasKey("LogImportacaoId");
 
-                    b.ToTable("LogImportacoes");
+                    b.ToTable("LogImportacoes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.PresencaAluno", b =>
@@ -436,7 +436,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasIndex("SemestreVigenteId");
 
-                    b.ToTable("PresencaAlunos");
+                    b.ToTable("PresencaAlunos", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Professor", b =>
@@ -489,7 +489,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasIndex("EnderecoId");
 
-                    b.ToTable("Professores");
+                    b.ToTable("Professores", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.RespostaAviso", b =>
@@ -522,7 +522,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasIndex("AvisoId");
 
-                    b.ToTable("RespostaAvisos");
+                    b.ToTable("RespostaAvisos", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.SemestreVigente", b =>
@@ -544,7 +544,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasKey("SemestreVigenteId");
 
-                    b.ToTable("SemestresVigentes");
+                    b.ToTable("SemestresVigentes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Trabalho", b =>
@@ -594,7 +594,7 @@ namespace SistemaAcademicoData.Migrations
 
                     b.HasIndex("SemestreVigenteId");
 
-                    b.ToTable("Trabalhos");
+                    b.ToTable("Trabalhos", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

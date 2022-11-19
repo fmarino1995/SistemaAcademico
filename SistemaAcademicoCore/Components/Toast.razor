@@ -76,11 +76,11 @@
         {
             var settings = BuildToastSettings(level, message, heading);
             var toast = new ToastInstance
-                {
-                    Id = Guid.NewGuid(),
-                    Timestamp = DateTime.Now,
-                    ToastSettings = settings
-                };
+            {
+                Id = Guid.NewGuid(),
+                Timestamp = DateTime.Now,
+                ToastSettings = settings
+            };
 
             ToastList.Add(toast);
 

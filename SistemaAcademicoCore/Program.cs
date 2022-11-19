@@ -1,4 +1,5 @@
 using Domain.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -12,6 +13,7 @@ using SistemaAcademicoData.Context;
 using SistemaAcademicoInfrastructure;
 using SistemaAcademicoInfrastructure.Services;
 using System.Configuration;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +39,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders();
 
-//Configurações de acesso Policy-Based // TODO : frederico.duarte - policy-based authorization não funcionando.
-
 builder.Services.AddAuthorization(config =>
 {
     config.AddPolicy(Policies.IsAdmin, Policies.IsAdminPolicy());
@@ -58,6 +58,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
