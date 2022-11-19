@@ -120,7 +120,7 @@ namespace SistemaAcademicoCore.Areas.Identity.Pages.Account
             {
                 var usuarioAtivo = await _mediator.Send(new VerificarUsuarioAtivoCommand { Email = Input.Email });
 
-                if(!usuarioAtivo.Result)
+                if(!usuarioAtivo.Result && !usuarioAtivo.Errors.Any())
                 {
                     ModelState.AddModelError(string.Empty, "Tentativa de login inválida");
                     ViewData["LoginError"] = "Esse usuário foi inativado";
