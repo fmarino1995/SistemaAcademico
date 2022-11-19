@@ -1,27 +1,32 @@
 ﻿using Domain.Entities;
 using FluentValidation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace SistemaAcademicoApplication.Alunos.Commands
+namespace Domain.ValidationEntities
 {
-    public class AddAlunoValidator : AbstractValidator<Aluno>
+    public class AddProfessorValidator : AbstractValidator<Professor>
     {
-        public AddAlunoValidator()
+        public AddProfessorValidator()
         {
             RuleFor(x => x.Cpf)
                 .NotEmpty()
-                .WithMessage("Digite o cpf do aluno");
+                .WithMessage("Digite o cpf do professor");
 
             RuleFor(x => x.Nome)
                 .NotEmpty()
-                .WithMessage("Digite o nome do aluno");
+                .WithMessage("Digite o nome do professor");
 
             RuleFor(x => x.DataNascimento)
                 .NotEmpty()
-                .WithMessage("Digite a data de nascimento do aluno");
+                .WithMessage("Digite a data de nascimento do professor");
 
             RuleFor(x => x.ApplicationUserId)
                 .NotEmpty()
-                .WithMessage("Selecione o e-mail do aluno");
+                .WithMessage("Selecione o e-mail do professor");
 
             RuleFor(x => x.Endereco.Logradouro)
                 .NotEmpty()

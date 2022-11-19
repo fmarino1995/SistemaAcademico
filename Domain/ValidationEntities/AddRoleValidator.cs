@@ -9,7 +9,6 @@ namespace Domain.ValidationEntities
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .NotNull()
                 .WithMessage("Digite um nome para o perfil");
         }
     }

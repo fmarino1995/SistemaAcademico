@@ -35,9 +35,21 @@ namespace SistemaAcademicoData.Context
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
-            modelBuilder.Entity<Aluno>()
-                .HasIndex(u => u.AlunoId)
-                .IsUnique();
+            modelBuilder.Entity<Aluno>(a =>
+            {
+                a.HasIndex(a => a.AlunoId).IsUnique();
+                a.Property(a => a.Nome).IsRequired();
+                a.Property(a => a.Cpf).IsRequired();
+                a.Property(a => a.Matricula).IsRequired();
+                a.Property(a => a.UsuarioCriacao).IsRequired();
+                a.Property(a => a.ApplicationUserId).IsRequired();
+                a.Property(a => a.Status).IsRequired();
+                a.Property(a => a.Turno).IsRequired();
+                a.Property(a => a.Email).IsRequired();
+            });
+            
+
+            
 
         }
     }

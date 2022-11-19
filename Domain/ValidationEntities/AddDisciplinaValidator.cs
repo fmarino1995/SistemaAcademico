@@ -14,12 +14,10 @@ namespace Domain.ValidationEntities
         {
             RuleFor(x => x.Nome)
                 .NotEmpty()
-                .NotNull()
                 .WithMessage("Digite um nome para a disciplina");
 
             RuleFor(x => x.Turno)
                 .NotEmpty()
-                .NotNull()
                 .WithMessage("Escolha o turno da disciplina");
 
             RuleFor(x => x.ProfessorId)

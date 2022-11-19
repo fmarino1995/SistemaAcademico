@@ -15,7 +15,7 @@ namespace SistemaAcademicoApplication
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestDataAnnotationValidationBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehaviour<,>));
-
+             
             return services;
         }
     }
