@@ -11,10 +11,10 @@ namespace Domain.ValidationEntities
                 .NotEmpty().WithMessage("Digite o título do aviso");
 
             RuleFor(x => x.Texto)
-                .NotEmpty().WithMessage("Digite o título do aviso");
+                .NotEmpty().WithMessage("Digite o texto do aviso");
 
             RuleFor(x => x.EmailDestino)
-                .NotEmpty().WithMessage("Digite o título do aviso");
+                .NotEmpty().WithMessage("Digite o destinatário do aviso");
         }
     }
 }
