@@ -2,6 +2,7 @@
 @using SistemaAcademicoApplication.Alunos.Commands
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
+@inject IToastService _toastService
 
 <PageTitle>Importação Alunos - SistemaAcademico</PageTitle>
 
@@ -66,7 +67,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Log da importação</label>
-                    <textarea readonly rows="10" class="form-control">@log</textarea>
+                    <textarea readonly rows="10" class="form-control text-danger">@log</textarea>
                 </div>
             </div>
         </div>
@@ -100,24 +101,32 @@
         spinner = true;
         StateHasChanged();
 
-        string filePath = $"C:\\arquivosImportacaoAluno\\{selectedFile.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
-
-        var importacaoResponse = await _mediator.Send(new ImportarAlunosCommand { File = selectedFile, FilePath = filePath });
-
-        if (importacaoResponse.Errors.Any())
+        if (!selectedFile.Name.Contains(".csv"))
         {
-            MensagemValidacao = importacaoResponse.Errors.First();
-            spinner = false;
-            this.StateHasChanged();
+            _toastService.ShowInfo("O formato do arquivo selecionado é inválido. Formato deve estar em .csv", "Formato inválido");
+            StateHasChanged();
         }
         else
         {
-            qtdImportados = importacaoResponse.Result.QuantidadeImportados;
-            qtdNaoImportados = importacaoResponse.Result.QuantidadeNaoImportados;
-            log = importacaoResponse.Result.LogImportacao.Mensagem;
-            ResultadoImportacao = true;
-            spinner = false;
-            this.StateHasChanged();
+            string filePath = $"C:\\arquivosImportacaoAluno\\{selectedFile.Name}_{DateTime.Now.ToString("dd-MM-yyyy").Replace("-", "")}_{DateTime.Now.Ticks}";
+
+            var importacaoResponse = await _mediator.Send(new ImportarAlunosCommand { File = selectedFile, FilePath = filePath });
+
+            if (importacaoResponse.Errors.Any())
+            {
+                MensagemValidacao = importacaoResponse.Errors.First();
+                spinner = false;
+                this.StateHasChanged();
+            }
+            else
+            {
+                qtdImportados = importacaoResponse.Result.QuantidadeImportados;
+                qtdNaoImportados = importacaoResponse.Result.QuantidadeNaoImportados;
+                log = importacaoResponse.Result.LogImportacao.Mensagem;
+                ResultadoImportacao = true;
+                spinner = false;
+                this.StateHasChanged();
+            }
         }
     }
 }

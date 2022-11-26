@@ -33,7 +33,7 @@ else
                 <div class="col-md-2 col-lg-2">
                     <div class="form-floating mb-3">
                         <select id="selectSemestre" class="form-select" @onchange="AlteraSemestre">
-                            @foreach(var item in Semestres)
+                            @foreach(var item in Semestres.DistinctBy(x => x.SemestreVigenteId))
                             {
                                 if(item.Vigente)
                                 {

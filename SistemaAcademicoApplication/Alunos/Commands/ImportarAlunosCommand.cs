@@ -85,7 +85,7 @@ namespace SistemaAcademicoApplication.Alunos.Commands
 
                             if(appUser.Errors.Any())
                             {
-                                throw new Exception($"Aluno com email '{appUser}' não foi encontrado.");
+                                throw new Exception($"Aluno com email '{userEmail}' não foi encontrado.");
                             }
 
                             if(await VerificarEmailAlunoExits(userEmail))
@@ -109,7 +109,7 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                                     Complemento = csv.GetField("COMPLEMENTO"),
                                     Bairro = csv.GetField("BAIRRO"),
                                     Cidade = csv.GetField("CIDADE"),
-                                    EstadoUF = csv.GetField("UF").Trim().Length > 2 ? throw new Exception($"UF deve apenas conter 2 caracteres para o aluno de cff : '{cpfAluno}', não foi possível improtar") : csv.GetField("UF")
+                                    EstadoUF = csv.GetField("UF").Trim().Length > 2 ? throw new Exception($"UF deve apenas conter 2 caracteres para o aluno de cpf : '{cpfAluno}', não foi possível improtar") : csv.GetField("UF")
                                 },
                             };
 
@@ -128,8 +128,6 @@ namespace SistemaAcademicoApplication.Alunos.Commands
                         }
                     }
                 }
-
-                
 
                 if (viewModel.LogImportacao.Errors.Any())
                 {
@@ -168,14 +166,7 @@ namespace SistemaAcademicoApplication.Alunos.Commands
         {
             var response = await _mediator.Send(new VerificarAlunoEmailExistenteCommand { Email = email });
 
-            if (response.Result)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return response.Result;
         }
     }
 }

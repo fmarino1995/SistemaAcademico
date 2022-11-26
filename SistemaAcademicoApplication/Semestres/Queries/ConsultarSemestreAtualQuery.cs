@@ -24,6 +24,7 @@ namespace SistemaAcademicoApplication.Semestres.Queries
             var semestreAtual = await _context.SemestresVigentes
                 .OrderByDescending(s => s.Ano)
                 .ThenByDescending(s => s.Semestre)
+                .Where(s => s.Vigente)
                 .FirstOrDefaultAsync();
 
             if(semestreAtual == null)

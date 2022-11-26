@@ -45,7 +45,7 @@
                         }
                         else
                         {
-                            @foreach(var item in DisciplinasAlunos)
+                            @foreach (var item in DisciplinasAlunos)
                             {
                                 <tr>
                                     <td>@item.Aluno.Nome</td>
@@ -253,17 +253,29 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery
+        try
         {
-            Email = await _currentUserService.GetUserNameAsync()
-        });
+            var professorLogado = await _mediator.Send(new ObterProfessorEmailQuery
+            {
+                Email = await _currentUserService.GetUserNameAsync()
+            });
 
-        ProfessorLogado = professorLogado.Result;
+            if(professorLogado.Errors.Any())
+            {
+                throw new Exception("Erro ao consultar o registro de professor.");
+            }
 
-        DisciplinaOriginal = (await _mediator.Send(new ObterDisciplinasQuery())).Result;
-        DisciplinasList = DisciplinaOriginal;
-        var semestreVigente = await _mediator.Send(new ObterSemestreVigenteQuery());
-        SemestreVigente = semestreVigente.Result;
+            ProfessorLogado = professorLogado.Result;
+
+            DisciplinaOriginal = (await _mediator.Send(new ObterDisciplinasQuery())).Result;
+            DisciplinasList = DisciplinaOriginal;
+            var semestreVigente = await _mediator.Send(new ObterSemestreVigenteQuery());
+            SemestreVigente = semestreVigente.Result;
+        }
+        catch (Exception ex)
+        {
+            _navigationManager.NavigateTo($"/{ex.Message}", true);
+        }
     }
 
     protected void GotoCreate()
@@ -314,12 +326,12 @@
         Modal.Open();
 
         var disciplinasAlunos = await _mediator.Send(new ObterAlunosDisciplinaProfessorQuery
-        {
-            DisciplinaId = disciplinaId,
-            ProfessorId = ProfessorLogado.ProfessorId,
-            Turno = turno,
-            SemestreVigenteId = SemestreVigente.SemestreVigenteId
-        });
+            {
+                DisciplinaId = disciplinaId,
+                ProfessorId = ProfessorLogado.ProfessorId,
+                Turno = turno,
+                SemestreVigenteId = SemestreVigente.SemestreVigenteId
+            });
 
         DisciplinasAlunos = disciplinasAlunos.Result;
         StateHasChanged();

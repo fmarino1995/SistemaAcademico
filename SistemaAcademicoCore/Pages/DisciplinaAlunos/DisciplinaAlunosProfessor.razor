@@ -42,7 +42,7 @@
                 }
             </tbody>
         </table>
-        @if(!string.IsNullOrEmpty(errorMessagePresenca))
+        @if (!string.IsNullOrEmpty(errorMessagePresenca))
         {
             <div class="row">
                 <div class="col-md-12">
@@ -192,12 +192,12 @@ else
                                 <td>@item.Aluno.Email</td>
                                 <td>@item.SemestreVigente.Ano/@item.SemestreVigente.Semestre</td>
                                 <td>@item.TotalAulasValidas</td>
-                                @if(editNota)
+                                @if (editNota)
                                 {
-                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaAvaliacao1"/></td>
-                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaAvaliacao2"/></td>
-                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.ProvaFinal"/></td>
-                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaFinal"/></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaAvaliacao1" /></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaAvaliacao2" /></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.ProvaFinal" /></td>
+                                    <td><input class="nota-input notas" type="text" min="0" max="10" @oninput="MaskInput" @bind="item.NotaFinal" /></td>
                                 }
                                 else
                                 {
@@ -209,7 +209,7 @@ else
                                 <td>@item.QuantidadePresenca</td>
                                 <td>@item.QuantidadeFalta</td>
                                 <td>
-                                    @if(editNota)
+                                    @if (editNota)
                                     {
                                         <button class="btn btn-outline-primary btn-sm" @onclick="() => GravarNotaAlunos(PautaWebProfessor)">Salvar</button>
                                     }
@@ -247,26 +247,35 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        ViewModel = new PresencaAlunosDisciplinaViewModel();
-        ViewModel.DisciplinasAlunoList = new List<DisciplinaAluno>();
-        ViewModel.PresencaAlunos = new List<PresencaAluno>();
-
-        var usuarioLogado = await GetUsuarioLogadoAsync();
-        var professorLogado = await GetProfessorLogadoAsync(usuarioLogado);
-        ProfessorLogado = professorLogado.Result;
-        var semestreResponse = await GetSemestreVigenteAsync();
-        SemestreVigente = semestreResponse.Result;
-
-        if (professorLogado.Errors.Any())
+        try
         {
-            VoltarToast("Erro ao consultar o registro de professor.");
+            ViewModel = new PresencaAlunosDisciplinaViewModel();
+            ViewModel.DisciplinasAlunoList = new List<DisciplinaAluno>();
+            ViewModel.PresencaAlunos = new List<PresencaAluno>();
+
+            var usuarioLogado = await GetUsuarioLogadoAsync();
+            var professorLogado = await GetProfessorLogadoAsync(usuarioLogado);
+            ProfessorLogado = professorLogado.Result;
+            var semestreResponse = await GetSemestreVigenteAsync();
+            SemestreVigente = semestreResponse.Result;
+
+            if (professorLogado.Errors.Any())
+            {
+                //VoltarToast("Erro ao consultar o registro de professor.");
+                throw new Exception("Erro ao consultar o registro de professor.");
+            }
+
+            DisciplinasProfessorList = await GetDisciplinasProfessorAsync(ProfessorLogado.ProfessorId);
+
+            if (DisciplinasProfessorList.Count == 0)
+            {
+                //VoltarToast("Nenhuma disciplina encontrada para seu usuário.");
+                throw new Exception("Nenhuma disciplina encontrada para seu usuário.");
+            }
         }
-
-        DisciplinasProfessorList = await GetDisciplinasProfessorAsync(ProfessorLogado.ProfessorId);
-
-        if (DisciplinasProfessorList.Count == 0)
+        catch (Exception ex)
         {
-            VoltarToast("Nenhuma disciplina encontrada para seu usuário.");
+            VoltarToast(ex.Message);
         }
     }
 
@@ -405,7 +414,7 @@ else
     {
         var check = Alunos.Where(x => x.IsPresenca == false && x.IsFalta == false && x.Excluido == false).FirstOrDefault();
 
-        if(check != null)
+        if (check != null)
         {
             errorMessagePresenca = "Selecione presença ou falta para todos os alunos";
             StateHasChanged();
@@ -417,9 +426,9 @@ else
             StateHasChanged();
 
             var response = await _mediator.Send(new GravarPresencaAlunosCommand
-            {
-                Alunos = Alunos
-            });
+                {
+                    Alunos = Alunos
+                });
 
             if (response.Errors.Any())
             {
@@ -467,7 +476,7 @@ else
 
     void VoltarToast(string message)
     {
-        _navigationManager.NavigateTo($"/{message}");
+        _navigationManager.NavigateTo($"/{message}", true);
     }
 
     private async Task MaskInput() => await _jsRuntime.InvokeVoidAsync("mask", new object[] { $"{classNotas}" });

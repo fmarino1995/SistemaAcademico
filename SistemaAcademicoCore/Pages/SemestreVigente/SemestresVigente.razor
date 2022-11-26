@@ -5,6 +5,39 @@
 @inject NavigationManager _navigationManager
 @inject IToastService _toastService
 
+<Modal @ref="Modal" Title="Novo Semestre">
+    <EditForm Model="@Semestre" OnValidSubmit="AddSemestreAsync">
+        <FluentValidationValidator />
+        <ValidationSummary />
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-space">
+                        <label class="form-label" for="dt_inicio">Data Inicial</label>
+                        @*<input id="dt_inicio" type="date" class="form-control" @bind="Semestre.DataInicioAux" />*@
+                        <InputDate id="dt_inicio" class="form-control" @bind-Value="Semestre.DataInicioAux"></InputDate>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-space">
+                        <label class="form-label" for="dt_fim">Data Final</label>
+                        @*<input id="dt_fim" type="date" class="form-control" @bind="Semestre.DataFimAux" />*@
+                        <InputDate id="dt_fim" class="form-control" @bind-Value="Semestre.DataFimAux"></InputDate>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <a class="btn btn-outline-dark" @onclick="() => Modal.Close()">Voltar</a>
+                    <input type="submit" class="btn btn-outline-primary" value="Salvar" />
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</Modal>
+
 @if (Semestres == null)
 {
     <br />
@@ -28,9 +61,11 @@ else
                     <tr>
                         <th>Ano</th>
                         <th>Semestre</th>
+                        <th>Data Início</th>
+                        <th>Data Fim</th>
                         <th>Vigente</th>
                         <th>
-                            <a href="javascript:void(0)" @onclick="NovoSemestre" title="Novo registro"><span class="oi oi-plus"></span></a>
+                            <a href="javascript:void(0)" @onclick="() => Modal.Open()" title="Novo registro"><span class="oi oi-plus"></span></a>
                         </th>
                     </tr>
                 </thead>
@@ -40,8 +75,12 @@ else
                         <tr>
                             <td>@item.Ano</td>
                             <td>@item.Semestre</td>
-                            <td><input type="checkbox" disabled="disabled" @bind="item.Vigente"/></td>
-                            <td></td>
+                            <td>@item.DataInicio.ToString("dd/MM/yyyy")</td>
+                            <td>@item.DataFim.ToString("dd/MM/yyyy")</td>
+                            <td><input type="checkbox" disabled="disabled" @bind="item.Vigente" /></td>
+                            <td>
+                                <a href="javascript:void(0)" @onclick="() => AlterarVigenciaSemestre(semestre: item)" title="Alterar vigência"><span class="oi oi-pencil"></span></a>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -56,6 +95,8 @@ else
 
 @code {
     List<SemestreVigente> Semestres;
+    SemestreVigente Semestre = new SemestreVigente();
+    Modal Modal { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,63 +105,49 @@ else
         Semestres = semestres.Result;
     }
 
-    private async Task NovoSemestre()
+    private async Task AddSemestreAsync()
     {
-        var anoAtual = DateTime.Now.Year;
-        var novoSemestre = new SemestreVigente();
-        var ultimoSemestre = await _mediator.Send(new ConsultarSemestreAtualQuery());
+        Semestre.DataInicio = Semestre.DataInicioAux.Value;
+        Semestre.DataFim = Semestre.DataFimAux.Value;
+        Semestre.Ano = Semestre.DataFim.Year;
 
-        if (ultimoSemestre.Errors.Any() || ultimoSemestre.Result == null)
+        var ultimoSemestre = await _mediator.Send(new ConsultarUltimoSemestreCriadoQuery());
+
+        if (ultimoSemestre.Result != null)
         {
-            novoSemestre.Ano = DateTime.Now.Year;
-            novoSemestre.Semestre = 1;
-            novoSemestre.Vigente = true;
-
-            await _mediator.Send(new CriarSemestreCommand { SemestreVigente = novoSemestre });
-            _toastService.ShowSuccess("Semestre criado com sucesso!");
-            StateHasChanged();
-            Refresh();
+            //ultimoSemestre.Result.Vigente = false;
+            Semestre.Semestre = ultimoSemestre.Result.Ano == Semestre.Ano && ultimoSemestre.Result.Semestre == 1 ? 2 : 1; 
         }
         else
         {
-            novoSemestre.Ano = ultimoSemestre.Result.Ano < anoAtual ? anoAtual : ultimoSemestre.Result.Ano;
-            novoSemestre.Semestre = ultimoSemestre.Result.Semestre == 2 ? 1 : 2;
-
-            if (ultimoSemestre.Result.Ano == novoSemestre.Ano && ultimoSemestre.Result.Semestre == novoSemestre.Semestre)
-            {
-                _toastService.ShowError("Semestre atual já criado");
-                StateHasChanged();
-            }
-            else if(ultimoSemestre.Result.Ano == anoAtual && DateTime.Now.Month < 7)
-            {
-                _toastService.ShowError("Semestre atual já criado");
-                StateHasChanged();
-            }
-            else if(ultimoSemestre.Result.Ano == anoAtual && ultimoSemestre.Result.Semestre == 2)
-            {
-                _toastService.ShowError("Semestre atual já criado");
-                StateHasChanged();
-            }
-            else
-            {
-                ultimoSemestre.Result.Vigente = false;
-                novoSemestre.Vigente = true;
-
-                var response = await _mediator.Send(new AlterarSemestreVigenteCommand
-                {
-                    SemestreAntigo = ultimoSemestre.Result,
-                    SemestreNovo = novoSemestre
-                });
-
-                _toastService.ShowSuccess("Semestre criado com sucesso!");
-                StateHasChanged();
-                Refresh();
-            }
+            Semestre.Vigente = true;
+            Semestre.Semestre = Semestre.DataInicio.Month >= 7 && Semestre.Ano == DateTime.Now.Year ? 2 : 1;
         }
+
+        await _mediator.Send(new CriarSemestreCommand { SemestreVigente = Semestre });
+
+        _toastService.ShowSuccess("Semestre criado com sucesso!");
+        StateHasChanged();
+        Refresh();
+    }
+
+    private async Task AlterarVigenciaSemestre(SemestreVigente semestre)
+    {
+        var ultimoSemestre = await _mediator.Send(new ConsultarSemestreAtualQuery());
+
+        var response = await _mediator.Send(new AlterarVigenciaSemestreCommand
+        {
+            SemestreAtual = ultimoSemestre.Result,
+            SemestreNovo = semestre
+        });
+
+        _toastService.ShowSuccess("Semestre vigente alterado com sucesso!");
+        StateHasChanged();
+        Refresh();
     }
 
     void Refresh()
     {
         _navigationManager.NavigateTo("semester", forceLoad: true);
     }
-  }
+}
